@@ -702,10 +702,12 @@ body {
         flex-direction: column;
         height: auto;
         min-height: 100vh;
+        background: linear-gradient(273deg, #fffaf1 0.32%, #f5fff8 99.68%);
     }
 
     .signup-container {
         flex-direction: column;
+        background: linear-gradient(273deg, #fffaf1 0.32%, #f5fff8 99.68%);
     }
 
     .signin-right {
@@ -746,8 +748,24 @@ body {
         margin-bottom: 20px;
     }
 
+    .marketing-description {
+        display: none;
+    }
+
     .marketing-image {
-        height: 300px;
+        display: none;
+    }
+
+    .marketing-image img {
+        display: none;
+    }
+
+    .marketing-section {
+        display: none;
+    }
+
+    .marketing-image {
+        display: none;
     }
 }
 
@@ -758,10 +776,12 @@ body {
     /* Layout tổng */
     .signin-container {
         padding-top: 60px; /* vẫn dưới taskbar */
+        background: linear-gradient(273deg, #fffaf1 0.32%, #f5fff8 99.68%);
     }
 
     .signup-container {
         flex-direction: column;
+        background: linear-gradient(273deg, #fffaf1 0.32%, #f5fff8 99.68%);
     }
 
     .signin-right {
@@ -797,31 +817,29 @@ body {
     .taskbar-left {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
     }
 
     .taskbar-logo {
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         object-fit: contain;
     }
 
     .taskbar-title h1 {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
         color: #000;
     }
 
     .taskbar-title p {
         margin-top: -2px;
-        font-size: 8px;
+        font-size: 10px;
         color: #6d7c7c;
     }
 
     .taskbar-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        display: none;
     }
 
     .taskbar-btn {
@@ -832,7 +850,7 @@ body {
         border: 2px solid transparent;
         color: #000;
         transition: all 0.25s ease;
-        font-size: 10px;
+        font-size: 14px;
     }
 
     /* Header */
@@ -843,19 +861,19 @@ body {
     /* Form */
 
     .form-label {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .form-input {
-        height: 30px;
-        font-size: 12px;
+        height: 36px;
+        font-size: 14px;
         padding: 0 16px;
     }
 
     .signin-btn,
     .google-signin-btn {
-        height: 30px;
-        font-size: 12px;
+        height: 36px;
+        font-size: 14px;
     }
 
     /* Form Option */
@@ -872,7 +890,7 @@ body {
         display: flex;
         align-items: center;
         gap: 8px;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 500;
         color: #1a1a1a;
         cursor: pointer;
@@ -880,8 +898,8 @@ body {
     }
 
     .checkbox-input {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
         border: 2px solid #e0eae6;
         border-radius: 2px;
         cursor: pointer;
@@ -895,7 +913,7 @@ body {
     }
 
     .forgot-password-link {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 500;
         color: #16a249;
         text-decoration: none;
@@ -911,12 +929,12 @@ body {
     .divider-section {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         margin: 15px 0;
     }
 
     .divider-text {
-        font-size: 8px;
+        font-size: 10px;
         font-weight: 400;
         color: #6c8e7a;
         white-space: nowrap;
@@ -926,7 +944,7 @@ body {
 
     .signup-prompt {
         text-align: center;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 500;
         color: #1a1a1a;
         margin-top: 20px;
@@ -963,31 +981,23 @@ body {
     }
 
     .marketing-description {
-        font-size: 12px;
-        line-height: 22px;
-        margin-bottom: 40px;
+        display: none;
     }
 
     .marketing-image {
-        width: 100%;
-        height: auto;
-        border-radius: 12px;
-        overflow: hidden;
+        display: none;
     }
 
     .marketing-image img {
-        width: 100%;
-        height: auto;
-        object-fit: contain; /* ✅ không cắt ảnh nữa */
+        display: none;
     }
 
     .marketing-section {
-        padding-top: 20px;
-        border-top: 1px solid rgba(130, 155, 153, 0.2);
+        display: none;
     }
 
     .marketing-image {
-        height: 240px;
+        display: none;
     }
 
     .section-title {
@@ -999,7 +1009,7 @@ body {
     }
 
     .section-description {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 400;
         line-height: 22px;
         color: #829b99;
