@@ -11,6 +11,7 @@ class LadipageController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info($request->all());
         //check secret key
         if ($request->secret_key != config('app.ladipage.secret_key')) {
             return response()->json(['code' => 401, 'msg' => 'Secret Key không hợp lệ'], 401);
