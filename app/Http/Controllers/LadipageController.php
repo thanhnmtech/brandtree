@@ -14,12 +14,12 @@ class LadipageController extends Controller
         \Log::info($request->all());
         //check secret key
         if ($request->secret_key != config('app.ladipage.secret_key')) {
-            return response()->json(['code' => 401, 'msg' => 'Secret Key không hợp lệ'], 401);
+            return response()->json(['code' => 401, 'msg' => 'secret_key invalid'], 401);
         }
 
         //check api key
         if ($request->api_key != "api key: ".config('app.ladipage.api_key')) {
-            return response()->json(['code' => 401, 'msg' => 'Mã tích hợp không hợp lệ'], 401);
+            return response()->json(['code' => 401, 'msg' => 'api_key invalid'], 401);
         }
 
         if (empty($request->ladiID)) {
@@ -35,7 +35,7 @@ class LadipageController extends Controller
             'trang-chu' => ['slug' => 'trang-chu', 'locale' => 'vi'],
         ];
         if (!$this->is_slug($request->slug) || !in_array($request->slug, array_keys($pages))) {
-            return response()->json(['code' => 401, 'msg' => 'slug invalid'], 401);
+            return response()->json(['code' => 401, 'msg' => 'slug '.$request->slug.' invalid'], 401);
         }
 
         DB::beginTransaction();
