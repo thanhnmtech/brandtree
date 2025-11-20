@@ -6,20 +6,13 @@
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        prefix: "tw-",
-        theme: {
-          extend: {
-            fontFamily: {
-              bevietnam: ["Be Vietnam Pro", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
+
+    <!-- Config prefix phải đặt SAU khi load CDN -->
+    <script src="./assets/js/tailwind-config.js"></script>
 
     <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap"
       rel="stylesheet"
@@ -71,7 +64,7 @@
     >
       <!-- LEFT FORM -->
       <div
-        class="tw-order-2 lg:tw-order-1 tw-w-full lg:tw-w-1/2 tw-flex tw-flex-col tw-px-6 md:tw-px-14 tw-py-6 md:tw-py-10 tw-shadow-md"
+        class="tw-order-2 lg:tw-order-1 tw-w-full lg:tw-w-1/2 tw-flex tw-flex-col tw-px-6 md:tw-px-14 tw-py-0 md:tw-py-2 lg:tw-py-10 tw-shadow-md"
       >
         <div class="tw-flex tw-justify-center tw-w-full tw-mt-4 md:tw-mt-6">
           <form class="tw-w-full tw-max-w-[600px] tw-space-y-6">
@@ -202,11 +195,13 @@
 
       <!-- RIGHT SECTION -->
       <div
-        class="tw-order-1 lg:tw-order-2 tw-w-full lg:tw-w-1/2 tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-px-6 md:tw-px-14 tw-py-8 tw-flex tw-items-start tw-justify-center"
+        class="tw-order-1 lg:tw-order-2 tw-w-full lg:tw-w-1/2 tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-px-6 md:tw-px-14 tw-py-2 tw-flex tw-items-start tw-justify-center"
       >
-        <div class="tw-max-w-[700px] tw-w-full lg:tw-scale-[0.95]">
+        <div
+          class="tw-max-w-[700px] tw-w-full lg:tw-scale-[0.95] tw-origin-top"
+        >
           <h2
-            class="tw-text-[30px] md:tw-text-[40px] lg:tw-text-[60px] tw-font-bold tw-leading-[36px] md:tw-leading-[48px] lg:tw-leading-[68px] tw-mt-2 md:tw-mt-6 lg:tw-mt-10"
+            class="tw-text-[30px] md:tw-text-[40px] lg:tw-text-[60px] tw-font-bold tw-leading-[36px] md:tw-leading-[48px] lg:tw-leading-[68px] tw-mt-4 md:tw-mt-4 lg:tw-mt-2"
           >
             Tạo dựng nền móng cho<br />
             <span
@@ -233,7 +228,7 @@
           </div>
 
           <div
-            class="tw-hidden lg:tw-block tw-pt-6 md:tw-pt-8 tw-border-t tw-border-gray-300 tw-mt-4 md:tw-mt-6"
+            class="tw-hidden lg:tw-block tw-pt-4 md:tw-pt-4 tw-border-t tw-border-gray-300 tw-mt-6 md:tw-mt-6"
           >
             <h3 class="tw-text-lg md:tw-text-2xl tw-font-semibold">
               Bắt đầu từ gốc rễ
