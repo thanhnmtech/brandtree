@@ -18,7 +18,7 @@ class LadipageController extends Controller
         }
 
         //check api key
-        if ($request->api_key != config('app.ladipage.api_key')) {
+        if ($request->api_key != "api key: ".config('app.ladipage.api_key')) {
             return response()->json(['code' => 401, 'msg' => 'Mã tích hợp không hợp lệ'], 401);
         }
 
