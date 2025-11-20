@@ -1,247 +1,268 @@
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đăng ký</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Đăng ký</title>
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Tailwind CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Config prefix phải đặt SAU khi load CDN -->
-    <script src="./assets/js/tailwind-config.js"></script>
+        <!-- Config prefix phải đặt SAU khi load CDN -->
+        <script src="./assets/js/tailwind-config.js"></script>
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap"
-      rel="stylesheet"
-    />
-  </head>
-
-  <body class="tw-bg-[#f8faf9] tw-font-bevietnam tw-text-[#1a1a1a]">
-    <!-- TOP TASKBAR -->
-    <div
-      class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-[70px] tw-bg-white tw-shadow-md tw-flex tw-items-center tw-justify-between tw-px-6 md:tw-px-14 tw-z-[999]"
-    >
-      <div class="tw-flex tw-items-center tw-gap-3">
-        <img
-          src="./assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg"
-          class="tw-w-[42px] tw-h-[42px]"
+        <!-- Google Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossorigin=""
         />
-        <div class="tw-leading-tight">
-          <h1 class="tw-text-base md:tw-text-lg tw-font-bold">
-            AI Cây Thương Hiệu
-          </h1>
-          <p class="tw-text-[10px] md:tw-text-xs tw-text-gray-500 tw--mt-1">
-            By VLBC
-          </p>
-        </div>
-      </div>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap"
+            rel="stylesheet"
+        />
+    </head>
 
-      <div
-        class="tw-hidden sm:tw-block tw-flex tw-items-center tw-gap-3 md:tw-gap-6"
-      >
-        <a
-          href="signin.html"
-          class="tw-py-1 tw-px-4 md:tw-px-6 tw-rounded-full tw-font-semibold tw-text-black hover:tw-text-[#16a249] tw-text-xs md:tw-text-sm"
-        >
-          Đăng nhập
-        </a>
-
-        <a
-          href="signup.html"
-          class="tw-py-1 tw-px-4 md:tw-px-6 tw-rounded-full tw-font-semibold tw-text-[#16a249] tw-border-2 tw-border-[#16a249] tw-text-xs md:tw-text-sm"
-        >
-          Đăng ký
-        </a>
-      </div>
-    </div>
-
-    <!-- MAIN CONTAINER -->
-    <div
-      class="tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] lg:tw-bg-none tw-flex tw-flex-col lg:tw-flex-row tw-pt-[70px] tw-min-h-screen tw-bg-white"
-    >
-      <!-- LEFT FORM -->
-      <div
-        class="tw-order-2 lg:tw-order-1 tw-w-full lg:tw-w-1/2 tw-flex tw-flex-col tw-px-6 md:tw-px-14 tw-py-0 md:tw-py-2 lg:tw-py-10 tw-shadow-md"
-      >
-        <div class="tw-flex tw-justify-center tw-w-full tw-mt-4 md:tw-mt-6">
-          <form class="tw-w-full tw-max-w-[600px] tw-space-y-6">
-            <!-- Full Name -->
-            <div class="tw-space-y-2">
-              <label class="tw-text-base md:tw-text-lg tw-font-medium"
-                >Họ và tên</label
-              >
-              <input
-                type="text"
-                placeholder="Nhập họ và tên"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
-                required=""
-              />
-            </div>
-
-            <!-- Email -->
-            <div class="tw-space-y-2">
-              <label class="tw-text-base md:tw-text-lg tw-font-medium"
-                >Địa chỉ email</label
-              >
-              <input
-                type="email"
-                placeholder="Email@gmail.com"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
-                required=""
-              />
-            </div>
-
-            <!-- Phone -->
-            <div class="tw-space-y-2">
-              <label class="tw-text-base md:tw-text-lg tw-font-medium"
-                >Số điện thoại</label
-              >
-              <input
-                type="tel"
-                placeholder="Nhập số điện thoại"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
-              />
-            </div>
-
-            <!-- Password -->
-            <div class="tw-space-y-2">
-              <label class="tw-text-base md:tw-text-lg tw-font-medium"
-                >Mật khẩu</label
-              >
-              <input
-                type="password"
-                placeholder="Nhập mật khẩu"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
-                required=""
-              />
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="tw-space-y-2">
-              <label class="tw-text-base md:tw-text-lg tw-font-medium"
-                >Xác nhận mật khẩu</label
-              >
-              <input
-                type="password"
-                placeholder="Nhập lại mật khẩu"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
-                required=""
-              />
-            </div>
-
-            <!-- Terms -->
-            <label
-              class="tw-flex tw-items-start tw-gap-3 tw-text-sm md:tw-text-base"
-            >
-              <input
-                type="checkbox"
-                class="tw-w-5 tw-h-5 tw-mt-1 tw-accent-green-600"
-                required=""
-              />
-              <span>
-                Tôi đồng ý với
-                <a class="tw-text-[#16a249] hover:tw-underline">Điều khoản</a>
-                và
-                <a class="tw-text-[#16a249] hover:tw-underline"
-                  >Chính sách bảo mật</a
-                >.
-              </span>
-            </label>
-
-            <!-- Submit -->
-            <button
-              type="submit"
-              class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-transform tw-transition hover:tw-scale-[1.03] hover:tw-shadow-lg"
-            >
-              Đăng ký
-            </button>
-
-            <!-- Divider -->
-            <div class="tw-flex tw-items-center tw-gap-3 tw-my-4 md:tw-my-6">
-              <div class="tw-flex-1 tw-h-px tw-bg-gray-300"></div>
-              <span class="tw-text-gray-500 tw-text-xs md:tw-text-sm">
-                Hoặc đăng ký với Google
-              </span>
-              <div class="tw-flex-1 tw-h-px tw-bg-gray-300"></div>
-            </div>
-
-            <!-- Google -->
-            <button
-              type="button"
-              class="tw-w-full tw-h-[44px] md:tw-h-[54px] tw-bg-[#f3f7f5] tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-gap-3 tw-font-semibold tw-text-sm md:tw-text-base tw-transition hover:tw-scale-[1.03] hover:tw-shadow-md hover:tw-bg-[#e8f4f0]"
-            >
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                class="tw-w-5 tw-h-5"
-              />
-              <span>Tiếp tục với Google</span>
-            </button>
-
-            <!-- Sign In Link -->
-            <p class="tw-text-center tw-text-sm md:tw-text-base tw-mt-4">
-              Bạn đã có tài khoản?
-              <a
-                href="signin.html"
-                class="tw-text-[#16a249] tw-font-semibold hover:tw-underline"
-                >Đăng nhập</a
-              >
-            </p>
-          </form>
-        </div>
-      </div>
-
-      <!-- RIGHT SECTION -->
-      <div
-        class="tw-order-1 lg:tw-order-2 tw-w-full lg:tw-w-1/2 tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-px-6 md:tw-px-14 tw-py-2 tw-flex tw-items-start tw-justify-center"
-      >
+    <body class="tw-bg-[#f8faf9] tw-font-bevietnam tw-text-[#1a1a1a]">
+        <!-- TOP TASKBAR -->
         <div
-          class="tw-max-w-[700px] tw-w-full lg:tw-scale-[0.95] tw-origin-top"
+            class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-[70px] tw-bg-white tw-shadow-md tw-flex tw-items-center tw-justify-between tw-px-6 md:tw-px-14 tw-z-[999]"
         >
-          <h2
-            class="tw-text-[30px] md:tw-text-[40px] lg:tw-text-[60px] tw-font-bold tw-leading-[36px] md:tw-leading-[48px] lg:tw-leading-[68px] tw-mt-4 md:tw-mt-4 lg:tw-mt-2"
-          >
-            Tạo dựng nền móng cho<br />
-            <span
-              class="tw-text-transparent tw-bg-clip-text tw-bg-gradient-to-b tw-from-green-600 tw-to-yellow-500"
-              >Cây Thương Hiệu</span
+            <div class="tw-flex tw-items-center tw-gap-3">
+                <img
+                    src="./assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg"
+                    class="tw-w-[42px] tw-h-[42px]"
+                />
+                <div class="tw-leading-tight">
+                    <h1 class="tw-text-base md:tw-text-lg tw-font-bold">
+                        AI Cây Thương Hiệu
+                    </h1>
+                    <p
+                        class="tw-text-[10px] md:tw-text-xs tw-text-gray-500 tw--mt-1"
+                    >
+                        By VLBC
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="tw-hidden sm:tw-block tw-flex tw-items-center tw-gap-3 md:tw-gap-6"
             >
-            <br />
-            của bạn
-          </h2>
+                <a
+                    href="signin.html"
+                    class="tw-py-1 tw-px-4 md:tw-px-6 tw-rounded-full tw-font-semibold tw-text-black hover:tw-text-[#16a249] tw-text-xs md:tw-text-sm"
+                >
+                    Đăng nhập
+                </a>
 
-          <p
-            class="tw-hidden lg:tw-block tw-text-sm md:tw-text-lg tw-text-gray-500 tw-leading-6 md:tw-leading-7 tw-my-4 md:tw-mb-6"
-          >
-            Xây dựng thương hiệu bền vững với sự hỗ trợ của AI.
-          </p>
-
-          <div
-            class="tw-hidden lg:tw-block tw-rounded-xl tw-overflow-hidden tw-w-full"
-          >
-            <img
-              src="./assets/img/9b17fdbe0cd6a3609fe3980d667fee9518d98207.png"
-              class="tw-w-full tw-object-contain"
-            />
-          </div>
-
-          <div
-            class="tw-hidden lg:tw-block tw-pt-4 md:tw-pt-4 tw-border-t tw-border-gray-300 tw-mt-6 md:tw-mt-6"
-          >
-            <h3 class="tw-text-lg md:tw-text-2xl tw-font-semibold">
-              Bắt đầu từ gốc rễ
-            </h3>
-            <p
-              class="tw-text-sm md:tw-text-base tw-text-gray-600 tw-leading-6 md:tw-leading-7 tw-mt-2"
-            >
-              Mọi thương hiệu mạnh đều có nền tảng chiến lược rõ ràng và định
-              hướng phát triển bền vững.
-            </p>
-          </div>
+                <a
+                    href="signup.html"
+                    class="tw-py-1 tw-px-4 md:tw-px-6 tw-rounded-full tw-font-semibold tw-text-[#16a249] tw-border-2 tw-border-[#16a249] tw-text-xs md:tw-text-sm"
+                >
+                    Đăng ký
+                </a>
+            </div>
         </div>
-      </div>
-    </div>
-  </body>
+
+        <!-- MAIN CONTAINER -->
+        <div
+            class="tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] lg:tw-bg-none tw-flex tw-flex-col lg:tw-flex-row tw-pt-[70px] tw-min-h-screen tw-bg-white"
+        >
+            <!-- LEFT FORM -->
+            <div
+                class="tw-order-2 lg:tw-order-1 tw-w-full lg:tw-w-1/2 tw-flex tw-flex-col tw-px-6 md:tw-px-14 tw-py-0 md:tw-py-2 lg:tw-py-10 tw-shadow-md"
+            >
+                <div
+                    class="tw-flex tw-justify-center tw-w-full tw-mt-4 md:tw-mt-6"
+                >
+                    <form class="tw-w-full tw-max-w-[600px] tw-space-y-6">
+                        <!-- Full Name -->
+                        <div class="tw-space-y-2">
+                            <label
+                                class="tw-text-base md:tw-text-lg tw-font-medium"
+                                >Họ và tên</label
+                            >
+                            <input
+                                type="text"
+                                placeholder="Nhập họ và tên"
+                                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                                required=""
+                            />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="tw-space-y-2">
+                            <label
+                                class="tw-text-base md:tw-text-lg tw-font-medium"
+                                >Địa chỉ email</label
+                            >
+                            <input
+                                type="email"
+                                placeholder="Email@gmail.com"
+                                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                                required=""
+                            />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="tw-space-y-2">
+                            <label
+                                class="tw-text-base md:tw-text-lg tw-font-medium"
+                                >Số điện thoại</input
+                            >
+                            <input
+                                type="tel"
+                                placeholder="Nhập số điện thoại"
+                                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                            />
+                        </div>
+
+                        <!-- Password -->
+                        <div class="tw-space-y-2">
+                            <label
+                                class="tw-text-base md:tw-text-lg tw-font-medium"
+                                >Mật khẩu</label
+                            >
+                            <input
+                                type="password"
+                                placeholder="Nhập mật khẩu"
+                                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                                required=""
+                            />
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="tw-space-y-2">
+                            <label
+                                class="tw-text-base md:tw-text-lg tw-font-medium"
+                                >Xác nhận mật khẩu</label
+                            >
+                            <input
+                                type="password"
+                                placeholder="Nhập lại mật khẩu"
+                                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                                required=""
+                            />
+                        </div>
+
+                        <!-- Terms -->
+                        <label
+                            class="tw-flex tw-items-start tw-gap-3 tw-text-sm md:tw-text-base"
+                        >
+                            <input
+                                type="checkbox"
+                                class="tw-w-5 tw-h-5 tw-mt-1 tw-accent-green-600"
+                                required=""
+                            />
+                            <span>
+                                Tôi đồng ý với
+                                <a class="tw-text-[#16a249] hover:tw-underline"
+                                    >Điều khoản</a
+                                >
+                                và
+                                <a class="tw-text-[#16a249] hover:tw-underline"
+                                    >Chính sách bảo mật</a
+                                >.
+                            </span>
+                        </label>
+
+                        <!-- Submit -->
+                        <button
+                            type="submit"
+                            class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-transform tw-transition hover:tw-scale-[1.03] hover:tw-shadow-lg"
+                        >
+                            Đăng ký
+                        </button>
+
+                        <!-- Divider -->
+                        <div
+                            class="tw-flex tw-items-center tw-gap-3 tw-my-4 md:tw-my-6"
+                        >
+                            <div class="tw-flex-1 tw-h-px tw-bg-gray-300"></div>
+                            <span
+                                class="tw-text-gray-500 tw-text-xs md:tw-text-sm"
+                            >
+                                Hoặc đăng ký với Google
+                            </span>
+                            <div class="tw-flex-1 tw-h-px tw-bg-gray-300"></div>
+                        </div>
+
+                        <!-- Google -->
+                        <button
+                            type="button"
+                            class="tw-w-full tw-h-[44px] md:tw-h-[54px] tw-bg-[#f3f7f5] tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-gap-3 tw-font-semibold tw-text-sm md:tw-text-base tw-transition hover:tw-scale-[1.03] hover:tw-shadow-md hover:tw-bg-[#e8f4f0]"
+                        >
+                            <img
+                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                class="tw-w-5 tw-h-5"
+                            />
+                            <span>Tiếp tục với Google</span>
+                        </button>
+
+                        <!-- Sign In Link -->
+                        <p
+                            class="tw-text-center tw-text-sm md:tw-text-base tw-mt-4"
+                        >
+                            Bạn đã có tài khoản?
+                            <a
+                                href="signin.html"
+                                class="tw-text-[#16a249] tw-font-semibold hover:tw-underline"
+                                >Đăng nhập</a
+                            >
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT SECTION -->
+            <div
+                class="tw-order-1 lg:tw-order-2 tw-w-full lg:tw-w-1/2 tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-px-6 md:tw-px-14 tw-py-2 tw-flex tw-items-start tw-justify-center"
+            >
+                <div
+                    class="tw-max-w-[700px] tw-w-full sm:tw-scale-[1] md:tw-scale-[1] lg:tw-scale-[0.73] xl:tw-scale-[0.77] tw-origin-top"
+                >
+                    <h2
+                        class="tw-text-[30px] md:tw-text-[40px] lg:tw-text-[60px] tw-font-bold tw-leading-[36px] md:tw-leading-[48px] lg:tw-leading-[68px] tw-mt-4 md:tw-mt-4 lg:tw-mt-2"
+                    >
+                        Sẵn sàng nuôi dưỡng <br />
+                        <span
+                            class="tw-text-transparent tw-bg-clip-text tw-bg-gradient-to-b tw-from-green-600 tw-to-yellow-500"
+                        >
+                            Cây Thương Hiệu </span
+                        ><br />
+                        của bạn?
+                    </h2>
+
+                    <p
+                        class="tw-hidden lg:tw-block tw-text-sm md:tw-text-lg tw-text-gray-500 tw-leading-6 md:tw-leading-7 tw-my-4 md:tw-mb-6"
+                    >
+                        Xây dựng thương hiệu bền vững với sự hỗ trợ của AI.
+                    </p>
+
+                    <div
+                        class="tw-hidden lg:tw-block tw-rounded-xl tw-overflow-hidden tw-w-full"
+                    >
+                        <img
+                            src="./assets/img/9b17fdbe0cd6a3609fe3980d667fee9518d98207.png"
+                            class="tw-w-full tw-object-contain"
+                        />
+                    </div>
+
+                    <div
+                        class="tw-hidden lg:tw-block tw-pt-4 md:tw-pt-4 tw-border-t tw-border-gray-300 tw-mt-6 md:tw-mt-6"
+                    >
+                        <h3 class="tw-text-lg md:tw-text-2xl tw-font-semibold">
+                            Bắt đầu từ gốc rễ
+                        </h3>
+                        <p
+                            class="tw-text-sm md:tw-text-base tw-text-gray-600 tw-leading-6 md:tw-leading-7 tw-mt-2"
+                        >
+                            Mọi thương hiệu mạnh đều có nền tảng chiến lược rõ
+                            ràng và định hướng phát triển bền vững.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
