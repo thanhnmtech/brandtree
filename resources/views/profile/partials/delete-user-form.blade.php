@@ -27,9 +27,14 @@
             </h2>
 
             <p class="tw-mt-1 tw-text-sm tw-text-gray-600">
-                Sau khi tài khoản của bạn bị xóa, tất cả tài nguyên và dữ liệu của nó sẽ bị xóa vĩnh viễn. Vui lòng nhập mật khẩu của bạn để xác nhận bạn muốn xóa vĩnh viễn tài khoản của mình.
+                @if(Auth::user()->google_id)
+                    Sau khi tài khoản của bạn bị xóa, tất cả tài nguyên và dữ liệu của nó sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.
+                @else
+                    Sau khi tài khoản của bạn bị xóa, tất cả tài nguyên và dữ liệu của nó sẽ bị xóa vĩnh viễn. Vui lòng nhập mật khẩu của bạn để xác nhận bạn muốn xóa vĩnh viễn tài khoản của mình.
+                @endif
             </p>
 
+            @if(!Auth::user()->google_id)
             <div class="tw-mt-6">
                 <label for="password" class="tw-sr-only">Mật khẩu</label>
 
@@ -45,6 +50,7 @@
                     <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
                 @enderror
             </div>
+            @endif
 
             <div class="tw-mt-6 tw-flex tw-justify-end tw-gap-3">
                 <button

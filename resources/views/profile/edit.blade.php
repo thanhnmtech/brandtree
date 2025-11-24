@@ -18,10 +18,10 @@
             </div>
         </div>
 
-        <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-6 md:tw-p-8">
+        {{-- <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-6 md:tw-p-8">
             <div class="tw-max-w-2xl">
                 @include('profile.partials.delete-user-form')
             </div>
-        </div>
+        </div> --}}
     </div>
 </x-app-layout>

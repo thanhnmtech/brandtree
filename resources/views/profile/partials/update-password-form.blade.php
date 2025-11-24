@@ -1,11 +1,15 @@
 <section>
     <header>
         <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800">
-            Cập nhật mật khẩu
+            {{ Auth::user()->google_id ? 'Đặt mật khẩu' : 'Cập nhật mật khẩu' }}
         </h2>
 
         <p class="tw-mt-2 tw-text-sm tw-text-gray-600">
-            Đảm bảo tài khoản của bạn sử dụng mật khẩu dài và ngẫu nhiên để giữ an toàn.
+            @if(Auth::user()->google_id)
+                Bạn đã đăng ký qua Google. Đặt mật khẩu để có thể đăng nhập bằng email và mật khẩu.
+            @else
+                Đảm bảo tài khoản của bạn sử dụng mật khẩu dài và ngẫu nhiên để giữ an toàn.
+            @endif
         </p>
     </header>
 
@@ -13,6 +17,7 @@
         @csrf
         @method('put')
 
+        @if(!Auth::user()->google_id)
         <div>
             <label for="update_password_current_password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
                 Mật khẩu hiện tại
@@ -28,10 +33,11 @@
                 <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
             @enderror
         </div>
+        @endif
 
         <div>
             <label for="update_password_password" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                Mật khẩu mới
+                {{ Auth::user()->google_id ? 'Mật khẩu' : 'Mật khẩu mới' }}
             </label>
             <input
                 id="update_password_password"
@@ -47,7 +53,7 @@
 
         <div>
             <label for="update_password_password_confirmation" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                Xác nhận mật khẩu mới
+                {{ Auth::user()->google_id ? 'Xác nhận mật khẩu' : 'Xác nhận mật khẩu mới' }}
             </label>
             <input
                 id="update_password_password_confirmation"
@@ -65,7 +71,7 @@
             <button
                 type="submit"
                 class="tw-h-[44px] md:tw-h-[50px] tw-px-6 md:tw-px-8 tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-text-sm md:tw-text-base tw-transition tw-transform hover:tw-scale-[1.03] hover:tw-shadow-lg">
-                Lưu thay đổi
+                {{ Auth::user()->google_id ? 'Đặt mật khẩu' : 'Lưu thay đổi' }}
             </button>
 
             @if (session('status') === 'password-updated')
