@@ -33,7 +33,7 @@ class GoogleAuthController extends Controller
             if ($user) {
                 // User exists with Google ID, log them in
                 Auth::login($user);
-                return redirect()->route('dashboard')->with('success', 'Logged in successfully with Google!');
+                return redirect()->route('dashboard')->with('success', __('messages.google.login_success'));
             }
 
             // Check if user exists with this email
@@ -46,7 +46,7 @@ class GoogleAuthController extends Controller
                 $user->save();
 
                 Auth::login($user);
-                return redirect()->route('dashboard')->with('success', 'Google account linked successfully!');
+                return redirect()->route('dashboard')->with('success', __('messages.google.linked_success'));
             }
 
             // Create new user
@@ -59,10 +59,10 @@ class GoogleAuthController extends Controller
             ]);
 
             Auth::login($user);
-            return redirect()->route('dashboard')->with('success', 'Account created and logged in successfully with Google!');
+            return redirect()->route('dashboard')->with('success', __('messages.google.created_success'));
 
         } catch (\Exception $e) {
-            return redirect()->route('login')->withErrors(['email' => 'Failed to authenticate with Google. Please try again.']);
+            return redirect()->route('login')->withErrors(['email' => __('messages.google.auth_failed')]);
         }
     }
 }

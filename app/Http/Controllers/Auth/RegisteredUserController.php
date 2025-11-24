@@ -51,6 +51,6 @@ class RegisteredUserController extends Controller
         // Store email in session for OTP verification
         session(['otp_email' => $user->email]);
 
-        return redirect()->route('otp.verify')->with('success', 'Registration successful! Please check your email for the OTP code.');
+        return redirect()->route('otp.verify')->with('success', __('messages.registration.success'));
     }
 }

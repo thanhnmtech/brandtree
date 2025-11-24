@@ -14,20 +14,20 @@ class LadipageController extends Controller
         \Log::info($request->all());
         //check secret key
         if ($request->secret_key != config('app.ladipage.secret_key')) {
-            return response()->json(['code' => 401, 'msg' => 'secret_key invalid'], 401);
+            return response()->json(['code' => 401, 'msg' => __('messages.ladipage.secret_key_invalid')], 401);
         }
 
         //check api key
         if ($request->api_key != "api key: ".config('app.ladipage.api_key')) {
-            return response()->json(['code' => 401, 'msg' => 'api_key invalid'], 401);
+            return response()->json(['code' => 401, 'msg' => __('messages.ladipage.api_key_invalid')], 401);
         }
 
         if (empty($request->ladiID)) {
-            return response()->json(['code' => 401, 'msg' => 'ladiID empty'], 401);
+            return response()->json(['code' => 401, 'msg' => __('messages.ladipage.ladi_id_empty')], 401);
         }
 
         if (empty($request->title) || empty($request->slug) || empty($request->html)) {
-            return response()->json(['code' => 401, 'msg' => 'content empty'], 401);
+            return response()->json(['code' => 401, 'msg' => __('messages.ladipage.content_empty')], 401);
         }
 
         $pages = [
@@ -35,7 +35,7 @@ class LadipageController extends Controller
             'trang-chu' => ['slug' => 'trang-chu', 'locale' => 'vi'],
         ];
         if (!$this->is_slug($request->slug) || !in_array($request->slug, array_keys($pages))) {
-            return response()->json(['code' => 401, 'msg' => 'slug '.$request->slug.' invalid'], 401);
+            return response()->json(['code' => 401, 'msg' => __('messages.ladipage.slug_invalid', ['slug' => $request->slug])], 401);
         }
 
         DB::beginTransaction();
@@ -68,7 +68,7 @@ class LadipageController extends Controller
             DB::rollBack();
             return response()->json([
                 'code' => 500,
-                'msg' => 'Lỗi khi lưu dữ liệu: ' . $e->getMessage()
+                'msg' => __('messages.ladipage.save_error', ['error' => $e->getMessage()])
             ], 500);
         }
     }

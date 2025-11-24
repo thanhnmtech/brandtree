@@ -26,6 +26,11 @@ Contains password reset related messages.
 
 Chứa các thông báo liên quan đến đặt lại mật khẩu.
 
+### Application Messages (messages.php)
+Contains all application messages used in controllers (success, error, info messages).
+
+Chứa tất cả thông báo ứng dụng được sử dụng trong controllers (thông báo thành công, lỗi, thông tin).
+
 ## Configuration / Cấu Hình
 
 Default locale is set to Vietnamese in `config/app.php`:
@@ -47,6 +52,11 @@ $message = __('auth.failed');
 
 // Get validation message with attribute
 $message = __('validation.required', ['attribute' => 'email']);
+
+// Get application messages
+$message = __('messages.otp.session_expired');
+$message = __('messages.google.login_success');
+$message = __('messages.ladipage.slug_invalid', ['slug' => $slug]);
 ```
 
 ### In Blade Templates / Trong Blade Templates
@@ -106,3 +116,16 @@ php artisan tinker --execute="echo __('auth.failed');"
 
 Expected output (Vietnamese): `Thông tin đăng nhập không khớp với hồ sơ của chúng tôi.`
 
+Test application messages:
+
+```bash
+php artisan tinker --execute="echo __('messages.otp.session_expired');"
+```
+
+Expected output (Vietnamese): `Phiên làm việc đã hết hạn. Vui lòng thử lại.`
+
+```bash
+php artisan tinker --execute="app()->setLocale('en'); echo __('messages.google.login_success');"
+```
+
+Expected output (English): `Logged in successfully with Google!`

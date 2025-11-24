@@ -32,22 +32,22 @@ class OtpVerificationController extends Controller
             // If not logged in, try to find user by email in session
             $email = session('otp_email');
             if (!$email) {
-                return back()->withErrors(['otp' => 'Session expired. Please try again.']);
+                return back()->withErrors(['otp' => __('messages.otp.session_expired')]);
             }
             $user = User::where('email', $email)->first();
         }
 
         if (!$user) {
-            return back()->withErrors(['otp' => 'User not found.']);
+            return back()->withErrors(['otp' => __('messages.otp.user_not_found')]);
         }
 
         if ($user->verifyOtp($request->otp)) {
             Auth::login($user);
             session()->forget('otp_email');
-            return redirect()->route('dashboard')->with('success', 'Email verified successfully!');
+            return redirect()->route('dashboard')->with('success', __('messages.otp.verified_success'));
         }
 
-        return back()->withErrors(['otp' => 'Invalid or expired OTP.']);
+        return back()->withErrors(['otp' => __('messages.otp.invalid_or_expired')]);
     }
 
     /**
@@ -60,17 +60,17 @@ class OtpVerificationController extends Controller
         if (!$user) {
             $email = session('otp_email');
             if (!$email) {
-                return back()->withErrors(['otp' => 'Session expired. Please try again.']);
+                return back()->withErrors(['otp' => __('messages.otp.session_expired')]);
             }
             $user = User::where('email', $email)->first();
         }
 
         if (!$user) {
-            return back()->withErrors(['otp' => 'User not found.']);
+            return back()->withErrors(['otp' => __('messages.otp.user_not_found')]);
         }
 
         $user->generateOtp('verification');
 
-        return back()->with('success', 'OTP has been resent to your email.');
+        return back()->with('success', __('messages.otp.resent_success'));
     }
 }

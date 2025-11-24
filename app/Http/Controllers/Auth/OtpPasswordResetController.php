@@ -32,7 +32,7 @@ class OtpPasswordResetController extends Controller
 
         session(['reset_email' => $request->email]);
 
-        return redirect()->route('password.verify-otp')->with('success', 'OTP has been sent to your email.');
+        return redirect()->route('password.verify-otp')->with('success', __('messages.otp.sent_success'));
     }
 
     /**
@@ -41,7 +41,7 @@ class OtpPasswordResetController extends Controller
     public function showVerifyOtpForm()
     {
         if (!session('reset_email')) {
-            return redirect()->route('password.request')->withErrors(['email' => 'Session expired. Please try again.']);
+            return redirect()->route('password.request')->withErrors(['email' => __('messages.otp.session_expired')]);
         }
         return view('auth.verify-password-otp');
     }
@@ -57,31 +57,31 @@ class OtpPasswordResetController extends Controller
 
         $email = session('reset_email');
         if (!$email) {
-            return back()->withErrors(['otp' => 'Session expired. Please try again.']);
+            return back()->withErrors(['otp' => __('messages.otp.session_expired')]);
         }
 
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            return back()->withErrors(['otp' => 'User not found.']);
+            return back()->withErrors(['otp' => __('messages.otp.user_not_found')]);
         }
 
         // Verify OTP without clearing it yet
         if (!$user->otp || !$user->otp_expires_at) {
-            return back()->withErrors(['otp' => 'No OTP found.']);
+            return back()->withErrors(['otp' => __('messages.otp.no_otp_found')]);
         }
 
         if (now()->greaterThan($user->otp_expires_at)) {
-            return back()->withErrors(['otp' => 'OTP has expired.']);
+            return back()->withErrors(['otp' => __('messages.otp.expired')]);
         }
 
         if ($user->otp !== $request->otp) {
-            return back()->withErrors(['otp' => 'Invalid OTP.']);
+            return back()->withErrors(['otp' => __('messages.otp.invalid')]);
         }
 
         session(['otp_verified' => true]);
 
-        return redirect()->route('password.reset')->with('success', 'OTP verified. Please set your new password.');
+        return redirect()->route('password.reset')->with('success', __('messages.otp.verified_set_password'));
     }
 
     /**
@@ -90,7 +90,7 @@ class OtpPasswordResetController extends Controller
     public function showResetForm()
     {
         if (!session('otp_verified') || !session('reset_email')) {
-            return redirect()->route('password.request')->withErrors(['email' => 'Please verify OTP first.']);
+            return redirect()->route('password.request')->withErrors(['email' => __('messages.otp.verify_first')]);
         }
         return view('auth.reset-password-otp');
     }
@@ -101,7 +101,7 @@ class OtpPasswordResetController extends Controller
     public function reset(Request $request)
     {
         if (!session('otp_verified') || !session('reset_email')) {
-            return redirect()->route('password.request')->withErrors(['email' => 'Please verify OTP first.']);
+            return redirect()->route('password.request')->withErrors(['email' => __('messages.otp.verify_first')]);
         }
 
         $request->validate([
@@ -112,7 +112,7 @@ class OtpPasswordResetController extends Controller
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            return back()->withErrors(['email' => 'User not found.']);
+            return back()->withErrors(['email' => __('messages.password_reset.user_not_found')]);
         }
 
         $user->password = Hash::make($request->password);
@@ -120,7 +120,7 @@ class OtpPasswordResetController extends Controller
 
         session()->forget(['reset_email', 'otp_verified']);
 
-        return redirect()->route('login')->with('success', 'Password has been reset successfully. Please login with your new password.');
+        return redirect()->route('login')->with('success', __('messages.password_reset.success'));
     }
 
     /**
@@ -130,17 +130,17 @@ class OtpPasswordResetController extends Controller
     {
         $email = session('reset_email');
         if (!$email) {
-            return back()->withErrors(['otp' => 'Session expired. Please try again.']);
+            return back()->withErrors(['otp' => __('messages.otp.session_expired')]);
         }
 
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            return back()->withErrors(['otp' => 'User not found.']);
+            return back()->withErrors(['otp' => __('messages.otp.user_not_found')]);
         }
 
         $user->generateOtp('reset');
 
-        return back()->with('success', 'OTP has been resent to your email.');
+        return back()->with('success', __('messages.otp.resent_success'));
     }
 }
