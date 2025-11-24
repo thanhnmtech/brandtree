@@ -1,33 +1,60 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('otp.verify.submit') }}">
+<x-auth-layout>
+    <x-slot name="title">Xác thực Email - AI Cây Thương Hiệu</x-slot>
+
+    <form method="POST" action="{{ route('otp.verify.submit') }}" class="tw-space-y-6">
         @csrf
 
         <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('success')" />
+        @if (session('success'))
+            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded-lg">
+                {{ session('success') }}
+            </div>
+        @endif
 
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Please enter the 6-digit OTP code sent to your email address.') }}
+        <!-- Description -->
+        <div class="tw-text-gray-600 tw-text-sm md:tw-text-base">
+            Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi đến địa chỉ email của bạn để xác thực tài khoản.
         </div>
 
         <!-- OTP -->
-        <div>
-            <x-input-label for="otp" :value="__('OTP Code')" />
-            <x-text-input id="otp" class="block mt-1 w-full" type="text" name="otp" :value="old('otp')" required autofocus maxlength="6" pattern="[0-9]{6}" />
-            <x-input-error :messages="$errors->get('otp')" class="mt-2" />
+        <div class="tw-space-y-2">
+            <label for="otp" class="tw-text-base md:tw-text-lg tw-font-medium">Mã OTP</label>
+            <input
+                type="text"
+                id="otp"
+                name="otp"
+                value="{{ old('otp') }}"
+                maxlength="6"
+                pattern="[0-9]{6}"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg tw-text-center tw-tracking-widest focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] tw-transition"
+                placeholder="000000"
+                required
+                autofocus
+            />
+            @error('otp')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-between mt-4">
-            <form method="POST" action="{{ route('otp.resend') }}">
-                @csrf
-                <x-secondary-button type="submit">
-                    {{ __('Resend OTP') }}
-                </x-secondary-button>
-            </form>
+        <!-- Submit -->
+        <button
+            type="submit"
+            class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-text-sm md:tw-text-base tw-transition tw-transform hover:tw-scale-[1.03] hover:tw-shadow-lg"
+        >
+            Xác thực
+        </button>
 
-            <x-primary-button>
-                {{ __('Verify') }}
-            </x-primary-button>
+        <!-- Resend OTP -->
+        <div class="tw-text-center">
+            <form method="POST" action="{{ route('otp.resend') }}" class="tw-inline">
+                @csrf
+                <button
+                    type="submit"
+                    class="tw-text-[#16a249] tw-font-semibold tw-text-sm md:tw-text-base hover:tw-underline"
+                >
+                    Gửi lại mã OTP
+                </button>
+            </form>
         </div>
     </form>
-</x-guest-layout>
-
+</x-auth-layout>

@@ -1,26 +1,50 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? Enter your email address and we\'ll send you an OTP code to reset your password.') }}
-    </div>
+<x-auth-layout>
+    <x-slot name="title">Quên mật khẩu - AI Cây Thương Hiệu</x-slot>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('success')" />
-
-    <form method="POST" action="{{ route('password.send-otp') }}">
+    <form method="POST" action="{{ route('password.send-otp') }}" class="tw-space-y-6">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- Session Status -->
+        @if (session('success'))
+            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded-lg">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Description -->
+        <div class="tw-text-gray-600 tw-text-sm md:tw-text-base">
+            Quên mật khẩu? Nhập địa chỉ email của bạn và chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Send OTP') }}
-            </x-primary-button>
+        <!-- Email -->
+        <div class="tw-space-y-2">
+            <label for="email" class="tw-text-base md:tw-text-lg tw-font-medium">Địa chỉ email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value="{{ old('email') }}"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] tw-transition"
+                placeholder="Email@gmail.com"
+                required
+                autofocus
+            />
+            @error('email')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
+
+        <!-- Submit -->
+        <button
+            type="submit"
+            class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-text-sm md:tw-text-base tw-transition tw-transform hover:tw-scale-[1.03] hover:tw-shadow-lg"
+        >
+            Gửi mã OTP
+        </button>
+
+        <!-- Back to Login -->
+        <p class="tw-text-center tw-font-medium tw-text-sm md:tw-text-base tw-mt-4">
+            <a href="{{ route('login') }}" class="tw-text-[#16a249] tw-font-semibold hover:tw-underline">← Quay lại đăng nhập</a>
+        </p>
     </form>
-</x-guest-layout>
-
+</x-auth-layout>

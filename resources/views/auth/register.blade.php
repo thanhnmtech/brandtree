@@ -1,78 +1,142 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+<x-auth-layout>
+    <x-slot name="title">Đăng ký - AI Cây Thương Hiệu</x-slot>
+    <x-slot name="heroDescription">Xây dựng thương hiệu bền vững với sự hỗ trợ của AI.</x-slot>
+    <x-slot name="heroTitle">Bắt đầu từ gốc rễ</x-slot>
+    <x-slot name="heroText">Mọi thương hiệu mạnh đều có nền tảng chiến lược rõ ràng và định hướng phát triển bền vững.</x-slot>
+
+    <form method="POST" action="{{ route('register') }}" class="tw-space-y-6">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        <!-- Full Name -->
+        <div class="tw-space-y-2">
+            <label for="name" class="tw-text-base md:tw-text-lg tw-font-medium">Họ và tên</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                value="{{ old('name') }}"
+                placeholder="Nhập họ và tên"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                required
+                autofocus
+            />
+            @error('name')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- Email -->
+        <div class="tw-space-y-2">
+            <label for="email" class="tw-text-base md:tw-text-lg tw-font-medium">Địa chỉ email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value="{{ old('email') }}"
+                placeholder="Email@gmail.com"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                required
+            />
+            @error('email')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
-                <div class="mt-4">
-            <x-input-label for="email" :value="__('Phone')" />
-            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" required  />
-            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+        <!-- Phone -->
+        <div class="tw-space-y-2">
+            <label for="phone" class="tw-text-base md:tw-text-lg tw-font-medium">Số điện thoại</label>
+            <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value="{{ old('phone') }}"
+                placeholder="Nhập số điện thoại"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                required
+            />
+            @error('phone')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="tw-space-y-2">
+            <label for="password" class="tw-text-base md:tw-text-lg tw-font-medium">Mật khẩu</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Nhập mật khẩu"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                required
+            />
+            @error('password')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <div class="tw-space-y-2">
+            <label for="password_confirmation" class="tw-text-base md:tw-text-lg tw-font-medium">Xác nhận mật khẩu</label>
+            <input
+                type="password"
+                id="password_confirmation"
+                name="password_confirmation"
+                placeholder="Nhập lại mật khẩu"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)]"
+                required
+            />
+            @error('password_confirmation')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+        <!-- Terms -->
+        <label class="tw-flex tw-items-start tw-gap-3 tw-text-sm md:tw-text-base">
+            <input
+                type="checkbox"
+                name="terms"
+                class="tw-w-5 tw-h-5 tw-mt-1 tw-accent-green-600"
+                required
+            />
+            <span>
+                Tôi đồng ý với
+                <a href="#" class="tw-text-[#16a249] hover:tw-underline">Điều khoản</a>
+                và
+                <a href="#" class="tw-text-[#16a249] hover:tw-underline">Chính sách bảo mật</a>.
+            </span>
+        </label>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+        <!-- Submit -->
+        <button
+            type="submit"
+            class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-transform tw-transition hover:tw-scale-[1.03] hover:tw-shadow-lg"
+        >
+            Đăng ký
+        </button>
+
+        <!-- Divider -->
+        <div class="tw-flex tw-items-center tw-gap-3 tw-my-4 md:tw-my-6">
+            <div class="tw-flex-1 tw-h-px tw-bg-gray-300"></div>
+            <span class="tw-text-gray-500 tw-text-xs md:tw-text-sm">
+                Hoặc đăng ký với Google
+            </span>
+            <div class="tw-flex-1 tw-h-px tw-bg-gray-300"></div>
         </div>
-    </form>
 
-    <!-- Divider -->
-    <div class="flex items-center my-6">
-        <div class="flex-1 border-t border-gray-300 dark:border-gray-700"></div>
-        <span class="px-4 text-sm text-gray-600 dark:text-gray-400">{{ __('Or continue with') }}</span>
-        <div class="flex-1 border-t border-gray-300 dark:border-gray-700"></div>
-    </div>
-
-    <!-- Google Login Button -->
-    <div class="mt-4">
-        <a href="{{ route('auth.google') }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
-            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            {{ __('Sign up with Google') }}
+        <!-- Google -->
+        <a
+            href="{{ route('auth.google') }}"
+            class="tw-w-full tw-h-[44px] md:tw-h-[54px] tw-bg-[#f3f7f5] tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-gap-3 tw-font-semibold tw-text-sm md:tw-text-base tw-transition hover:tw-scale-[1.03] hover:tw-shadow-md hover:tw-bg-[#e8f4f0]"
+        >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="tw-w-5 tw-h-5" />
+            <span>Tiếp tục với Google</span>
         </a>
-    </div>
-</x-guest-layout>
+
+        <!-- Sign In Link -->
+        <p class="tw-text-center tw-text-sm md:tw-text-base tw-mt-4">
+            Bạn đã có tài khoản?
+            <a href="{{ route('login') }}" class="tw-text-[#16a249] tw-font-semibold hover:tw-underline">Đăng nhập</a>
+        </p>
+    </form>
+</x-auth-layout>

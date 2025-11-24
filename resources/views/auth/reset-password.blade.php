@@ -1,39 +1,71 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
+<x-auth-layout>
+    <x-slot name="title">Đặt lại mật khẩu - AI Cây Thương Hiệu</x-slot>
+
+    <form method="POST" action="{{ route('password.store') }}" class="tw-space-y-6">
         @csrf
 
         <!-- Password Reset Token -->
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- Email -->
+        <div class="tw-space-y-2">
+            <label for="email" class="tw-text-base md:tw-text-lg tw-font-medium">Địa chỉ email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value="{{ old('email', $request->email) }}"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] tw-transition"
+                placeholder="Email@gmail.com"
+                required
+                autofocus
+                autocomplete="username"
+            />
+            @error('email')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="tw-space-y-2">
+            <label for="password" class="tw-text-base md:tw-text-lg tw-font-medium">Mật khẩu mới</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] tw-transition"
+                placeholder="Nhập mật khẩu mới"
+                required
+                autocomplete="new-password"
+            />
+            @error('password')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <div class="tw-space-y-2">
+            <label for="password_confirmation" class="tw-text-base md:tw-text-lg tw-font-medium">Xác nhận mật khẩu</label>
+            <input
+                type="password"
+                id="password_confirmation"
+                name="password_confirmation"
+                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] tw-transition"
+                placeholder="Nhập lại mật khẩu mới"
+                required
+                autocomplete="new-password"
+            />
+            @error('password_confirmation')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
+        <!-- Submit -->
+        <button
+            type="submit"
+            class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-text-sm md:tw-text-base tw-transition tw-transform hover:tw-scale-[1.03] hover:tw-shadow-lg"
+        >
+            Đặt lại mật khẩu
+        </button>
     </form>
-</x-guest-layout>
+</x-auth-layout>
