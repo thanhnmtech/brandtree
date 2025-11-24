@@ -1,36 +1,104 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+    <!-- Tailwind CSS CDN with custom prefix -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            prefix: 'tw-',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'be-vietnam': ['"Be Vietnam Pro"', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
 
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+    </style>
+</head>
+<body class="tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-min-h-screen">
+    @include('layouts.navigation')
+
+    <!-- Page Content -->
+    <main class="tw-py-8 md:tw-py-12">
+        <div class="tw-max-w-7xl tw-mx-auto tw-px-4 sm:tw-px-6 lg:tw-px-8">
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
+                <div class="tw-mb-6 md:tw-mb-8">
+                    {{ $header }}
+                </div>
             @endisset
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+            {{ $slot }}
         </div>
-    </body>
+    </main>
+
+    <!-- Form Submit Loading Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all forms in the page
+            const forms = document.querySelectorAll('form');
+
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // Find submit button in this form
+                    const submitBtn = form.querySelector('button[type="submit"]');
+
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Store original text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button
+                        submitBtn.disabled = true;
+
+                        // Add loading state
+                        submitBtn.innerHTML = `
+                            <span class="tw-flex tw-items-center tw-justify-center tw-gap-2">
+                                <svg class="tw-animate-spin tw-h-5 tw-w-5 tw-text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Đang xử lý...</span>
+                            </span>
+                        `;
+
+                        // Change button style to indicate loading
+                        submitBtn.style.opacity = '0.7';
+                        submitBtn.style.cursor = 'not-allowed';
+
+                        // If form validation fails, re-enable button
+                        setTimeout(() => {
+                            if (!form.checkValidity()) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.style.opacity = '1';
+                                submitBtn.style.cursor = 'pointer';
+                            }
+                        }, 100);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
 </html>
