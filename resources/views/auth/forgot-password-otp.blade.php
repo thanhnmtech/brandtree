@@ -4,13 +4,6 @@
     <form method="POST" action="{{ route('password.send-otp') }}" class="tw-space-y-6">
         @csrf
 
-        <!-- Session Status -->
-        @if (session('success'))
-            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded-lg">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <!-- Description -->
         <div class="tw-text-gray-600 tw-text-sm md:tw-text-base">
             Quên mật khẩu? Nhập địa chỉ email của bạn và chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.

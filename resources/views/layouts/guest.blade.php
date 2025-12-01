@@ -7,27 +7,85 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-         <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap"
-      rel="stylesheet"
-    />
+        <!-- Toastify CSS (Local) -->
+        <link rel="stylesheet" href="{{ asset('css/toastify.min.css') }}">
 
-        <!-- Scripts -->
+        <!-- Vite Assets (Tailwind + App) -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
+    <body class="tw-font-sans tw-text-gray-900 tw-antialiased">
+        <div class="tw-min-h-screen tw-flex tw-flex-col sm:tw-justify-center tw-items-center tw-pt-6 sm:tw-pt-0 tw-bg-gray-100 dark:tw-bg-gray-900">
             <div>
                 <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                    <x-application-logo class="tw-w-20 tw-h-20 tw-fill-current tw-text-gray-500" />
                 </a>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
+            <div class="tw-w-full sm:tw-max-w-md tw-mt-6 tw-px-6 tw-py-4 tw-bg-white dark:tw-bg-gray-800 tw-shadow-md tw-overflow-hidden sm:tw-rounded-lg">
                 {{ $slot }}
             </div>
         </div>
+
+        <!-- Toastify JS (Local) -->
+        <script src="{{ asset('js/toastify.min.js') }}"></script>
+        <script>
+            function showToast(message, type = 'success') {
+                const config = {
+                    success: {
+                        background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                        icon: '✓'
+                    },
+                    error: {
+                        background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+                        icon: '✕'
+                    },
+                    warning: {
+                        background: 'linear-gradient(to right, #f093fb, #f5576c)',
+                        icon: '⚠'
+                    },
+                    info: {
+                        background: 'linear-gradient(to right, #4facfe, #00f2fe)',
+                        icon: 'ℹ'
+                    }
+                };
+
+                const settings = config[type] || config.info;
+
+                Toastify({
+                    text: settings.icon + '  ' + message,
+                    duration: 4000,
+                    gravity: 'top',
+                    position: 'right',
+                    stopOnFocus: true,
+                    style: {
+                        background: settings.background,
+                    }
+                }).showToast();
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                @if(session('success'))
+                    showToast(@json(session('success')), 'success');
+                @endif
+
+                @if(session('error'))
+                    showToast(@json(session('error')), 'error');
+                @endif
+
+                @if(session('warning'))
+                    showToast(@json(session('warning')), 'warning');
+                @endif
+
+                @if(session('info'))
+                    showToast(@json(session('info')), 'info');
+                @endif
+
+                @if($errors->any())
+                    @foreach($errors->all() as $error)
+                        showToast(@json($error), 'error');
+                    @endforeach
+                @endif
+            });
+        </script>
     </body>
 </html>

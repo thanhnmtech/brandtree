@@ -69,7 +69,7 @@ class LadipageController extends Controller
 
         return redirect()
             ->route('admin.ladipage.index')
-            ->with('success', 'Ladipage page created successfully!');
+            ->with('success', __('messages.ladipage.created'));
     }
 
     /**
@@ -114,7 +114,7 @@ class LadipageController extends Controller
 
         return redirect()
             ->route('admin.ladipage.index')
-            ->with('success', 'Ladipage page updated successfully!');
+            ->with('success', __('messages.ladipage.updated'));
     }
 
     /**
@@ -126,7 +126,7 @@ class LadipageController extends Controller
 
         return redirect()
             ->route('admin.ladipage.index')
-            ->with('success', 'Ladipage page deleted successfully!');
+            ->with('success', __('messages.ladipage.deleted'));
     }
 
     /**

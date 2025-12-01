@@ -32,7 +32,7 @@ class PaymentController extends Controller
 
         if (!$subscription) {
             return redirect()->route('brands.subscription.show', $brand)
-                ->withErrors(['subscription' => 'Không tìm thấy gói cần thanh toán.']);
+                ->withErrors(['subscription' => __('messages.subscription.not_found')]);
         }
 
         return view('brands.payments.create', compact('brand', 'subscription'));
@@ -56,7 +56,7 @@ class PaymentController extends Controller
             ->first();
 
         if (!$subscription) {
-            return back()->withErrors(['subscription' => 'Không tìm thấy gói cần thanh toán.']);
+            return back()->withErrors(['subscription' => __('messages.subscription.not_found')]);
         }
 
         // Check if there's already a pending payment
@@ -82,7 +82,7 @@ class PaymentController extends Controller
         $payment->update(['transaction_id' => $paymentCode]);
 
         return redirect()->route('brands.payments.show', [$brand, $payment])
-            ->with('info', 'Vui lòng chuyển khoản theo thông tin bên dưới.');
+            ->with('info', __('messages.payment.transfer_info'));
     }
 
     /**
@@ -134,17 +134,17 @@ class PaymentController extends Controller
         }
 
         if (!$payment->isPending()) {
-            return back()->with('info', 'Giao dịch này đã được xử lý.');
+            return back()->with('info', __('messages.payment.already_processed'));
         }
 
         $transaction = $this->sepayService->checkTransaction($payment->transaction_id);
 
         if ($transaction && ($transaction['transferAmount'] ?? 0) >= $payment->amount) {
             $this->activatePayment($payment, $transaction['id'] ?? null);
-            return back()->with('success', 'Thanh toán thành công! Gói dịch vụ đã được kích hoạt.');
+            return back()->with('success', __('messages.payment.success'));
         }
 
-        return back()->with('info', 'Chưa nhận được thanh toán. Vui lòng kiểm tra lại sau.');
+        return back()->with('info', __('messages.payment.not_received'));
     }
 
     /**

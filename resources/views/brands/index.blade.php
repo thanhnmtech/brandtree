@@ -4,7 +4,7 @@
             <h2 class="tw-text-2xl md:tw-text-3xl tw-font-bold tw-text-gray-800">
                 Thương hiệu của tôi
             </h2>
-            <a href="{{ route('brands.create') }}" 
+            <a href="{{ route('brands.create') }}"
                class="tw-inline-flex tw-items-center tw-gap-2 tw-px-4 tw-py-2 tw-bg-[#16a249] tw-text-white tw-rounded-lg tw-font-medium hover:tw-bg-[#138a3e] tw-transition">
                 <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -13,12 +13,6 @@
             </a>
         </div>
     </x-slot>
-
-    @if(session('success'))
-        <div class="tw-mb-6 tw-bg-green-100 tw-border tw-border-green-400 tw-text-green-700 tw-px-4 tw-py-3 tw-rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
 
     @if($brands->isEmpty())
         <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-8 tw-text-center">
@@ -29,7 +23,7 @@
             </div>
             <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-2">Chưa có thương hiệu nào</h3>
             <p class="tw-text-gray-600 tw-mb-6">Bắt đầu bằng việc tạo thương hiệu đầu tiên của bạn.</p>
-            <a href="{{ route('brands.create') }}" 
+            <a href="{{ route('brands.create') }}"
                class="tw-inline-flex tw-items-center tw-gap-2 tw-px-6 tw-py-3 tw-bg-[#16a249] tw-text-white tw-rounded-lg tw-font-medium hover:tw-bg-[#138a3e] tw-transition">
                 <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -56,7 +50,7 @@
                             @if($brand->industry)
                                 <p class="tw-text-sm tw-text-gray-500 tw-mb-3">{{ $brand->industry }}</p>
                             @endif
-                            
+
                             @if($brand->activeSubscription)
                                 <div class="tw-flex tw-items-center tw-gap-2 tw-text-sm">
                                     <span class="tw-px-2 tw-py-1 tw-bg-green-100 tw-text-green-700 tw-rounded-full tw-text-xs tw-font-medium">
@@ -78,4 +72,3 @@
         </div>
     @endif
 </x-app-layout>
-

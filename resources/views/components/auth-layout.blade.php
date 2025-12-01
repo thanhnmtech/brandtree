@@ -6,27 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'AI Cây Thương Hiệu' }}</title>
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Toastify CSS (Local) -->
+    <link rel="stylesheet" href="{{ asset('css/toastify.min.css') }}">
 
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            prefix: "tw-",
-            theme: {
-                extend: {
-                    fontFamily: {
-                        bevietnam: ["Be Vietnam Pro", "sans-serif"],
-                    },
-                },
-            },
-        };
-    </script>
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Vite Assets (Tailwind + App) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="tw-bg-[#f8faf9] tw-font-bevietnam tw-text-[#1a1a1a]">
@@ -138,6 +122,48 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <!-- Toastify JS (Local) -->
+    <script src="{{ asset('js/toastify.min.js') }}"></script>
+    <script>
+        function showToast(message, type = 'success') {
+            const config = {
+                success: { background: 'linear-gradient(to right, #00b09b, #96c93d)', icon: '✓' },
+                error: { background: 'linear-gradient(to right, #ff5f6d, #ffc371)', icon: '✕' },
+                warning: { background: 'linear-gradient(to right, #f093fb, #f5576c)', icon: '⚠' },
+                info: { background: 'linear-gradient(to right, #4facfe, #00f2fe)', icon: 'ℹ' }
+            };
+            const settings = config[type] || config.info;
+            Toastify({
+                text: settings.icon + '  ' + message,
+                duration: 4000,
+                gravity: 'top',
+                position: 'right',
+                stopOnFocus: true,
+                style: { background: settings.background }
+            }).showToast();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                showToast(@json(session('success')), 'success');
+            @endif
+            @if(session('error'))
+                showToast(@json(session('error')), 'error');
+            @endif
+            @if(session('warning'))
+                showToast(@json(session('warning')), 'warning');
+            @endif
+            @if(session('info'))
+                showToast(@json(session('info')), 'info');
+            @endif
+            @if($errors->any())
+                @foreach($errors->all() as $error)
+                    showToast(@json($error), 'error');
+                @endforeach
+            @endif
         });
     </script>
 </body>

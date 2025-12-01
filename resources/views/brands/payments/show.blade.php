@@ -17,14 +17,6 @@
         <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Chi tiết thanh toán</h1>
     </div>
 
-    @if(session('info'))
-        <div class="tw-mb-6 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-px-4 tw-py-3 tw-rounded-lg">{{ session('info') }}</div>
-    @endif
-
-    @if(session('success'))
-        <div class="tw-mb-6 tw-bg-green-100 tw-border tw-border-green-400 tw-text-green-700 tw-px-4 tw-py-3 tw-rounded-lg">{{ session('success') }}</div>
-    @endif
-
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6">
         <!-- Payment Status -->
         <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-6">

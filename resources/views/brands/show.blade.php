@@ -10,12 +10,6 @@
         </div>
     </x-slot>
 
-    @if(session('success'))
-        <div class="tw-mb-6 tw-bg-green-100 tw-border tw-border-green-400 tw-text-green-700 tw-px-4 tw-py-3 tw-rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <div class="tw-flex tw-flex-col lg:tw-flex-row tw-gap-6">
         <!-- Sidebar -->
         <div class="lg:tw-w-64 tw-flex-shrink-0">

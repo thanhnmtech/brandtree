@@ -57,7 +57,7 @@ class SubscriptionController extends Controller
             })->exists();
 
             if ($hadTrial) {
-                return back()->withErrors(['plan_id' => 'Thương hiệu này đã sử dụng gói dùng thử.']);
+                return back()->withErrors(['plan_id' => __('messages.subscription.trial_used')]);
             }
         }
 
@@ -79,7 +79,7 @@ class SubscriptionController extends Controller
             ]);
 
             return redirect()->route('brands.subscription.show', $brand)
-                ->with('success', 'Đã kích hoạt gói ' . $plan->name . ' thành công!');
+                ->with('success', __('messages.subscription.activated', ['plan' => $plan->name]));
         }
 
         // For paid plans, create pending subscription and redirect to payment
@@ -107,12 +107,12 @@ class SubscriptionController extends Controller
         $subscription = $brand->activeSubscription;
 
         if (!$subscription) {
-            return back()->withErrors(['subscription' => 'Không có gói đang hoạt động.']);
+            return back()->withErrors(['subscription' => __('messages.subscription.no_active')]);
         }
 
         $subscription->update(['status' => BrandSubscription::STATUS_CANCELLED]);
 
         return redirect()->route('brands.subscription.show', $brand)
-            ->with('success', 'Đã hủy gói thành công.');
+            ->with('success', __('messages.subscription.cancelled'));
     }
 }

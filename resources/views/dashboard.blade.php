@@ -88,12 +88,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="tw-mb-6 tw-bg-green-100 tw-border tw-border-green-400 tw-text-green-700 tw-px-4 tw-py-3 tw-rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <!-- Brands List -->
     @if($brands->isEmpty())
         <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-8 tw-text-center">

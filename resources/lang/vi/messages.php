@@ -47,16 +47,6 @@ return [
         'success' => 'Đăng ký thành công! Vui lòng kiểm tra email của bạn để nhận mã OTP.',
     ],
 
-    // Ladipage Messages
-    'ladipage' => [
-        'secret_key_invalid' => 'Khóa bí mật không hợp lệ',
-        'api_key_invalid' => 'Khóa API không hợp lệ',
-        'ladi_id_empty' => 'ID Ladipage trống',
-        'content_empty' => 'Nội dung trống',
-        'slug_invalid' => 'Slug :slug không hợp lệ',
-        'save_error' => 'Lỗi khi lưu dữ liệu: :error',
-    ],
-
     // Brand Messages
     'brand' => [
         'created' => 'Thương hiệu đã được tạo thành công!',
@@ -67,6 +57,36 @@ return [
         'member_updated' => 'Quyền thành viên đã được cập nhật!',
         'cannot_remove_self' => 'Bạn không thể xóa chính mình khỏi thương hiệu.',
         'cannot_remove_owner' => 'Bạn không thể xóa chủ sở hữu thương hiệu.',
+    ],
+
+    // Subscription Messages
+    'subscription' => [
+        'activated' => 'Đã kích hoạt gói :plan thành công!',
+        'cancelled' => 'Đã hủy gói thành công.',
+        'trial_used' => 'Thương hiệu này đã sử dụng gói dùng thử.',
+        'no_active' => 'Không có gói đang hoạt động.',
+        'not_found' => 'Không tìm thấy gói cần thanh toán.',
+    ],
+
+    // Payment Messages
+    'payment' => [
+        'transfer_info' => 'Vui lòng chuyển khoản theo thông tin bên dưới.',
+        'already_processed' => 'Giao dịch này đã được xử lý.',
+        'success' => 'Thanh toán thành công! Gói dịch vụ đã được kích hoạt.',
+        'not_received' => 'Chưa nhận được thanh toán. Vui lòng kiểm tra lại sau.',
+    ],
+
+    // Ladipage Messages
+    'ladipage' => [
+        'secret_key_invalid' => 'Khóa bí mật không hợp lệ',
+        'api_key_invalid' => 'Khóa API không hợp lệ',
+        'ladi_id_empty' => 'ID Ladipage trống',
+        'content_empty' => 'Nội dung trống',
+        'slug_invalid' => 'Slug :slug không hợp lệ',
+        'save_error' => 'Lỗi khi lưu dữ liệu: :error',
+        'created' => 'Trang Ladipage đã được tạo thành công!',
+        'updated' => 'Trang Ladipage đã được cập nhật thành công!',
+        'deleted' => 'Trang Ladipage đã được xóa thành công!',
     ],
 
 ];

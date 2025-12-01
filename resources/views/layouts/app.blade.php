@@ -7,34 +7,11 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Toastify CSS (Local) -->
+    <link rel="stylesheet" href="{{ asset('css/toastify.min.css') }}">
 
-    <!-- Tailwind CSS CDN with custom prefix -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            prefix: 'tw-',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'be-vietnam': ['"Be Vietnam Pro"', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-
-    <!-- Scripts -->
+    <!-- Vite Assets (Tailwind + App) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-        }
-    </style>
 </head>
 <body class="tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-min-h-screen">
     @include('layouts.navigation')
@@ -98,6 +75,71 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <!-- Toastify JS (Local) -->
+    <script src="{{ asset('js/toastify.min.js') }}"></script>
+    <script>
+        // Toast notification helper
+        function showToast(message, type = 'success') {
+            const config = {
+                success: {
+                    background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                    icon: '✓'
+                },
+                error: {
+                    background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+                    icon: '✕'
+                },
+                warning: {
+                    background: 'linear-gradient(to right, #f093fb, #f5576c)',
+                    icon: '⚠'
+                },
+                info: {
+                    background: 'linear-gradient(to right, #4facfe, #00f2fe)',
+                    icon: 'ℹ'
+                }
+            };
+
+            const settings = config[type] || config.info;
+
+            Toastify({
+                text: settings.icon + '  ' + message,
+                duration: 4000,
+                gravity: 'top',
+                position: 'right',
+                stopOnFocus: true,
+                style: {
+                    background: settings.background,
+                },
+                onClick: function() {}
+            }).showToast();
+        }
+
+        // Show flash messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                showToast(@json(session('success')), 'success');
+            @endif
+
+            @if(session('error'))
+                showToast(@json(session('error')), 'error');
+            @endif
+
+            @if(session('warning'))
+                showToast(@json(session('warning')), 'warning');
+            @endif
+
+            @if(session('info'))
+                showToast(@json(session('info')), 'info');
+            @endif
+
+            @if($errors->any())
+                @foreach($errors->all() as $error)
+                    showToast(@json($error), 'error');
+                @endforeach
+            @endif
         });
     </script>
 

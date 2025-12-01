@@ -4,13 +4,6 @@
     <form method="POST" action="{{ route('password.verify-otp.submit') }}" class="tw-space-y-6">
         @csrf
 
-        <!-- Session Status -->
-        @if (session('success'))
-            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded-lg">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <!-- Description -->
         <div class="tw-text-gray-600 tw-text-sm md:tw-text-base">
             Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi đến địa chỉ email của bạn.
