@@ -57,5 +57,16 @@ return [
         'save_error' => 'Error saving data: :error',
     ],
 
-];
+    // Brand Messages
+    'brand' => [
+        'created' => 'Brand created successfully!',
+        'updated' => 'Brand updated successfully!',
+        'deleted' => 'Brand deleted successfully!',
+        'member_added' => 'Member added successfully!',
+        'member_removed' => 'Member removed successfully!',
+        'member_updated' => 'Member role updated successfully!',
+        'cannot_remove_self' => 'You cannot remove yourself from the brand.',
+        'cannot_remove_owner' => 'You cannot remove the brand owner.',
+    ],
 
+];

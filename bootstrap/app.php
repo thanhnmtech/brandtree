@@ -12,7 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'webhook/*',
+            'api/*',
+        ]);
 
+        $middleware->alias([
+            'check.credits' => \App\Http\Middleware\CheckCredits::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

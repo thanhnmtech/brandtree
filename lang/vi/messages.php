@@ -57,5 +57,16 @@ return [
         'save_error' => 'Lỗi khi lưu dữ liệu: :error',
     ],
 
-];
+    // Brand Messages
+    'brand' => [
+        'created' => 'Thương hiệu đã được tạo thành công!',
+        'updated' => 'Thương hiệu đã được cập nhật thành công!',
+        'deleted' => 'Thương hiệu đã được xóa thành công!',
+        'member_added' => 'Thành viên đã được thêm thành công!',
+        'member_removed' => 'Thành viên đã được xóa thành công!',
+        'member_updated' => 'Quyền thành viên đã được cập nhật!',
+        'cannot_remove_self' => 'Bạn không thể xóa chính mình khỏi thương hiệu.',
+        'cannot_remove_owner' => 'Bạn không thể xóa chủ sở hữu thương hiệu.',
+    ],
 
+];

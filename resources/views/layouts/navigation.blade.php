@@ -13,6 +13,18 @@
         </div>
             </div>
 
+            <!-- Navigation Links -->
+            <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-8 tw-space-x-6">
+                <a href="{{ route('dashboard') }}"
+                   class="tw-text-sm tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-text-[#16a249]' : 'tw-text-gray-600 hover:tw-text-gray-800' }} tw-transition">
+                    Trang chủ
+                </a>
+                {{-- <a href="{{ route('brands.index') }}"
+                   class="tw-text-sm tw-font-medium {{ request()->routeIs('brands.*') ? 'tw-text-[#16a249]' : 'tw-text-gray-600 hover:tw-text-gray-800' }} tw-transition">
+                    Thông b
+                </a> --}}
+            </div>
+
             <!-- Settings Dropdown -->
             <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-6">
                 <x-dropdown align="right" width="48">
@@ -65,6 +77,10 @@
             <a href="{{ route('dashboard') }}"
                class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-text-base tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-border-[#16a249] tw-text-[#16a249] tw-bg-green-50' : 'tw-border-transparent tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300' }} tw-transition">
                 Dashboard
+            </a>
+            <a href="{{ route('brands.index') }}"
+               class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-text-base tw-font-medium {{ request()->routeIs('brands.*') ? 'tw-border-[#16a249] tw-text-[#16a249] tw-bg-green-50' : 'tw-border-transparent tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300' }} tw-transition">
+                Thương hiệu
             </a>
         </div>
 

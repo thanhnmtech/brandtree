@@ -1,0 +1,122 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Brand;
+use App\Models\CreditUsage;
+use App\Services\CreditService;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class CreditController extends Controller
+{
+    public function __construct(
+        protected CreditService $creditService
+    ) {}
+
+    /**
+     * Display credit usage history for a brand.
+     */
+    public function index(Request $request, Brand $brand): View
+    {
+        $this->authorize('view', $brand);
+
+        $subscription = $brand->activeSubscription;
+        $period = $request->get('period', 'month');
+
+        // Get usage history with filters
+        $query = CreditUsage::where('brand_id', $brand->id)
+            ->with('user')
+            ->orderBy('created_at', 'desc');
+
+        // Filter by period
+        if ($period === 'week') {
+            $query->where('created_at', '>=', now()->startOfWeek());
+        } elseif ($period === 'month') {
+            $query->where('created_at', '>=', now()->startOfMonth());
+        } elseif ($period === 'year') {
+            $query->where('created_at', '>=', now()->startOfYear());
+        }
+
+        // Filter by action type
+        if ($request->filled('action')) {
+            $query->where('action_type', $request->get('action'));
+        }
+
+        $usages = $query->paginate(20)->withQueryString();
+
+        // Get stats
+        $stats = $this->creditService->getUsageStats($brand, $period);
+
+        // Get daily usage for chart
+        $dailyUsage = $this->creditService->getDailyUsage($brand, $period);
+
+        return view('brands.credits.index', compact('brand', 'subscription', 'usages', 'stats', 'period', 'dailyUsage'));
+    }
+
+    /**
+     * Display detailed statistics.
+     */
+    public function statistics(Request $request, Brand $brand): View
+    {
+        $this->authorize('view', $brand);
+
+        $period = $request->get('period', 'month');
+
+        $stats = $this->creditService->getUsageStats($brand, $period);
+        $dailyUsage = $this->creditService->getDailyUsage($brand, $period);
+        $subscription = $brand->activeSubscription;
+
+        return view('brands.credits.statistics', compact('brand', 'stats', 'dailyUsage', 'period', 'subscription'));
+    }
+
+    /**
+     * Export credit usage to CSV.
+     */
+    public function export(Request $request, Brand $brand): StreamedResponse
+    {
+        $this->authorize('view', $brand);
+
+        $period = $request->get('period', 'month');
+
+        $query = CreditUsage::where('brand_id', $brand->id)
+            ->with('user')
+            ->orderBy('created_at', 'desc');
+
+        if ($period === 'week') {
+            $query->where('created_at', '>=', now()->startOfWeek());
+        } elseif ($period === 'month') {
+            $query->where('created_at', '>=', now()->startOfMonth());
+        } elseif ($period === 'year') {
+            $query->where('created_at', '>=', now()->startOfYear());
+        }
+
+        $usages = $query->get();
+
+        $filename = "credits-{$brand->id}-{$period}-" . now()->format('Y-m-d') . ".csv";
+
+        return response()->streamDownload(function () use ($usages) {
+            $handle = fopen('php://output', 'w');
+
+            // Header
+            fputcsv($handle, ['Thời gian', 'Người dùng', 'Loại', 'Model', 'Credits', 'Mô tả']);
+
+            // Data
+            foreach ($usages as $usage) {
+                fputcsv($handle, [
+                    $usage->created_at->format('d/m/Y H:i:s'),
+                    $usage->user->name,
+                    $usage->action_type,
+                    $usage->model_used ?? '',
+                    $usage->amount,
+                    $usage->description ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+}
