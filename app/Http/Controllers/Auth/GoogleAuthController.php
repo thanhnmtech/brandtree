@@ -34,7 +34,7 @@ class GoogleAuthController extends Controller
             if ($user) {
                 // User exists with Google ID, log them in
                 Auth::login($user);
-                return redirect()->route('dashboard')->with('success', __('messages.google.login_success'));
+                return redirect()->route('dashboard');
             }
 
             // Check if user exists with this email
