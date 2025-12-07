@@ -1,0 +1,81 @@
+<!-- EDIT BRAND OVERLAY -->
+<div id="editBrandOverlay"
+  class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999] tw-hidden">
+
+  <div class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-p-6 tw-shadow-xl tw-relative">
+
+    <!-- Close -->
+    <button id="editBrandClose"
+      class="tw-absolute tw-top-3 tw-right-3 tw-w-7 tw-h-7 tw-rounded-full tw-bg-[#1AA24C] tw-text-white tw-flex tw-items-center tw-justify-center">
+      ✕
+    </button>
+
+    <!-- Title -->
+    <h2 class="tw-text-xl tw-font-bold tw-text-[#1AA24C] tw-mb-4">
+      Chỉnh sửa thương hiệu
+    </h2>
+
+    <!-- Form -->
+    <div class="tw-space-y-4">
+
+      <!-- Tên thương hiệu -->
+      <div>
+        <label class="tw-text-sm tw-font-medium">Tên thương hiệu</label>
+        <input id="editName"
+          class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 tw-text-sm focus:tw-border-[#1AA24C] focus:tw-outline-none">
+      </div>
+
+      <!-- Ngành nghề -->
+      <div>
+        <label class="tw-text-sm tw-font-medium">Ngành nghề</label>
+        <input id="editIndustry"
+          class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 tw-text-sm focus:tw-border-[#1AA24C] focus:tw-outline-none">
+      </div>
+
+      <!-- Thị trường -->
+      <div>
+        <label class="tw-text-sm tw-font-medium">Thị trường mục tiêu</label>
+        <input id="editMarket"
+          class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 tw-text-sm focus:tw-border-[#1AA24C] focus:tw-outline-none">
+      </div>
+
+      <!-- Năm thành lập -->
+      <div>
+        <label class="tw-text-sm tw-font-medium">Năm thành lập</label>
+        <select id="editYear"
+          class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 tw-text-sm focus:tw-border-[#1AA24C] focus:tw-outline-none">
+          <option>2024</option>
+          <option>2023</option>
+          <option>2022</option>
+          <option>2021</option>
+        </select>
+      </div>
+
+      <!-- Mô tả -->
+      <div>
+        <label class="tw-text-sm tw-font-medium">Mô tả</label>
+        <textarea id="editDesc" rows="3"
+          class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 tw-text-sm focus:tw-border-[#1AA24C] focus:tw-outline-none"></textarea>
+      </div>
+
+      <!-- Logo -->
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <div class="tw-w-12 tw-h-12 tw-rounded-xl tw-border tw-flex tw-items-center tw-justify-center">
+          <i class="ri-image-line tw-text-xl tw-text-gray-500"></i>
+        </div>
+
+        <button
+          class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-rounded-xl tw-px-4 tw-py-2 tw-text-sm tw-font-medium hover:tw-bg-[#d0eedc]">
+          Thay đổi
+        </button>
+      </div>
+
+      <!-- Submit -->
+      <button id="editBrandSave"
+        class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-rounded-xl tw-py-2 tw-font-semibold hover:tw-bg-[#159040]">
+        Cập nhật
+      </button>
+
+    </div>
+  </div>
+</div>

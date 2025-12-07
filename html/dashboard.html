@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - AI Cây Thương Hiệu</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Config prefix + font -->
+    <script src="./assets/js/tailwind-config.js"></script>
+
+    <!-- Google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icon pack -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
+  <!-- ================= POPUP: ADD BRAND ================= -->
+
+  <body
+    class="tw-font-bevietnam tw-bg-[#FFFFFF] tw-text-[#1a1a1a] tw-min-h-screen tw-overflow-x-hidden"
+  >
+    <div
+      id="addBrandOverlay"
+      class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999] tw-hidden"
+    ></div>
+
+    <!-- HEADER / TOP TASKBAR -->
+    <header class="tw-h-[60px]">
+      <div id="taskbar"></div>
+    </header>
+
+    <main>
+      <div
+        class="tw-flex tw-flex-col md:tw-rounded-[10px] md:tw-bg-[#F3F7F5] md:tw-mt-[36px] md:tw-mx-[71px] md:tw-mb-10"
+      >
+        <!-- SUMMARY -->
+        <section class="tw-flex tw-flex-col tw-pt-[13px]">
+          <!-- SUMMARY GRID -->
+          <div
+            class="tw-flex tw-flex-col tw-gap-[15px] tw-mx-[26px] tw-my-[13px] md:tw-flex-row"
+          >
+            <!-- Card 1 -->
+            <div
+              class="tw-bg-white tw-rounded-[7px] tw-border-[2px] tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-justify-between tw-flex-1"
+            >
+              <div
+                class="tw-flex tw-flex-row tw-justify-between tw-text-black tw-text-[18px] tw-font-semibold"
+              >
+                <span>Thương hiệu hoạt động</span>
+                <img
+                  src="./assets/img/icon-than-gray.svg"
+                  alt="total"
+                  class="tw-w-[24px] tw-h-[24px]"
+                />
+              </div>
+              <div
+                class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-black"
+              >
+                4/4
+              </div>
+              <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
+                Tổng số thương hiệu bạn đang quản lý
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div
+              class="tw-bg-white tw-rounded-[7px] tw-border-[2px] tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-justify-between tw-flex-1"
+            >
+              <div
+                class="tw-flex tw-flex-row tw-justify-between tw-text-black tw-text-[18px] tw-font-semibold"
+              >
+                <span>Cần chăm sóc</span>
+                <img
+                  src="./assets/img/icon-warning-red.svg"
+                  alt="warning"
+                  class="tw-w-[24px] tw-h-[24px]"
+                />
+              </div>
+              <div
+                class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#DC282E]"
+              >
+                1
+              </div>
+              <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
+                Các thương hiệu đang chờ bạn quay lại
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div
+              class="tw-bg-white tw-rounded-[7px] tw-border-[2px] tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-justify-between tw-flex-1"
+            >
+              <div
+                class="tw-flex tw-flex-row tw-justify-between tw-text-black tw-text-[18px] tw-font-semibold"
+              >
+                <span>Đang tăng trưởng</span>
+                <img
+                  src="./assets/img/icon-o'clock-orange.svg"
+                  alt="grow"
+                  class="tw-w-[24px] tw-h-[24px]"
+                />
+              </div>
+              <div
+                class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#F59F0A]"
+              >
+                2
+              </div>
+              <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
+                Các thương hiệu đang chờ phát triển
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div
+              class="tw-bg-white tw-rounded-[7px] tw-border-[2px] tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-justify-between tw-flex-1"
+            >
+              <div
+                class="tw-flex tw-flex-row tw-justify-between tw-text-black tw-text-[18px] tw-font-semibold"
+              >
+                <span>Đã hoàn thiện</span>
+                <img
+                  src="./assets/img/icon-success-green.svg"
+                  alt="ok"
+                  class="tw-w-[24px] tw-h-[24px]"
+                />
+              </div>
+              <div
+                class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#1AA24C]"
+              >
+                1
+              </div>
+              <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
+                Sẵn sàng để khai thác
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTROLS -->
+          <div
+            class="tw-flex tw-flex-row tw-items-center tw-gap-[12px] tw-mx-[26px] tw-mt-[13px] tw-mb-0 max-[900px]:tw-flex-col max-[900px]:tw-items-stretch"
+          >
+            <!-- Search -->
+            <div class="tw-relative tw-w-[680px] tw-max-w-full">
+              <input
+                class="tw-w-full tw-border-[2px] tw-border-[#E2EBE7] tw-rounded-[7px] tw-text-[14px] tw-font-normal tw-text-black tw-py-[8px] tw-pl-[36px] tw-pr-[8px] tw-transition"
+                placeholder="Tìm kiếm thương hiệu..."
+              />
+              <img
+                src="./assets/img/look-up-vector.svg"
+                alt="look-up"
+                class="tw-absolute tw-left-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none"
+              />
+            </div>
+
+            <!-- Filters -->
+            <div
+              class="tw-flex tw-flex-row tw-gap-[15px] max-[900px]:tw-w-full max-[900px]:tw-justify-between max-[640px]:tw-flex-col"
+            >
+              <!-- Status filter -->
+              <div
+                class="tw-relative tw-h-[36px] tw-w-[220px] tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center"
+              >
+                <img
+                  src="./assets/img/filter-vector.svg"
+                  alt="filter"
+                  class="tw-absolute tw-left-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none"
+                />
+                <select
+                  class="tw-w-full tw-h-full tw-rounded-[7px] tw-pl-[36px] tw-pr-[28px] tw-text-[14px] tw-text-[#1a1a1a] tw-bg-transparent tw-border-none tw-outline-none tw-appearance-none"
+                >
+                  <option>Tất cả trạng thái</option>
+                  <option>Option_1</option>
+                  <option>Option_2</option>
+                </select>
+                <img
+                  src="./assets/img/drop-down-vector.svg"
+                  alt="dropdown"
+                  class="tw-absolute tw-right-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none"
+                />
+              </div>
+
+              <!-- Time filter -->
+              <div
+                class="tw-relative tw-h-[36px] tw-w-[190px] tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center"
+              >
+                <select
+                  class="tw-w-full tw-h-full tw-rounded-[7px] tw-pl-[12px] tw-pr-[12px] tw-text-[14px] tw-text-[#1a1a1a] tw-bg-transparent tw-border-none tw-outline-none tw-appearance-none"
+                >
+                  <option>Cập nhật gần nhất</option>
+                  <option>Option_1</option>
+                  <option>Option_2</option>
+                </select>
+                <img
+                  src="./assets/img/drop-down-vector.svg"
+                  alt="dropdown"
+                  class="tw-absolute tw-right-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none"
+                />
+              </div>
+            </div>
+
+            <!-- Button -->
+            <div class="tw-relative">
+              <button
+                onclick="openAddBrand()"
+                class="tw-h-[36px] tw-w-[235px] tw-px-4 tw-rounded-[7px] tw-bg-[linear-gradient(180deg,#34b269_0%,#78d29e_100%)] tw-text-white tw-font-light tw-text-sm tw-shadow-sm tw-whitespace-nowrap hover:tw-scale-[1.02] hover:tw-shadow-md tw-transition"
+              >
+                <img
+                  src="./assets/img/add-vector.svg"
+                  alt="add"
+                  class="tw-absolute tw-left-[12px] tw-top-1/2 -tw-translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none"
+                />
+                <div>Thêm thương hiệu</div>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARDS -->
+        <section class="tw-p-[26px]">
+          <div
+            class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-[20px]"
+          >
+            <!-- Card: Eco Garden -->
+            <brand-card
+              badge="NeedsAttention"
+              avatar="E"
+              title="Eco Garden"
+              update="2 giờ trước"
+              root="85"
+              stem="20"
+              description="Cây cần hoàn thiện phân tích SWOT."
+            ></brand-card>
+
+            <!-- Card: Tech Innovate (Healthy) -->
+            <brand-card
+              badge="Healthy"
+              avatar="T"
+              title="Tech Innovate"
+              update="30 phút trước"
+              description="Tán Cây: Chiến dịch marketing đang hoạt động tốt. Tỷ lệ chuyển đổi tăng 23% so với tháng trước."
+              root="100"
+              stem="90"
+            ></brand-card>
+
+            <!-- Card: Health Plus (Critical) -->
+            <brand-card
+              badge="Critical"
+              avatar="H"
+              title="Health Plus"
+              update="1 ngày trước"
+              description="Gốc Cây: KHẨN CẤP - Phân tích đối thủ chưa hoàn thành và có rủi ro pháp lý cần xử lý ngay."
+              root="60"
+              stem="0"
+            ></brand-card>
+
+            <!-- Card: Fashion Forward (Needs Attention) -->
+            <brand-card
+              badge="NeedsAttention"
+              avatar="F"
+              title="Fashion Forward"
+              update="4 giờ trước"
+              description="Tán Cây: Chiến dịch marketing đang hoạt động tốt. Tỷ lệ chuyển đổi tăng 23% so với tháng trước."
+              root="100"
+              stem="75"
+            ></brand-card>
+
+            <!-- Card: Digital Wave (Healthy) -->
+            <brand-card
+              badge="Healthy"
+              avatar="D"
+              title="Digital Wave"
+              update="1 giờ trước"
+              description="Gốc Cây: Đã hoàn thành các kiểm tra kỹ thuật. Đang tối ưu trải nghiệm người dùng."
+              root="95"
+              stem="60"
+            ></brand-card>
+
+            <!-- Card: LocalBrew (Needs Attention) -->
+            <brand-card
+              badge="NeedsAttention"
+              avatar="L"
+              title="LocalBrew"
+              update="6 giờ trước"
+              description="Gốc Cây: Cần làm rõ phân phối địa phương và nhãn hiệu hàng hóa trước khi mở rộng."
+              root="70"
+              stem="30"
+            ></brand-card>
+
+            <!-- Card: Foodies (Critical) -->
+            <brand-card
+              badge="Critical"
+              avatar="F"
+              title="Foodies"
+              update="12 giờ trước"
+              description="Tán Cây: Vấn đề với chuỗi cung ứng gây trì hoãn chiến dịch quảng bá lớn."
+              root="50"
+              stem="20"
+            ></brand-card>
+
+            <!-- Card: GreenRoots (Healthy) -->
+            <brand-card
+              badge="Healthy"
+              avatar="G"
+              title="GreenRoots"
+              update="3 giờ trước"
+              description="Gốc Cây: Hoàn thiện chiến lược bền vững, đang thử nghiệm kênh phân phối mới."
+              root="92"
+              stem="70"
+            ></brand-card>
+
+            <!-- Card: BrightLearn (Needs Attention) -->
+            <brand-card
+              badge="NeedsAttention"
+              avatar="B"
+              title="BrightLearn"
+              update="5 giờ trước"
+              description="Gốc Cây: Cần cập nhật nội dung học thuật phù hợp định dạng mới."
+              root="80"
+              stem="40"
+            ></brand-card>
+          </div>
+        </section>
+
+        <!-- FOOTER -->
+        <div class="tw-border-t tw-border-[#E2EBE7] tw-py-[14px] tw-px-[26px]">
+          <div
+            class="tw-flex tw-items-center tw-justify-between tw-text-[14px] tw-text-[#829B99] max-[640px]:tw-flex-col max-[640px]:tw-gap-2"
+          >
+            <div>2025 Vietnam Legacy Branding Center. All rights reserved.</div>
+            <div>Phiên bản v2.1.0</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER WIDGET -->
+    <footer id="footer"></footer>
+
+    <script>
+      function loadWidget(id, file) {
+        return fetch(file)
+          .then((res) => res.text())
+          .then((html) => (document.getElementById(id).innerHTML = html));
+      }
+
+      loadWidget("taskbar", "./widget/taskbar.html");
+      loadWidget("footer", "./widget/footer.html");
+      loadWidget("addBrandOverlay", "./widget/form_add_brandInformation.html");
+
+      class BrandCard extends HTMLElement {
+        async connectedCallback() {
+          const template = await fetch("./widget/brand-card.html").then((r) =>
+            r.text()
+          );
+          this.innerHTML = template;
+
+          const root = this.querySelector(".brand-card");
+
+          // ------ READ ATTRIBUTES ------
+          const badge = this.getAttribute("badge");
+          const avatar = this.getAttribute("avatar");
+          const title = this.getAttribute("title");
+          const updateTime = this.getAttribute("update");
+          const rootProgress = this.getAttribute("root");
+          const stemProgress = this.getAttribute("stem");
+          const description = this.getAttribute("description");
+
+          // ------ BADGE ------
+          const badgePresets = {
+            NeedsAttention: {
+              bg: "#FAF4EB",
+              color: "#F59F0A",
+              text: "Cần chú ý",
+            },
+            Healthy: { bg: "#EAF7EC", color: "#16A249", text: "Khỏe mạnh" },
+            Critical: { bg: "#FCECEC", color: "#DC2626", text: "Khẩn cấp" },
+          };
+
+          const badgeEl = root.querySelector(".badge");
+          const avatarEl = root.querySelector(".avatar");
+
+          if (badge && badgePresets[badge]) {
+            const b = badgePresets[badge];
+            badgeEl.style.background = b.bg;
+            badgeEl.style.color = b.color;
+            badgeEl.textContent = b.text;
+
+            avatarEl.style.background = b.bg;
+            avatarEl.style.color = b.color;
+          }
+
+          // ------ AVATAR ------
+          if (avatar) root.querySelector(".avatar").textContent = avatar;
+
+          // ------ TITLE ------
+          if (title) root.querySelector(".title").textContent = title;
+
+          // ------ UPDATE TIME ------
+          if (updateTime)
+            root.querySelector(".update-time").textContent =
+              "Cập nhật: " + updateTime;
+
+          // ------ PROGRESS ------
+          if (rootProgress) {
+            root.querySelector(".root-text").textContent =
+              "Gốc " + rootProgress + "%";
+            root.querySelector(".progress-root").style.width =
+              rootProgress + "%";
+          }
+
+          if (stemProgress) {
+            root.querySelector(".stem-text").textContent =
+              "Thân " + stemProgress + "%";
+            root.querySelector(".progress-stem").style.width =
+              stemProgress + "%";
+          }
+
+          // ------ DESCRIPTION ------
+          if (description)
+            root.querySelector(".description").textContent = description;
+        }
+      }
+
+      // Register tag
+      customElements.define("brand-card", BrandCard);
+      // --- OPEN POPUP ---
+      function openAddBrand() {
+        document
+          .getElementById("addBrandOverlay")
+          .classList.remove("tw-hidden");
+      }
+
+      // --- CLOSE POPUP ---
+      function closeAddBrand() {
+        document.getElementById("addBrandOverlay").classList.add("tw-hidden");
+      }
+
+      // --- CLICK NỀN BÊN NGOÀI ĐỂ ĐÓNG ---
+      document
+        .getElementById("addBrandOverlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeAddBrand();
+        });
+
+      function toggleAccountPopup() {
+        const popup = document.getElementById("accountPopup");
+        if (!popup) return;
+
+        const isHidden = popup.classList.contains("tw-hidden");
+
+        if (isHidden) {
+          popup.classList.remove("tw-hidden");
+        } else {
+          popup.classList.add("tw-hidden");
+        }
+      }
+    </script>
+  </body>
+</html>

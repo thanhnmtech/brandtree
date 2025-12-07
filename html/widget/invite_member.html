@@ -1,0 +1,156 @@
+<!-- POPUP WRAPPER -->
+<div
+  class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-max-h-[85dvh] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
+>
+  <button
+    id="inviteMemberClose"
+    class="tw-absolute tw-top-4 tw-right-4 tw-text-gray-400 hover:tw-text-black"
+  >
+    <i class="ri-close-line tw-text-2xl"></i>
+  </button>
+
+  <!-- Title -->
+  <h2 class="tw-text-[20px] tw-font-bold tw-text-gray-900">
+    Mời thành viên mới
+  </h2>
+  <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
+    Chọn vai trò phù hợp để phân quyền truy cập và tương tác với AI Agents
+  </p>
+
+  <!-- Email -->
+  <label class="tw-block tw-font-medium tw-mt-5 tw-mb-1 tw-text-sm"
+    >Email thành viên</label
+  >
+  <input
+    type="email"
+    class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 focus:tw-border-vlbcgreen focus:tw-ring-0"
+    placeholder="Email@company.com"
+  />
+
+  <!-- Roles -->
+  <p class="tw-font-medium tw-mt-5 tw-mb-2 tw-text-sm">Chọn vai trò</p>
+
+  <div class="tw-space-y-3">
+    <!-- Admin -->
+    <label
+      class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none"
+    >
+      <input
+        type="radio"
+        name="role"
+        class="tw-mt-1 tw-h-4 tw-w-4 tw-text-vlbcgreen focus:tw-ring-vlbcgreen"
+      />
+      <div>
+        <p class="tw-font-semibold tw-text-gray-800">Quản trị viên</p>
+        <p class="tw-text-sm tw-text-gray-500">
+          Toàn quyền truy cập tất cả các giai đoạn và với AI Agents
+        </p>
+      </div>
+    </label>
+
+    <!-- Executor -->
+    <label
+      class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none"
+    >
+      <input
+        type="radio"
+        name="role"
+        checked
+        class="tw-mt-1 tw-h-4 tw-w-4 tw-text-vlbcgreen focus:tw-ring-vlbcgreen"
+      />
+      <div>
+        <p class="tw-font-semibold tw-text-gray-800">
+          Nhà Thực thi / Marketing
+        </p>
+        <p class="tw-text-sm tw-text-gray-500">
+          Toàn quyền Thân Cây, chỉ xem Gốc và Tán Cây
+        </p>
+      </div>
+    </label>
+  </div>
+
+  <!-- Permission Area -->
+  <div
+    class="tw-bg-[#F8F9F7] tw-border tw-border-[#E0EAE6] tw-rounded-xl tw-p-4 tw-mt-5"
+  >
+    <p class="tw-font-semibold tw-mb-3 tw-text-gray-800 tw-text-sm">
+      Quyền truy cập Cây Thương hiệu
+    </p>
+
+    <div class="tw-space-y-4">
+      <!-- Root -->
+      <div class="tw-flex tw-items-center tw-justify-between">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div
+            class="tw-h-8 tw-w-8 tw-rounded-full tw-bg-[#E6F6EC] tw-text-vlbcgreen tw-flex tw-items-center tw-justify-center"
+          >
+            <i class="ri-seedling-fill"></i>
+          </div>
+          <span class="tw-text-gray-800 tw-font-medium tw-text-sm"
+            >Gốc Cây (Nền tảng)</span
+          >
+        </div>
+        <button
+          class="tw-text-sm tw-border tw-border-gray-400 tw-rounded-full tw-px-4 tw-py-1 tw-text-gray-700"
+        >
+          Chỉ xem
+        </button>
+      </div>
+
+      <!-- Stem -->
+      <div class="tw-flex tw-items-center tw-justify-between">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div
+            class="tw-h-8 tw-w-8 tw-rounded-full tw-bg-[#FFF3D8] tw-text-[#E3A74B] tw-flex tw-items-center tw-justify-center"
+          >
+            <i class="ri-focus-2-line"></i>
+          </div>
+          <span class="tw-text-gray-800 tw-font-medium tw-text-sm"
+            >Thân Cây (Chiến lược)</span
+          >
+        </div>
+        <button
+          class="tw-text-sm tw-border tw-border-gray-400 tw-rounded-full tw-px-4 tw-py-1 tw-text-gray-700"
+        >
+          Chỉ xem
+        </button>
+      </div>
+
+      <!-- Crown -->
+      <div class="tw-flex tw-items-center tw-justify-between">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div
+            class="tw-h-8 tw-w-8 tw-rounded-full tw-bg-[#E6F6EC] tw-text-vlbcgreen tw-flex tw-items-center tw-justify-center"
+          >
+            <i class="ri-tree-line"></i>
+          </div>
+          <span class="tw-text-gray-800 tw-font-medium tw-text-sm"
+            >Tán Cây (Triển khai)</span
+          >
+        </div>
+
+        <button
+          class="tw-text-sm tw-rounded-full tw-px-4 tw-py-1 tw-bg-vlbcgreen tw-text-white tw-font-medium"
+        >
+          Toàn quyền
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer buttons -->
+  <div class="tw-flex tw-justify-end tw-gap-3 tw-mt-6">
+    <button
+      id="inviteCancel"
+      class="tw-bg-gray-100 tw-text-gray-700 tw-rounded-lg tw-px-5 tw-py-2 tw-font-medium hover:tw-bg-gray-200"
+    >
+      Hủy
+    </button>
+
+    <button
+      class="tw-bg-vlbcgreen tw-text-white tw-rounded-lg tw-px-5 tw-py-2 tw-font-semibold hover:tw-opacity-90"
+    >
+      Gửi lời mời
+    </button>
+  </div>
+</div>

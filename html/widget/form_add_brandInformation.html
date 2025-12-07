@@ -1,0 +1,76 @@
+<div
+  class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-max-h-[85dvh] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
+>
+  <!-- Close Button -->
+  <button
+    onclick="closeAddBrand()"
+    class="tw-absolute tw-top-3 tw-right-3 tw-text-gray-600 hover:tw-text-black tw-text-xl"
+  >
+    <i class="ri-close-line"></i>
+  </button>
+
+  <h2
+    class="tw-text-lg tw-font-bold tw-text-[#1AA24C] tw-flex tw-items-center tw-gap-2"
+  >
+    <i class="ri-add-circle-line tw-text-2xl"></i>
+    Thêm thương hiệu mới
+  </h2>
+
+  <div class="tw-mt-4 tw-space-y-4">
+    <div>
+      <label class="tw-text-sm tw-font-medium">Tên thương hiệu</label>
+      <input
+        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1"
+        placeholder="Nhập tên thương hiệu"
+      />
+    </div>
+
+    <div>
+      <label class="tw-text-sm tw-font-medium">Ngành nghề</label>
+      <input
+        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1"
+        placeholder="Nhập ngành nghề"
+      />
+    </div>
+
+    <div>
+      <label class="tw-text-sm tw-font-medium">Thị trường mục tiêu</label>
+      <input
+        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1"
+        placeholder="Nhập thị trường mục tiêu"
+      />
+    </div>
+
+    <div>
+      <label class="tw-text-sm tw-font-medium">Năm thành lập</label>
+      <select class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1">
+        <option>2024</option>
+        <option>2023</option>
+        <option>2022</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="tw-text-sm tw-font-medium">Mô tả</label>
+      <textarea
+        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1"
+        rows="3"
+        placeholder="Nhập mô tả"
+      ></textarea>
+    </div>
+
+    <div>
+      <label class="tw-text-sm tw-font-medium">Logo thương hiệu</label>
+      <input
+        type="file"
+        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1"
+      />
+    </div>
+
+    <button
+      class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-semibold tw-py-2 tw-rounded-lg tw-mt-2 hover:tw-bg-[#148a3f]"
+    >
+      Thêm ngay
+    </button>
+  </div>
+</div>

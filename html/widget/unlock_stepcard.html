@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        prefix: "tw-",
+        theme: {
+          extend: {
+            fontFamily: { be: ["'Be Vietnam Pro'", "sans-serif"] },
+            colors: {
+              vlbcGreen1: "#1C6B42",
+              vlbcGreen2: "#2A7C4A",
+              vlbcReady: "#5ED27A",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Remix Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Be Vietnam Pro", sans-serif;
+      }
+    </style>
+  </head>
+
+  <body class="tw-bg-gray-100 tw-p-10">
+    <!-- STEP READY -->
+    <div
+      class="tw-bg-gradient-to-r tw-from-vlbcGreen1 tw-to-vlbcGreen2 tw-rounded-xl tw-p-7 tw-text-white tw-shadow-lg tw-max-w-4xl tw-mx-auto tw-space-y-4"
+    >
+      <!-- Header -->
+      <div class="tw-flex tw-items-center tw-gap-4">
+        <!-- ICON CLOCK -->
+        <div
+          class="tw-h-12 tw-w-12 tw-rounded-full tw-bg-white tw-flex tw-items-center tw-justify-center"
+        >
+          <i class="ri-time-line tw-text-2xl tw-text-vlbcGreen1"></i>
+        </div>
+
+        <div class="tw-flex tw-flex-col">
+          <div class="tw-flex tw-items-center tw-gap-3">
+            <span class="tw-text-sm tw-font-semibold">BƯỚC T1</span>
+
+            <!-- READY BADGE -->
+            <span
+              class="tw-bg-vlbcReady tw-text-gray-900 tw-px-3 tw-py-1 tw-text-xs tw-rounded-md tw-font-medium"
+            >
+              Sẵn Sàng
+            </span>
+          </div>
+
+          <h3 class="tw-text-2xl tw-font-semibold tw-mt-1">
+            Định Vị Thương Hiệu
+          </h3>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <p class="tw-text-sm tw-text-white/90 tw-leading-relaxed">
+        Hoàn thiện Bản đồ Giá trị Giải pháp: phác hoạ chân dung khách hàng (nỗi
+        đau, lợi ích ưu tiên), đồng bộ giải pháp với nhu cầu thực tế, đúc kết
+        thông điệp truyền thông và tagline cô đọng để thương hiệu khẳng định giá
+        trị ngay.
+      </p>
+
+      <!-- AI BOX -->
+      <div
+        class="tw-bg-white/20 tw-border tw-border-white/30 tw-rounded-lg tw-p-4 tw-text-sm tw-text-white/90"
+      >
+        <strong>Chức năng AI:</strong> AI Định vị Giá trị giải pháp
+      </div>
+
+      <!-- Buttons -->
+      <div class="tw-flex tw-gap-4 tw-mt-2">
+        <!-- Start Analysis -->
+        <button
+          class="tw-flex tw-items-center tw-gap-2 tw-bg-white tw-text-green-700 tw-font-medium tw-text-sm tw-px-5 tw-py-2.5 tw-rounded-lg hover:tw-bg-gray-100"
+        >
+          <i class="ri-play-circle-line tw-text-lg"></i>
+          Bắt Đầu Phân Tích
+        </button>
+
+        <!-- View Result -->
+        <button
+          class="tw-flex tw-items-center tw-gap-2 tw-bg-white/20 tw-text-white tw-font-medium tw-text-sm tw-px-5 tw-py-2.5 tw-rounded-lg tw-border tw-border-white/40 hover:tw-bg-white/10"
+        >
+          <i class="ri-bar-chart-line tw-text-lg"></i>
+          Kết Quả Phân Tích
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

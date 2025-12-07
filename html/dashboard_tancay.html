@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tán Cây – VLBC Brand Garden</title>
+
+  <!-- Tailwind with prefix -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      prefix: "tw-",
+      theme: {
+        extend: {
+          colors: { vlbcgreen: "#16a34a" },
+          fontFamily: { be: ['"Be Vietnam Pro"', "system-ui"] }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { font-family: "Be Vietnam Pro", system-ui; }
+  </style>
+</head>
+
+<body class="tw-bg-gray-100 tw-min-h-screen">
+
+  <!-- TOPBAR -->
+  <div id="topbar"></div>
+
+  <!-- MAIN CONTENT WRAPPER -->
+  <div class="tw-w-full tw-max-w-7xl tw-mx-auto tw-mt-6 tw-px-4">
+
+    <!-- Main Content -->
+    <main class="tw-p-4">
+
+      <!-- Title -->
+      <div class="tw-text-center tw-mt-4">
+        <h1 class="tw-text-3xl tw-font-bold tw-text-gray-800">
+          Bản Đồ Hành Trình <span class="tw-text-vlbcgreen">Tán Cây</span>
+        </h1>
+        <p class="tw-text-gray-600 tw-mt-2">
+          AI sẽ đánh giá mức độ sẵn sàng và đề xuất chiến lược truyền thông, quảng cáo.
+        </p>
+      </div>
+
+      <!-- Completion Status -->
+      <div class="tw-mx-auto tw-mt-8 tw-flex tw-justify-center">
+        <div class="tw-w-40 tw-h-40 tw-rounded-full tw-border-8 tw-border-green-300 tw-flex tw-items-center tw-justify-center">
+          <span class="tw-text-3xl tw-font-bold tw-text-vlbcgreen">53%</span>
+        </div>
+      </div>
+
+      <!-- Brand Garden -->
+      <section class="tw-mt-12">
+        <h2 class="tw-text-2xl tw-font-bold">VLBC Brand Garden</h2>
+        <p class="tw-text-gray-600 tw-mt-1">Đang triển khai bản đồ truyền thông toàn hành trình</p>
+      </section>
+
+      <!-- Nền tảng chiến lược -->
+      <section class="tw-mt-8">
+        <h3 class="tw-font-semibold tw-text-gray-700 tw-mb-3">Nền tảng Chiến Lược</h3>
+
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
+          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg">Giá trị Cốt lõi</div>
+          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg">Chiến lược Định vị</div>
+          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg">Định vị Thương hiệu</div>
+        </div>
+      </section>
+
+      <!-- AI Agents -->
+      <section class="tw-mt-12">
+        <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+          <h3 class="tw-font-semibold tw-text-gray-700">AI Agents Thư viện</h3>
+          <button class="tw-px-4 tw-py-2 tw-bg-vlbcgreen tw-text-white tw-rounded-lg tw-text-sm">
+            Tạo Agent mới
+          </button>
+        </div>
+
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6">
+
+          <!-- CARD 1 -->
+          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg tw-shadow-sm">
+            <h4 class="tw-font-semibold tw-text-gray-800">Chiến lược Thương hiệu</h4>
+            <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Tư vấn định hướng truyền thông toàn phễu.</p>
+            <button class="tw-mt-3 tw-text-vlbcgreen tw-text-sm tw-font-semibold">Chi tiết →</button>
+          </div>
+
+          <!-- CARD 2 -->
+          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg tw-shadow-sm">
+            <h4 class="tw-font-semibold tw-text-gray-800">Nội dung Social Media</h4>
+            <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Gợi ý các chiến dịch phù hợp.</p>
+            <button class="tw-mt-3 tw-text-vlbcgreen tw-text-sm tw-font-semibold">Chi tiết →</button>
+          </div>
+
+          <!-- CARD 3 -->
+          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg tw-shadow-sm">
+            <h4 class="tw-font-semibold tw-text-gray-800">Video Marketing</h4>
+            <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Xây dựng kịch bản video.</p>
+            <button class="tw-mt-3 tw-text-vlbcgreen tw-text-sm tw-font-semibold">Chi tiết →</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Recommended -->
+      <section class="tw-bg-gradient-to-r tw-from-green-500 tw-to-green-600 tw-text-white tw-rounded-xl tw-p-6 tw-mt-12">
+        <h3 class="tw-font-semibold tw-text-lg tw-mb-2">Bước tiếp theo được đề xuất</h3>
+        <ul class="tw-text-sm tw-leading-relaxed">
+          <li>- Tối ưu bộ nhận diện trước khi chạy ads</li>
+          <li>- Chuẩn hóa thông điệp xuyên suốt hành trình</li>
+          <li>- Tạo bộ nội dung onboarding khách hàng</li>
+        </ul>
+        <button class="tw-mt-4 tw-px-4 tw-py-2 tw-bg-white tw-text-green-700 tw-rounded-lg tw-text-sm tw-font-semibold">
+          Xem đề xuất ngay
+        </button>
+      </section>
+
+      <!-- Input Bar -->
+      <div id="inputbar" class="tw-mt-10"></div>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <div id="footer" class="tw-mt-10"></div>
+
+  <!-- Load Widgets -->
+  <script>
+    async function loadWidget(id, file) {
+      const html = await fetch(file).then(res => res.text());
+      document.getElementById(id).innerHTML = html;
+    }
+
+    loadWidget("topbar", "./widget/topbar.html");
+    loadWidget("footer", "./widget/footer.html");
+  </script>
+
+</body>
+</html>
