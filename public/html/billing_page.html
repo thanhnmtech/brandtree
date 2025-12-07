@@ -1,196 +1,240 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gói dịch vụ – VLBC</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gói dịch vụ – VLBC</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="./assets/js/tailwind-config.js"></script>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./assets/js/tailwind-config.js"></script>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <!-- Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
 
-  <style>
-    body { font-family: "Be Vietnam Pro", sans-serif; }
-  </style>
-</head>
+  <body class="tw-bg-[#FAFAF8] tw-text-[#1A1A1A] tw-font-bevietnam">
+    <!-- TASKBAR -->
+    <header class="tw-h-[60px]">
+      <div id="taskbar"></div>
+    </header>
 
-<body class="tw-bg-[#FAFAF8] tw-text-[#1A1A1A] tw-font-bevietnam">
+    <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10">
+      <!-- ====================== GÓI DỊCH VỤ HIỆN TẠI ====================== -->
+      <section class="tw-px-8">
+        <div
+          class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-sm tw-p-6"
+        >
+          <div class="tw-flex tw-items-start tw-justify-between">
+            <h2 class="tw-text-sm tw-font-semibold tw-text-gray-500">
+              Gói hiện tại
+              <p class="tw-text-lg tw-font-bold tw-text-black">
+                Gói Trải nghiệm
+              </p>
+            </h2>
+            <div
+              class="tw-bg-[#EAEAEA] tw-text-gray-700 tw-text-sm tw-font-semibold tw-px-4 tw-py-1 tw-rounded-lg"
+            >
+              Dùng thử
+            </div>
+          </div>
 
-  <!-- TASKBAR -->
-  <header>
-    <div id="taskbar"></div>
-  </header>
+          <!-- Gói + Ngày hết hạn -->
+          <div
+            class="tw-grid md:tw-grid-cols-3 tw-mt-2 tw-items-center tw-gap-4"
+          >
+            <!-- GÓI -->
+            <div>
+              <div class="tw-flex tw-items-center tw-gap-2 tw-mt-1">
+                <i class="ri-flashlight-fill tw-text-vlbcgreen tw-text-lg"></i>
+                <p class="tw-text-sm tw-text-gray-500">Năng Lượng còn lại</p>
+              </div>
 
-  <main class="tw-max-w-7xl tw-mx-auto tw-px-6 tw-pt-[90px] tw-flex tw-flex-col tw-gap-10">
+              <div class="tw-mt-1">
+                <span class="tw-text-vlbcgreen tw-font-semibold tw-text-2xl"
+                  >150</span
+                >
+                <span class="tw-text-gray-500">/ 1,000</span>
+              </div>
+            </div>
 
-    <!-- ====================== GÓI DỊCH VỤ HIỆN TẠI ====================== -->
-<section class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-sm tw-p-6">
+            <!-- NGÀY HẾT HẠN -->
+            <div class="tw-text-center">
+              <p class="tw-text-sm tw-text-gray-500">Ngày gia hạn</p>
+              <p class="tw-text-2xl tw-font-bold tw-mt-1">15/02/2024</p>
+            </div>
 
-  <div class="tw-flex tw-items-start tw-justify-between">
-    <h2 class="tw-text-sm tw-font-semibold tw-text-gray-500">Gói hiện tại 
-        <p class="tw-text-lg tw-font-bold">Gói Trải nghiệm</p>
-    </h2>
-    <button class="tw-bg-[#F3F3F3] tw-text-gray-700 tw-text-sm tw-px-4 tw-py-1 tw-rounded-lg">
-      Dùng thử
-    </button>
-  </div>
+            <!-- EMPTY SPACE (UI giống hình) -->
+            <div></div>
+          </div>
+          <!-- BUTTON -->
+          <button
+            class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-4 hover:tw-opacity-90 tw-transition"
+          >
+            Mua thêm Năng Lượng
+          </button>
+        </div>
+      </section>
 
-  <!-- Gói + Ngày hết hạn -->
-  <div class="tw-grid md:tw-grid-cols-3 tw-mt-2 tw-items-center tw-gap-4">
+      <!-- ====================== CHỌN GÓI DỊCH VỤ ====================== -->
+      <section class="tw-px-8">
+        <div id="billing_plans"></div>
+      </section>
 
-    <!-- GÓI -->
-    <div>
-      
+      <!-- ====================== MUA THÊM NĂNG LƯỢNG ====================== -->
+      <section class="tw-px-8">
+        <div id="energy_addons"></div>
+      </section>
 
-      <div class="tw-flex tw-items-center tw-gap-2 tw-mt-1">
-        <i class="ri-flashlight-fill tw-text-vlbcgreen tw-text-lg"></i>
-        <p class="tw-text-vlbcgreen tw-font-semibold tw-text-lg">150</p>
-        <p class="tw-text-gray-500">/ 1,000</p>
-      </div>
+      <!-- ====================== LỊCH SỬ SỬ DỤNG ====================== -->
+      <section class="tw-px-8">
+        <!-- Header -->
+        <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <i class="ri-time-line tw-text-[#1AA24C] tw-text-xl"></i>
+            <h2 class="tw-text-xl tw-font-bold">Lịch sử sử dụng</h2>
+          </div>
 
-      <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Năng Lượng còn lại</p>
-    </div>
+          <button
+            class="tw-flex tw-items-center tw-gap-2 tw-border tw-border-gray-300 tw-rounded-lg tw-px-4 tw-py-2 tw-text-gray-700 tw-bg-white hover:tw-bg-gray-100"
+          >
+            <i class="ri-file-download-line"></i> Xuất báo cáo
+          </button>
+        </div>
 
-    <!-- NGÀY HẾT HẠN -->
-    <div class="tw-text-center">
-      <p class="tw-text-sm tw-text-gray-500">Ngày gia hạn</p>
-      <p class="tw-text-2xl tw-font-bold tw-mt-1">15/02/2024</p>
-    </div>
+        <!-- Table -->
+        <div class="tw-overflow-x-auto tw-mt-4">
+          <table
+            class="tw-w-full tw-text-left tw-text-sm tw-border-collapse tw-border tw-border-[#EAEAEA]"
+          >
+            <!-- Table Head -->
+            <thead>
+              <tr class="tw-bg-[#EAEAEA] tw-text-gray-700 tw-font-semibold">
+                <th class="tw-p-3">Thời gian</th>
+                <th class="tw-p-3">Agent thực thi</th>
+                <th class="tw-p-3">Mô tả tác vụ</th>
+                <th class="tw-p-3">Giai đoạn</th>
+                <th class="tw-p-3">Tài nguyên tiêu hao</th>
+              </tr>
+            </thead>
 
-    <!-- EMPTY SPACE (UI giống hình) -->
-    <div></div>
-  </div>
-  <!-- BUTTON -->
-  <button
-    class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-4 hover:tw-opacity-90 tw-transition">
-    Mua thêm Năng Lượng
-  </button>
-</section>
+            <!-- Table Body -->
+            <tbody class="tw-text-gray-700">
+              <!-- ROW 1 -->
+              <tr class="hover:tw-bg-gray-50 tw-border-b tw-border-[#E0EAE6]">
+                <td class="tw-p-3 tw-min-w-40">15/01/2024 14:30</td>
+                <td class="tw-p-3 tw-min-w-40">Nhà Sáng tạo</td>
+                <td class="tw-p-3 tw-min-w-80">
+                  Tạo 10 phương án logo và bảng màu theo Brand Guidelines
+                </td>
 
+                <td class="tw-p-3 tw-min-w-40">
+                  <span
+                    class="tw-bg-[#E6F6EC] tw-text-[#16A249] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full"
+                  >
+                    Thân Cây
+                  </span>
+                </td>
 
-    <!-- ====================== CHỌN GÓI DỊCH VỤ ====================== -->
-    <section>
-      <div id="billing_plans"></div>
-    </section>
+                <td class="tw-p-3 tw-min-w-40">
+                  Không giới hạn<br /><span class="tw-text-[#6F7C7A]"
+                    >245 GPU/LLM units</span
+                  >
+                </td>
+              </tr>
 
-    <!-- ====================== MUA THÊM NĂNG LƯỢNG ====================== -->
-    <section>
-      <div id="energy_addons"></div>
-    </section>
+              <!-- ROW 2 -->
+              <tr class="hover:tw-bg-gray-50 tw-border-b tw-border-[#E0EAE6]">
+                <td class="tw-p-3">15/01/2024 14:30</td>
+                <td class="tw-p-3">Nhà Phân tích</td>
+                <td class="tw-p-3">
+                  Hoàn thành báo cáo SWOT toàn diện cho thị trường F&B Việt Nam
+                </td>
 
-    <!-- ====================== LỊCH SỬ SỬ DỤNG ====================== -->
-    <section class="tw-bg-white tw-border tw-border-[#E0EAE6] tw-rounded-xl tw-shadow-sm tw-p-6 tw-w-full">
+                <td class="tw-p-3">
+                  <span
+                    class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full"
+                  >
+                    Gốc Cây
+                  </span>
+                </td>
 
-  <!-- Header -->
-  <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
-    <div class="tw-flex tw-items-center tw-gap-2">
-      <i class="ri-time-line tw-text-[#1AA24C] tw-text-xl"></i>
-      <h2 class="tw-text-xl tw-font-bold">Lịch sử sử dụng</h2>
-    </div>
+                <td class="tw-p-3">
+                  Không giới hạn<br /><span class="tw-text-[#6F7C7A]"
+                    >180 GPU/LLM units</span
+                  >
+                </td>
+              </tr>
 
-    <button
-      class="tw-flex tw-items-center tw-gap-2 tw-border tw-border-gray-300 tw-rounded-lg tw-px-4 tw-py-2 tw-text-gray-700 tw-bg-white hover:tw-bg-gray-100">
-      <i class="ri-file-download-line"></i> Xuất báo cáo
-    </button>
-  </div>
+              <!-- ROW 3 -->
+              <tr class="hover:tw-bg-gray-50">
+                <td class="tw-p-3">15/01/2024 14:30</td>
+                <td class="tw-p-3">Nhà Chiến lược</td>
+                <td class="tw-p-3">
+                  Xây dựng chiến lược định vị thương hiệu cho segment Gen Z
+                </td>
 
-  <!-- Table -->
-  <div class="tw-overflow-x-auto tw-mt-4">
-    <table class="tw-w-full tw-text-left tw-text-sm tw-border-collapse">
+                <td class="tw-p-3">
+                  <span
+                    class="tw-bg-[#E6F6EC] tw-text-[#16A249] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full"
+                  >
+                    Thân Cây
+                  </span>
+                </td>
 
-      <!-- Table Head -->
-      <thead>
-        <tr class="tw-bg-[#F7F8F9] tw-text-gray-700 tw-font-semibold">
-          <th class="tw-p-3">Thời gian</th>
-          <th class="tw-p-3">Agent thực thi</th>
-          <th class="tw-p-3">Mô tả tác vụ</th>
-          <th class="tw-p-3">Giai đoạn</th>
-          <th class="tw-p-3">Tài nguyên tiêu hao</th>
-        </tr>
-      </thead>
+                <td class="tw-p-3">
+                  Không giới hạn<br /><span class="tw-text-[#6F7C7A]"
+                    >300 GPU/LLM units</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
 
-      <!-- Table Body -->
-      <tbody class="tw-text-gray-700">
+    <!-- FOOTER -->
+    <footer class="tw-mt-10">
+      <div id="footer_widget"></div>
+    </footer>
 
-        <!-- ROW 1 -->
-        <tr class="hover:tw-bg-gray-50 tw-border-b tw-border-[#E0EAE6]">
-          <td class="tw-p-3">15/01/2024 14:30</td>
-          <td class="tw-p-3">Nhà Sáng tạo</td>
-          <td class="tw-p-3">Tạo 10 phương án logo và bảng màu theo Brand Guidelines</td>
+    <!-- WIDGET LOADER -->
+    <script>
+      function loadWidget(id, file) {
+        fetch(file)
+          .then((res) => res.text())
+          .then((html) => (document.getElementById(id).innerHTML = html));
+      }
 
-          <td class="tw-p-3">
-            <span class="tw-bg-[#E6F6EC] tw-text-[#16A249] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-              Thân Cây
-            </span>
-          </td>
+      loadWidget("taskbar", "./widget/taskbar.html");
+      loadWidget("footer_widget", "./widget/footer.html");
+      loadWidget("billing_plans", "./widget/billing_plans.html");
+      loadWidget("energy_addons", "./widget/energy_addons.html");
 
-          <td class="tw-p-3">Không giới hạn<br><span class="tw-text-[#6F7C7A]">245 GPU/LLM units</span></td>
-        </tr>
+      function toggleAccountPopup() {
+        const popup = document.getElementById("accountPopup");
+        if (!popup) return;
 
-        <!-- ROW 2 -->
-        <tr class="hover:tw-bg-gray-50 tw-border-b tw-border-[#E0EAE6]">
-          <td class="tw-p-3">15/01/2024 14:30</td>
-          <td class="tw-p-3">Nhà Phân tích</td>
-          <td class="tw-p-3">Hoàn thành báo cáo SWOT toàn diện cho thị trường F&B Việt Nam</td>
+        const isHidden = popup.classList.contains("tw-hidden");
 
-          <td class="tw-p-3">
-            <span class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-              Gốc Cây
-            </span>
-          </td>
-
-          <td class="tw-p-3">Không giới hạn<br><span class="tw-text-[#6F7C7A]">180 GPU/LLM units</span></td>
-        </tr>
-
-        <!-- ROW 3 -->
-        <tr class="hover:tw-bg-gray-50">
-          <td class="tw-p-3">15/01/2024 14:30</td>
-          <td class="tw-p-3">Nhà Chiến lược</td>
-          <td class="tw-p-3">Xây dựng chiến lược định vị thương hiệu cho segment Gen Z</td>
-
-          <td class="tw-p-3">
-            <span class="tw-bg-[#E6F6EC] tw-text-[#16A249] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-              Thân Cây
-            </span>
-          </td>
-
-          <td class="tw-p-3">Không giới hạn<br><span class="tw-text-[#6F7C7A]">300 GPU/LLM units</span></td>
-        </tr>
-
-      </tbody>
-    </table>
-  </div>
-
-</section>
-
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="tw-mt-10">
-    <div id="footer_widget"></div>
-  </footer>
-
-  <!-- WIDGET LOADER -->
-  <script>
-    function loadWidget(id, file) {
-      fetch(file)
-        .then(res => res.text())
-        .then(html => document.getElementById(id).innerHTML = html);
-    }
-
-    loadWidget("taskbar", "./widget/taskbar.html");
-    loadWidget("footer_widget", "./widget/footer.html");
-    loadWidget("billing_plans", "./widget/billing_plans.html");
-    loadWidget("energy_addons", "./widget/energy_addons.html");
-  </script>
-</body>
+        if (isHidden) {
+          popup.classList.remove("tw-hidden");
+        } else {
+          popup.classList.add("tw-hidden");
+        }
+      }
+    </script>
+  </body>
 </html>

@@ -25,105 +25,148 @@
       href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
       rel="stylesheet"
     />
-
-    <style>
-      body { font-family: "Be Vietnam Pro", sans-serif; }
-    </style>
   </head>
 
   <body class="tw-bg-[#FFFFFF] tw-text-[#1A1A1A] tw-font-bevietnam">
-
-    <!-- Popup (load vào đây mới đúng) -->
-    <div id="invite_popup"></div>
+    <!-- Popup -->
+    <div
+      id="inviteMemberOverlay"
+      class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999] tw-hidden"
+    ></div>
 
     <!-- ================= TASKBAR ================= -->
-    <header class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-z-[999]">
+    <header class="tw-h-[60px]">
       <div id="taskbar"></div>
     </header>
 
     <!-- ================= MAIN ================= -->
     <!-- ADD TOP PADDING TO AVOID TASKBAR OVERLAP -->
-    <main class="tw-max-w-7xl tw-mx-auto tw-px-6 tw-pt-[90px] tw-flex tw-flex-col tw-gap-10">
-
+    <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10">
       <!-- ================= USER SUMMARY ================= -->
-      <section class="tw-bg-white tw-border tw-border-[#E0EAE6] tw-rounded-[12px] tw-shadow-sm tw-p-6">
-        <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
-          <div>
-            <h2 class="tw-text-[22px] tw-font-bold">Quản lý Thành viên</h2>
-            <p class="tw-text-[14px] tw-text-[#6F7C7A]">Gói chuyên nghiệp – 5 dự án thương hiệu</p>
-            <p class="tw-text-[14px] tw-text-[#6F7C7A]">3 đang hoạt động, 1 chờ xác nhận</p>
+      <section class="tw-px-8">
+        <div
+          class="tw-bg-white tw-border tw-border-[#E0EAE6] tw-rounded-[12px] tw-shadow-sm tw-p-6"
+        >
+          <div
+            class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between tw-mb-3"
+          >
+            <div>
+              <h2 class="tw-text-[22px] tw-font-bold">Quản lý Thành viên</h2>
+              <p class="tw-text-[14px] tw-text-[#6F7C7A]">
+                Gói chuyên nghiệp – 5 dự án thương hiệu
+              </p>
+              <p class="tw-text-[14px] tw-text-[#6F7C7A]">
+                3 đang hoạt động, 1 chờ xác nhận
+              </p>
+            </div>
+
+            <div class="tw-relative tw-mt-2">
+              <button
+                id="inviteMemberBtn"
+                class="tw-relative tw-bg-vlbcgreen tw-text-white tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-shadow hover:tw-scale-105 tw-transition"
+              >
+                <img
+                  src="./assets/img/add-vector.svg"
+                  alt="add"
+                  class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-w-4 tw-h-4 tw-pointer-events-none"
+                />
+                <span>Mời thành viên</span>
+              </button>
+            </div>
           </div>
 
-          <button id="inviteMemberBtn"
-            class="tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-shadow hover:tw-scale-105 tw-transition">
-            + Mời thành viên
-          </button>
-        </div>
+          <div
+            class="tw-w-full tw-h-[14px] tw-bg-[#EFECE7] tw-rounded-full tw-overflow-hidden"
+          >
+            <div
+              class="tw-h-full tw-bg-gradient-to-r tw-from-[#34B26A] tw-to-[#78D29E]"
+              style="width: 80%"
+            ></div>
+          </div>
 
-        <div class="tw-w-full tw-h-[14px] tw-bg-[#EFECE7] tw-rounded-full tw-overflow-hidden">
-          <div class="tw-h-full tw-bg-gradient-to-r tw-from-[#34B26A] tw-to-[#78D29E]"
-               style="width: 80%;"></div>
+          <p class="tw-text-[14px] tw-text-right tw-text-[#6F7C7A] tw-mt-1">
+            4/5 Chỗ đang sử dụng
+          </p>
         </div>
-
-        <p class="tw-text-[14px] tw-text-right tw-text-[#6F7C7A] tw-mt-1">
-          4/5 Chỗ đang sử dụng
-        </p>
       </section>
 
       <!-- ================= USER LIST ================= -->
-      <section class="tw-bg-white tw-border tw-border-[#E0EAE6] tw-rounded-[12px] tw-shadow-sm tw-w-full">
-
-        <!-- Header -->
-        <div class="tw-hidden md:tw-grid tw-grid-cols-6 tw-font-semibold tw-text-[14px]
-                    tw-border-b tw-border-[#E0EAE6] tw-bg-[#F7F8F9] tw-p-4">
-          <div>Tên thành viên</div>
-          <div>Email</div>
-          <div>Vai trò</div>
-          <div>Trạng thái</div>
-          <div>Ngày mời</div>
-          <div class="tw-text-center">Hành động</div>
-        </div>
-
-        <!-- Mobile Responsive Card List -->
-        <div class="tw-divide-y tw-divide-[#E0EAE6]">
-
-          <!-- ROW TEMPLATE -->
-          <!-- Bạn có thể tách ra widget nếu muốn -->
-          <!-- ROW 1 -->
-          <div class="tw-grid md:tw-grid-cols-6 tw-gap-3 tw-items-center tw-py-4 tw-px-5 hover:tw-bg-gray-50">
-
-            <!-- Mobile Layout -->
-            <div class="md:tw-hidden">
-              <p class="tw-font-bold tw-text-lg">Nguyễn Văn A</p>
-              <p class="tw-text-[#6F7C7A]">nguyenvana@company.com</p>
-            </div>
-
-            <!-- Desktop Columns -->
-            <div class="tw-font-medium tw-hidden md:tw-block">Nguyễn Văn A</div>
-            <div class="tw-text-[#6F7C7A] tw-hidden md:tw-block">nguyenvana@company.com</div>
-
-            <div><span class="tw-text-[12px] tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-              Quản trị viên</span></div>
-
-            <div><span class="tw-text-[12px] tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-px-3 tw-py-1 tw-rounded-full">
-              Đang hoạt động</span></div>
-
-            <div class="tw-text-[#6F7C7A] tw-hidden md:tw-block">15/01/2025</div>
-
-            <div class="tw-flex tw-items-center tw-gap-4 tw-justify-center">
-              <button class="tw-flex tw-items-center tw-gap-1 hover:tw-text-[#1AA24C]">
-                <i class="ri-edit-line"></i> Sửa
-              </button>
-              <button class="tw-flex tw-items-center tw-gap-1 hover:tw-text-red-500">
-                <i class="ri-user-unfollow-line"></i> Vô hiệu hóa
-              </button>
-            </div>
+      <section class="tw-px-8">
+        <div
+          class="tw-bg-white tw-border tw-border-[#E0EAE6] tw-rounded-[12px] tw-shadow-sm tw-w-full"
+        >
+          <!-- Header -->
+          <div
+            class="tw-hidden md:tw-grid tw-grid-cols-6 tw-font-semibold tw-text-[14px] tw-border-b tw-border-[#E0EAE6] tw-bg-[#F7F8F9] tw-p-4"
+          >
+            <div>Tên thành viên</div>
+            <div>Email</div>
+            <div>Vai trò</div>
+            <div>Trạng thái</div>
+            <div>Ngày mời</div>
+            <div>Hành động</div>
           </div>
 
-          <!-- Các ROW 2–4 giữ nguyên như bạn đang dùng -->
+          <!-- Mobile Responsive Card List -->
+          <div class="tw-divide-y tw-divide-[#E0EAE6]">
+            <!-- ROW TEMPLATE -->
+            <!-- Bạn có thể tách ra widget nếu muốn -->
+            <!-- ROW 1 -->
+            <div
+              class="tw-grid md:tw-grid-cols-6 tw-items-center tw-p-4 hover:tw-bg-gray-50"
+            >
+              <!-- Mobile Layout -->
+              <div class="md:tw-hidden">
+                <p class="tw-font-bold tw-text-lg">Nguyễn Văn A</p>
+                <p class="tw-text-[#6F7C7A]">nguyenvana@company.com</p>
+              </div>
+
+              <!-- Desktop Columns -->
+              <div class="tw-font-medium tw-hidden md:tw-block">
+                Nguyễn Văn A
+              </div>
+              <div class="tw-text-[#6F7C7A] tw-hidden md:tw-block">
+                nguyenvana@company.com
+              </div>
+
+              <div>
+                <span
+                  class="tw-text-[12px] tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full"
+                >
+                  Quản trị viên</span
+                >
+              </div>
+
+              <div>
+                <span
+                  class="tw-text-[12px] tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full"
+                >
+                  Đang hoạt động</span
+                >
+              </div>
+
+              <div class="tw-text-[#6F7C7A] tw-hidden md:tw-block">
+                15/01/2025
+              </div>
+
+              <div class="tw-flex tw-items-center tw-gap-4">
+                <button
+                  class="tw-flex tw-items-center tw-gap-1 tw-font-semibold hover:tw-text-[#1AA24C]"
+                >
+                  <i class="ri-edit-line"></i> Sửa
+                </button>
+                <button
+                  class="tw-flex tw-items-center tw-gap-1 tw-font-semibold hover:tw-text-red-500"
+                >
+                  <i class="ri-user-unfollow-line"></i> Vô hiệu hóa
+                </button>
+              </div>
+            </div>
+
+            <!-- Các ROW 2–4 giữ nguyên như bạn đang dùng -->
+          </div>
         </div>
       </section>
-
     </main>
 
     <!-- ================= FOOTER ================= -->
@@ -137,8 +180,7 @@
       }
 
       loadWidget("taskbar", "./widget/taskbar.html");
-      loadWidget("invite_popup", "./widget/invite_member.html");
-
+      loadWidget("inviteMemberOverlay", "./widget/invite_member.html");
     </script>
 
     <!-- ================= INVITE POPUP SCRIPT ================= -->
@@ -166,11 +208,26 @@
         }
 
         // Click outside
-        if (!overlay.querySelector("div").contains(e.target) && e.target === overlay) {
+        if (
+          !overlay.querySelector("div").contains(e.target) &&
+          e.target === overlay
+        ) {
           overlay.classList.add("tw-hidden");
         }
       });
-    </script>
 
+      function toggleAccountPopup() {
+        const popup = document.getElementById("accountPopup");
+        if (!popup) return;
+
+        const isHidden = popup.classList.contains("tw-hidden");
+
+        if (isHidden) {
+          popup.classList.remove("tw-hidden");
+        } else {
+          popup.classList.add("tw-hidden");
+        }
+      }
+    </script>
   </body>
 </html>
