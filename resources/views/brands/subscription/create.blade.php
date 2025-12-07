@@ -1,104 +1,111 @@
 <x-app-layout>
-    <!-- Header -->
-    <div class="tw-mb-6">
-        <nav class="tw-flex tw-mb-4" aria-label="Breadcrumb">
-            <ol class="tw-inline-flex tw-items-center tw-space-x-1 md:tw-space-x-3">
-                <li><a href="{{ route('dashboard') }}" class="tw-text-gray-500 hover:tw-text-gray-700">Dashboard</a></li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <a href="{{ route('brands.show', $brand) }}" class="tw-text-gray-500 hover:tw-text-gray-700">{{ $brand->name }}</a>
-                </li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-text-gray-500 hover:tw-text-gray-700">Gói dịch vụ</a>
-                </li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <span class="tw-text-gray-700">Nâng cấp</span>
-                </li>
-            </ol>
-        </nav>
-        <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Chọn gói dịch vụ</h1>
-    </div>
-
-    @if($errors->any())
-        <div class="tw-mb-6 tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-px-4 tw-py-3 tw-rounded-lg">
-            @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+    <div x-data="{ billingCycle: 'monthly' }">
+        <!-- Header -->
+        <div class="tw-mb-6">
+            <nav class="tw-flex tw-mb-4" aria-label="Breadcrumb">
+                <ol class="tw-inline-flex tw-items-center tw-space-x-1 md:tw-space-x-3">
+                    <li><a href="{{ route('dashboard') }}" class="tw-text-gray-500 hover:tw-text-gray-700">Dashboard</a></li>
+                    <li class="tw-flex tw-items-center">
+                        <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        <a href="{{ route('brands.show', $brand) }}" class="tw-text-gray-500 hover:tw-text-gray-700">{{ $brand->name }}</a>
+                    </li>
+                    <li class="tw-flex tw-items-center">
+                        <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-text-gray-500 hover:tw-text-gray-700">Gói dịch vụ</a>
+                    </li>
+                    <li class="tw-flex tw-items-center">
+                        <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        <span class="tw-text-gray-700">Nâng cấp</span>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Chọn gói dịch vụ</h1>
         </div>
-    @endif
 
-    @if($currentSubscription)
-        <div class="tw-mb-6 tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-700 tw-px-4 tw-py-3 tw-rounded-lg">
-            <p>Bạn đang sử dụng gói <strong>{{ $currentSubscription->plan->name }}</strong>. Khi chọn gói mới, gói hiện tại sẽ được thay thế.</p>
+        @if($errors->any())
+            <div class="tw-mb-6 tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-px-4 tw-py-3 tw-rounded-lg">
+                @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+            </div>
+        @endif
+
+        @if($currentSubscription)
+            <div class="tw-mb-6 tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-700 tw-px-4 tw-py-3 tw-rounded-lg">
+                <p>Bạn đang sử dụng gói <strong>{{ $currentSubscription->plan->name }}</strong>. Khi chọn gói mới, gói hiện tại sẽ được thay thế.</p>
+            </div>
+        @endif
+
+        <!-- Billing Toggle -->
+        <div class="tw-flex tw-justify-center tw-mb-8">
+            <div class="tw-inline-flex tw-items-center tw-bg-gray-100 tw-rounded-full tw-p-1">
+                <button
+                    type="button"
+                    @click="billingCycle = 'monthly'"
+                    :class="billingCycle === 'monthly' ? 'tw-bg-white tw-shadow-sm tw-text-gray-800' : 'tw-text-gray-500 hover:tw-text-gray-700'"
+                    class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition-all tw-duration-200">
+                    Thanh toán tháng
+                </button>
+                <button
+                    type="button"
+                    @click="billingCycle = 'yearly'"
+                    :class="billingCycle === 'yearly' ? 'tw-bg-white tw-shadow-sm tw-text-gray-800' : 'tw-text-gray-500 hover:tw-text-gray-700'"
+                    class="tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition-all tw-duration-200">
+                    Thanh toán năm
+                    {{-- <span class="tw-ml-1 tw-text-xs tw-text-orange-500 tw-font-semibold">-17%</span> --}}
+                </button>
+            </div>
         </div>
-    @endif
 
-    <!-- Plans Grid -->
-    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6">
-        @foreach($plans as $plan)
-            <form action="{{ route('brands.subscription.store', $brand) }}" method="POST">
-                @csrf
-                <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+        <!-- Monthly Plans -->
+        <div x-show="billingCycle === 'monthly'" x-transition:enter="tw-transition tw-ease-out tw-duration-200" x-transition:enter-start="tw-opacity-0" x-transition:enter-end="tw-opacity-100">
+            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6">
+                @foreach($monthlyPlans as $plan)
+                    @include('brands.subscription.partials.plan-card', ['plan' => $plan, 'brand' => $brand, 'currentSubscription' => $currentSubscription, 'isYearly' => false])
+                @endforeach
+            </div>
+        </div>
 
-                <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-overflow-hidden tw-h-full tw-flex tw-flex-col tw-relative {{ $plan->is_popular ? 'tw-ring-2 tw-ring-[#16a249]' : '' }}">
-                    @if($plan->is_popular)
-                        <div class="tw-absolute tw-top-0 tw-right-0 tw-bg-[#16a249] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1 tw-rounded-bl-lg">
-                            Phổ biến
-                        </div>
-                    @endif
+        <!-- Yearly Plans -->
+        <div x-show="billingCycle === 'yearly'" x-transition:enter="tw-transition tw-ease-out tw-duration-200" x-transition:enter-start="tw-opacity-0" x-transition:enter-end="tw-opacity-100">
+            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 tw-max-w-3xl tw-mx-auto">
+                @foreach($yearlyPlans as $plan)
+                    @include('brands.subscription.partials.plan-card', ['plan' => $plan, 'brand' => $brand, 'currentSubscription' => $currentSubscription, 'isYearly' => true])
+                @endforeach
+            </div>
+        </div>
 
-                    <div class="tw-p-6 tw-flex-1">
-                        <h3 class="tw-text-xl tw-font-bold tw-text-gray-800 tw-mb-2">{{ $plan->name }}</h3>
-                        @if($plan->description)
-                            <p class="tw-text-gray-500 tw-text-sm tw-mb-4">{{ $plan->description }}</p>
-                        @endif
-
-                        <div class="tw-mb-6">
-                            <span class="tw-text-3xl tw-font-bold tw-text-gray-800">{{ $plan->formatted_price }}</span>
-                            @if($plan->price > 0)
-                                <span class="tw-text-gray-500">/tháng</span>
-                            @endif
-                        </div>
-
-                        <ul class="tw-space-y-3 tw-mb-6">
-                            <li class="tw-flex tw-items-center tw-gap-2 tw-text-gray-600">
-                                <svg class="tw-w-5 tw-h-5 tw-text-[#16a249]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                <span><strong>{{ number_format($plan->credits) }}</strong> credits/tháng</span>
-                            </li>
-                            <li class="tw-flex tw-items-center tw-gap-2 tw-text-gray-600">
-                                <svg class="tw-w-5 tw-h-5 tw-text-[#16a249]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                <span>{{ $plan->formatted_duration }}</span>
-                            </li>
-                            @if($plan->models_allowed)
-                                <li class="tw-flex tw-items-start tw-gap-2 tw-text-gray-600">
-                                    <svg class="tw-w-5 tw-h-5 tw-text-[#16a249] tw-mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                    <span>{{ count($plan->models_allowed) }} AI models</span>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
-
-                    <div class="tw-p-6 tw-pt-0">
-                        @if($currentSubscription && $currentSubscription->plan_id === $plan->id)
-                            <span class="tw-block tw-w-full tw-py-3 tw-text-center tw-rounded-lg tw-font-medium tw-bg-green-100 tw-text-green-700">
-                                ✓ Gói hiện tại
-                            </span>
-                        @elseif($plan->is_trial)
-                            <span class="tw-block tw-w-full tw-py-3 tw-text-center tw-rounded-lg tw-font-medium tw-bg-gray-100 tw-text-gray-400">
-                                Chỉ dùng 1 lần
-                            </span>
-                        @else
-                            <button type="submit" class="tw-w-full tw-py-3 tw-text-center tw-rounded-lg tw-font-medium tw-transition {{ $plan->is_popular ? 'tw-bg-[#16a249] tw-text-white hover:tw-bg-[#138a3e]' : 'tw-border tw-border-gray-300 tw-text-gray-700 hover:tw-bg-gray-50' }}">
-                                Đăng ký ngay
-                            </button>
-                        @endif
-                    </div>
+        <!-- Credit Packages -->
+        @if($creditPackages->count() > 0)
+            <div class="tw-mt-12 tw-pt-8 tw-border-t tw-border-gray-200">
+                <div class="tw-text-center tw-mb-6">
+                    <h2 class="tw-text-xl tw-font-bold tw-text-gray-800 tw-mb-2">Nạp thêm Credits</h2>
+                    <p class="tw-text-gray-500 tw-text-sm">Bổ sung thêm credits khi cần thiết</p>
                 </div>
-            </form>
-        @endforeach
-    </div>
 
-    <div class="tw-mt-6 tw-text-center">
-        <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-text-gray-600 hover:tw-text-gray-800">← Quay lại</a>
+                <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-4 tw-gap-4">
+                    @foreach($creditPackages as $package)
+                        <form action="{{ route('brands.subscription.store', $brand) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="plan_id" value="{{ $package->id }}">
+                            <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-text-center tw-border tw-border-gray-100 hover:tw-border-[#16a249] tw-transition">
+                                <div class="tw-text-2xl tw-font-bold tw-text-[#16a249] tw-mb-1">{{ number_format($package->credits) }}</div>
+                                <div class="tw-text-xs tw-text-gray-500 tw-mb-3">credits</div>
+                                <div class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-3">{{ $package->formatted_price }}</div>
+                                <button type="submit" class="tw-w-full tw-py-2 tw-text-sm tw-rounded-lg tw-font-medium tw-border tw-border-gray-300 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                    Mua ngay
+                                </button>
+                            </div>
+                        </form>
+                    @endforeach
+                </div>
+
+                <p class="tw-text-center tw-text-xs tw-text-gray-400 tw-mt-4">
+                    * Gói nạp thêm credits yêu cầu có subscription đang hoạt động.
+                </p>
+            </div>
+        @endif
+
+        <div class="tw-mt-8 tw-text-center">
+            <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-text-gray-600 hover:tw-text-gray-800">← Quay lại</a>
+        </div>
     </div>
 </x-app-layout>

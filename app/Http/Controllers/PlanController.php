@@ -12,10 +12,26 @@ class PlanController extends Controller
      */
     public function index(): View
     {
-        $plans = Plan::active()
+        // Monthly subscription plans
+        $monthlyPlans = Plan::active()
+            ->subscriptions()
+            ->monthly()
             ->orderBy('sort_order')
             ->get();
 
-        return view('plans.index', compact('plans'));
+        // Yearly subscription plans
+        $yearlyPlans = Plan::active()
+            ->subscriptions()
+            ->yearly()
+            ->orderBy('sort_order')
+            ->get();
+
+        // Credit packages
+        $creditPackages = Plan::active()
+            ->creditPackages()
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('plans.index', compact('monthlyPlans', 'yearlyPlans', 'creditPackages'));
     }
 }

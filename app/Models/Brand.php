@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Services\CreditService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 
 class Brand extends Model
 {
     protected $fillable = [
         'name',
+        'slug',
         'industry',
         'target_market',
         'founded_year',
@@ -22,6 +25,47 @@ class Brand extends Model
     protected $casts = [
         'founded_year' => 'integer',
     ];
+
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-generate slug when creating
+        static::creating(function (Brand $brand) {
+            if (empty($brand->slug)) {
+                $brand->slug = static::generateUniqueSlug($brand->name);
+            }
+        });
+
+        // Regenerate slug when name changes (optional)
+        static::updating(function (Brand $brand) {
+            if ($brand->isDirty('name') && !$brand->isDirty('slug')) {
+                $brand->slug = static::generateUniqueSlug($brand->name);
+            }
+        });
+    }
+
+    /**
+     * Get the route key for the model (use slug instead of id)
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Generate a unique slug with random suffix
+     */
+    public static function generateUniqueSlug(string $name): string
+    {
+        $baseSlug = Str::slug($name);
+        $randomSuffix = Str::lower(Str::random(6));
+
+        return $baseSlug . '-' . $randomSuffix;
+    }
 
     /**
      * Get the owner/creator of the brand
@@ -118,5 +162,167 @@ class Brand extends Model
     public function getLogoUrlAttribute(): ?string
     {
         return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
+    }
+
+    // ============================================
+    // CREDIT HELPER METHODS
+    // ============================================
+
+    /**
+     * Check if brand has active subscription
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription?->isActive() ?? false;
+    }
+
+    /**
+     * Check if brand has enough credits
+     */
+    public function hasCredits(int $amount = 1): bool
+    {
+        return $this->activeSubscription?->hasCredits($amount) ?? false;
+    }
+
+    /**
+     * Get remaining credits
+     */
+    public function getCreditsRemainingAttribute(): int
+    {
+        return $this->activeSubscription?->credits_remaining ?? 0;
+    }
+
+    /**
+     * Get total credits from plan
+     */
+    public function getTotalCreditsAttribute(): int
+    {
+        return $this->activeSubscription?->plan?->credits ?? 0;
+    }
+
+    /**
+     * Get credit usage percentage
+     */
+    public function getCreditUsagePercentAttribute(): float
+    {
+        return $this->activeSubscription?->credit_usage_percent ?? 0;
+    }
+
+    /**
+     * Use credits and log usage
+     * User defaults to authenticated user
+     */
+    public function useCredits(
+        int $amount,
+        string $actionType,
+        ?string $modelUsed = null,
+        ?string $description = null,
+        ?User $user = null
+    ): bool {
+        $user = $user ?? auth()->user();
+
+        if (!$user) {
+            return false;
+        }
+
+        return app(CreditService::class)->useCredits(
+            $this,
+            $user,
+            $amount,
+            $actionType,
+            $modelUsed,
+            $description
+        );
+    }
+
+    /**
+     * Add bonus credits
+     * User defaults to authenticated user
+     */
+    public function addCredits(
+        int $amount,
+        ?string $description = null,
+        ?User $user = null
+    ): bool {
+        $user = $user ?? auth()->user();
+
+        if (!$user) {
+            return false;
+        }
+
+        return app(CreditService::class)->addBonusCredits(
+            $this,
+            $user,
+            $amount,
+            $description
+        );
+    }
+
+    /**
+     * Get credit usage statistics
+     */
+    public function getCreditStats(?string $period = 'month'): array
+    {
+        return app(CreditService::class)->getUsageStats($this, $period);
+    }
+
+    /**
+     * Get daily credit usage for charts
+     */
+    public function getDailyCreditsUsage(?string $period = 'month'): array
+    {
+        return app(CreditService::class)->getDailyUsage($this, $period);
+    }
+
+    // ============================================
+    // SUBSCRIPTION & PLAN HELPERS
+    // ============================================
+
+    /**
+     * Purchase a plan (subscription or credit package)
+     */
+    public function purchasePlan(Plan $plan): bool|BrandSubscription
+    {
+        return app(CreditService::class)->processPlanPurchase($this, $plan);
+    }
+
+    /**
+     * Renew current subscription
+     */
+    public function renewSubscription(): ?BrandSubscription
+    {
+        return app(CreditService::class)->renewSubscription($this);
+    }
+
+    /**
+     * Change to different plan
+     */
+    public function changePlan(Plan $plan): ?BrandSubscription
+    {
+        return app(CreditService::class)->changePlan($this, $plan);
+    }
+
+    /**
+     * Get current plan
+     */
+    public function getCurrentPlanAttribute(): ?Plan
+    {
+        return $this->activeSubscription?->plan;
+    }
+
+    /**
+     * Get current plan name
+     */
+    public function getCurrentPlanNameAttribute(): string
+    {
+        return $this->activeSubscription?->plan?->name ?? 'Chưa có gói';
+    }
+
+    /**
+     * Check if brand can buy credit package
+     */
+    public function canBuyCreditPackage(): bool
+    {
+        return $this->hasActiveSubscription();
     }
 }

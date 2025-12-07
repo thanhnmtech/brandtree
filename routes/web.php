@@ -9,7 +9,7 @@ use App\Http\Controllers\CreditController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\PlanController;
+
 use App\Http\Controllers\SepayWebhookController;
 use App\Http\Controllers\SubscriptionController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -23,7 +23,7 @@ Route::post('/webhook/sepay', [SepayWebhookController::class, 'handle'])->name('
 Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
+    Route::get('/app', [DashboardController::class, 'index'])
         ->middleware(['auth', 'verified'])
         ->name('dashboard');
 
@@ -33,36 +33,45 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        // Brand routes
-        Route::resource('brands', BrandController::class);
+        // Brand resource routes (index, create, store don't need brand.access)
+        Route::resource('brands', BrandController::class)->only(['index', 'create', 'store']);
 
-        // Brand Members routes
-        Route::get('brands/{brand}/members', [BrandMemberController::class, 'index'])->name('brands.members.index');
-        Route::get('brands/{brand}/members/create', [BrandMemberController::class, 'create'])->name('brands.members.create');
-        Route::post('brands/{brand}/members', [BrandMemberController::class, 'store'])->name('brands.members.store');
-        Route::put('brands/{brand}/members/{member}', [BrandMemberController::class, 'update'])->name('brands.members.update');
-        Route::delete('brands/{brand}/members/{member}', [BrandMemberController::class, 'destroy'])->name('brands.members.destroy');
+        // Routes that require brand access check
+        Route::prefix('brands/{brand}')
+            ->middleware('brand.access')
+            ->group(function () {
+                // Brand resource routes (show, edit, update, destroy)
+                Route::get('/', [BrandController::class, 'show'])->name('brands.show');
+                Route::get('/edit', [BrandController::class, 'edit'])->name('brands.edit');
+                Route::put('/', [BrandController::class, 'update'])->name('brands.update');
+                Route::patch('/', [BrandController::class, 'update']);
+                Route::delete('/', [BrandController::class, 'destroy'])->name('brands.destroy');
 
-        // Subscription routes
-        Route::get('brands/{brand}/subscription', [SubscriptionController::class, 'show'])->name('brands.subscription.show');
-        Route::get('brands/{brand}/subscription/upgrade', [SubscriptionController::class, 'create'])->name('brands.subscription.create');
-        Route::post('brands/{brand}/subscription', [SubscriptionController::class, 'store'])->name('brands.subscription.store');
-        Route::delete('brands/{brand}/subscription', [SubscriptionController::class, 'destroy'])->name('brands.subscription.destroy');
+                // Brand Members routes
+                Route::get('members', [BrandMemberController::class, 'index'])->name('brands.members.index');
+                Route::get('members/create', [BrandMemberController::class, 'create'])->name('brands.members.create');
+                Route::post('members', [BrandMemberController::class, 'store'])->name('brands.members.store');
+                Route::put('members/{member}', [BrandMemberController::class, 'update'])->name('brands.members.update');
+                Route::delete('members/{member}', [BrandMemberController::class, 'destroy'])->name('brands.members.destroy');
 
-        // Plans route (public pricing page)
-        Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
+                // Subscription routes
+                Route::get('subscription', [SubscriptionController::class, 'show'])->name('brands.subscription.show');
+                Route::get('subscription/upgrade', [SubscriptionController::class, 'create'])->name('brands.subscription.create');
+                Route::post('subscription', [SubscriptionController::class, 'store'])->name('brands.subscription.store');
+                Route::delete('subscription', [SubscriptionController::class, 'destroy'])->name('brands.subscription.destroy');
 
-        // Payment routes
-        Route::get('brands/{brand}/payments', [PaymentController::class, 'index'])->name('brands.payments.index');
-        Route::get('brands/{brand}/payments/create', [PaymentController::class, 'create'])->name('brands.payments.create');
-        Route::post('brands/{brand}/payments', [PaymentController::class, 'store'])->name('brands.payments.store');
-        Route::get('brands/{brand}/payments/{payment}', [PaymentController::class, 'show'])->name('brands.payments.show');
-        Route::post('brands/{brand}/payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
+                // Payment routes
+                Route::get('payments', [PaymentController::class, 'index'])->name('brands.payments.index');
+                Route::get('payments/create', [PaymentController::class, 'create'])->name('brands.payments.create');
+                Route::post('payments', [PaymentController::class, 'store'])->name('brands.payments.store');
+                Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('brands.payments.show');
+                Route::post('payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
 
-        // Credit usage routes
-        Route::get('brands/{brand}/credits', [CreditController::class, 'index'])->name('brands.credits.index');
-        Route::get('brands/{brand}/credits/statistics', [CreditController::class, 'statistics'])->name('brands.credits.statistics');
-        Route::get('brands/{brand}/credits/export', [CreditController::class, 'export'])->name('brands.credits.export');
+                // Credit usage routes
+                Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.index');
+                Route::get('credits/statistics', [CreditController::class, 'statistics'])->name('brands.credits.statistics');
+                Route::get('credits/export', [CreditController::class, 'export'])->name('brands.credits.export');
+            });
     });
 
     require __DIR__ . '/auth.php';

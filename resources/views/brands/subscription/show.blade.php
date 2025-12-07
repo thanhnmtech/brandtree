@@ -97,23 +97,6 @@
             @endcan
         </div>
     @endif
-
-    <!-- Available Plans -->
-    <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-6">
-        <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4">Các gói dịch vụ</h3>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
-            @foreach($plans as $plan)
-                <div class="tw-border tw-rounded-xl tw-p-4 {{ $subscription && $subscription->plan_id === $plan->id ? 'tw-border-[#16a249] tw-bg-green-50' : 'tw-border-gray-200' }}">
-                    <h4 class="tw-font-semibold tw-text-gray-800">{{ $plan->name }}</h4>
-                    <p class="tw-text-2xl tw-font-bold tw-text-gray-800 tw-my-2">{{ $plan->formatted_price }}</p>
-                    <p class="tw-text-sm tw-text-gray-500">{{ number_format($plan->credits) }} credits/tháng</p>
-                    @if($subscription && $subscription->plan_id === $plan->id)
-                        <span class="tw-inline-block tw-mt-3 tw-text-sm tw-text-[#16a249] tw-font-medium">Gói hiện tại</span>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-    </div>
         </div>
     </div>
 </x-app-layout>

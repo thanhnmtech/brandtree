@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'check.credits' => \App\Http\Middleware\CheckCredits::class,
+            'brand.access' => \App\Http\Middleware\EnsureBrandAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

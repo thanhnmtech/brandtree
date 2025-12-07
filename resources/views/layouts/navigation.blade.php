@@ -15,49 +15,59 @@
 
             <!-- Navigation Links -->
             <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-8 tw-space-x-6">
-                <a href="{{ route('dashboard') }}"
-                   class="tw-text-sm tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-text-[#16a249]' : 'tw-text-gray-600 hover:tw-text-gray-800' }} tw-transition">
-                    Trang chủ
-                </a>
-                {{-- <a href="{{ route('brands.index') }}"
-                   class="tw-text-sm tw-font-medium {{ request()->routeIs('brands.*') ? 'tw-text-[#16a249]' : 'tw-text-gray-600 hover:tw-text-gray-800' }} tw-transition">
-                    Thông b
-                </a> --}}
+                @auth
+                    <a href="{{ route('dashboard') }}"
+                       class="tw-text-sm tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-text-[#16a249]' : 'tw-text-gray-600 hover:tw-text-gray-800' }} tw-transition">
+                        Trang chủ
+                    </a>
+                @endauth
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-border tw-border-transparent tw-text-sm tw-leading-4 tw-font-medium tw-rounded-md tw-text-gray-600 hover:tw-text-gray-800 focus:tw-outline-none tw-transition tw-ease-in-out tw-duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+            <!-- Settings Dropdown (Auth) -->
+            @auth
+                <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-6">
+                    <x-dropdown align="right" width="48">
+                        <x-slot name="trigger">
+                            <button class="tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-border tw-border-transparent tw-text-sm tw-leading-4 tw-font-medium tw-rounded-md tw-text-gray-600 hover:tw-text-gray-800 focus:tw-outline-none tw-transition tw-ease-in-out tw-duration-150">
+                                <div>{{ Auth::user()->name }}</div>
 
-                            <div class="tw-ml-1">
-                                <svg class="tw-fill-current tw-h-4 tw-w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
+                                <div class="tw-ml-1">
+                                    <svg class="tw-fill-current tw-h-4 tw-w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </x-slot>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            Hồ sơ
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                Đăng xuất
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('profile.edit')">
+                                Hồ sơ
                             </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
+
+                            <!-- Authentication -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    Đăng xuất
+                                </x-dropdown-link>
+                            </form>
+                        </x-slot>
+                    </x-dropdown>
+                </div>
+            @else
+                <!-- Guest Links -->
+                <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-gap-3">
+                    <a href="{{ route('login') }}" class="tw-py-1 tw-px-4 tw-rounded-full tw-font-semibold tw-text-[#16a249] tw-border-2 tw-border-[#16a249] tw-text-sm tw-transition hover:tw-bg-[#16a249] hover:tw-text-white">
+                        Đăng nhập
+                    </a>
+                    <a href="{{ route('register') }}" class="tw-py-1 tw-px-4 tw-rounded-full tw-font-semibold tw-text-gray-600 hover:tw-text-[#16a249] tw-text-sm tw-transition">
+                        Đăng ký
+                    </a>
+                </div>
+            @endauth
 
             <!-- Hamburger -->
             <div class="tw--mr-2 tw-flex tw-items-center sm:tw-hidden">
@@ -74,40 +84,51 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'tw-block': open, 'tw-hidden': ! open}" class="tw-hidden sm:tw-hidden">
         <div class="tw-pt-2 tw-pb-3 tw-space-y-1">
-            <a href="{{ route('dashboard') }}"
-               class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-text-base tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-border-[#16a249] tw-text-[#16a249] tw-bg-green-50' : 'tw-border-transparent tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300' }} tw-transition">
-                Dashboard
-            </a>
-            <a href="{{ route('brands.index') }}"
-               class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-text-base tw-font-medium {{ request()->routeIs('brands.*') ? 'tw-border-[#16a249] tw-text-[#16a249] tw-bg-green-50' : 'tw-border-transparent tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300' }} tw-transition">
-                Thương hiệu
-            </a>
+            @auth
+                <a href="{{ route('dashboard') }}"
+                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-text-base tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-border-[#16a249] tw-text-[#16a249] tw-bg-green-50' : 'tw-border-transparent tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300' }} tw-transition">
+                    Trang chủ
+                </a>
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="tw-pt-4 tw-pb-1 tw-border-t tw-border-gray-200">
-            <div class="tw-px-4">
-                <div class="tw-font-medium tw-text-base tw-text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="tw-font-medium tw-text-sm tw-text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+        @auth
+            <div class="tw-pt-4 tw-pb-1 tw-border-t tw-border-gray-200">
+                <div class="tw-px-4">
+                    <div class="tw-font-medium tw-text-base tw-text-gray-800">{{ Auth::user()->name }}</div>
+                    <div class="tw-font-medium tw-text-sm tw-text-gray-500">{{ Auth::user()->email }}</div>
+                </div>
 
-            <div class="tw-mt-3 tw-space-y-1">
-                <a href="{{ route('profile.edit') }}"
-                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
-                    Hồ sơ
-                </a>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <a href="{{ route('logout') }}"
-                       onclick="event.preventDefault(); this.closest('form').submit();"
+                <div class="tw-mt-3 tw-space-y-1">
+                    <a href="{{ route('profile.edit') }}"
                        class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
-                        Đăng xuất
+                        Hồ sơ
                     </a>
-                </form>
+
+                    <!-- Authentication -->
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+
+                        <a href="{{ route('logout') }}"
+                           onclick="event.preventDefault(); this.closest('form').submit();"
+                           class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
+                            Đăng xuất
+                        </a>
+                    </form>
+                </div>
             </div>
-        </div>
+        @else
+            <div class="tw-pt-4 tw-pb-3 tw-border-t tw-border-gray-200 tw-space-y-1">
+                <a href="{{ route('login') }}"
+                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-[#16a249] hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
+                    Đăng nhập
+                </a>
+                <a href="{{ route('register') }}"
+                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
+                    Đăng ký
+                </a>
+            </div>
+        @endauth
     </div>
 </nav>

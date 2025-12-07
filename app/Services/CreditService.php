@@ -5,11 +5,15 @@ namespace App\Services;
 use App\Models\Brand;
 use App\Models\BrandSubscription;
 use App\Models\CreditUsage;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class CreditService
 {
+    // ============================================
+    // CREDIT USAGE
+    // ============================================
     /**
      * Use credits for an action
      */
@@ -208,5 +212,134 @@ class CreditService
             'all' => $query,
             default => $query->where('created_at', '>=', now()->startOfMonth()),
         };
+    }
+
+    // ============================================
+    // SUBSCRIPTION & CREDIT PACKAGE PURCHASE
+    // ============================================
+
+    /**
+     * Purchase a subscription plan (monthly/yearly)
+     * Creates new subscription or extends existing one
+     */
+    public function purchaseSubscription(Brand $brand, Plan $plan, ?User $user = null): ?BrandSubscription
+    {
+        if (!$plan->isSubscription()) {
+            return null;
+        }
+
+        $user = $user ?? auth()->user();
+
+        return DB::transaction(function () use ($brand, $plan, $user) {
+            // Cancel current active subscription if exists
+            $currentSubscription = $brand->activeSubscription;
+            if ($currentSubscription) {
+                $currentSubscription->update(['status' => BrandSubscription::STATUS_CANCELLED]);
+            }
+
+            // Create new subscription
+            $subscription = BrandSubscription::create([
+                'brand_id' => $brand->id,
+                'plan_id' => $plan->id,
+                'started_at' => now(),
+                'expires_at' => now()->addDays($plan->duration_days),
+                'credits_remaining' => $plan->credits,
+                'credits_reset_at' => now(),
+                'status' => BrandSubscription::STATUS_ACTIVE,
+            ]);
+
+            // Log credit addition
+            CreditUsage::create([
+                'brand_id' => $brand->id,
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'amount' => -$plan->credits, // Negative = addition
+                'action_type' => 'subscription_purchase',
+                'model_used' => null,
+                'description' => "Mua gói {$plan->name}",
+            ]);
+
+            return $subscription;
+        });
+    }
+
+    /**
+     * Purchase a credit package (top-up credits)
+     * Adds credits to existing subscription
+     */
+    public function purchaseCreditPackage(Brand $brand, Plan $plan, ?User $user = null): bool
+    {
+        if (!$plan->isCreditPackage()) {
+            return false;
+        }
+
+        $subscription = $brand->activeSubscription;
+
+        if (!$subscription || !$subscription->isActive()) {
+            return false; // Must have active subscription to buy credit package
+        }
+
+        $user = $user ?? auth()->user();
+
+        return DB::transaction(function () use ($brand, $subscription, $plan, $user) {
+            // Add credits to subscription
+            $subscription->addCredits($plan->credits);
+
+            // Log credit addition
+            CreditUsage::create([
+                'brand_id' => $brand->id,
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'amount' => -$plan->credits, // Negative = addition
+                'action_type' => 'credit_purchase',
+                'model_used' => null,
+                'description' => "Mua {$plan->name}",
+            ]);
+
+            return true;
+        });
+    }
+
+    /**
+     * Process plan purchase (subscription or credit package)
+     * Unified method to handle both types
+     */
+    public function processPlanPurchase(Brand $brand, Plan $plan, ?User $user = null): bool|BrandSubscription
+    {
+        if ($plan->isSubscription()) {
+            return $this->purchaseSubscription($brand, $plan, $user);
+        }
+
+        if ($plan->isCreditPackage()) {
+            return $this->purchaseCreditPackage($brand, $plan, $user);
+        }
+
+        return false;
+    }
+
+    /**
+     * Renew/extend subscription with same plan
+     */
+    public function renewSubscription(Brand $brand, ?User $user = null): ?BrandSubscription
+    {
+        $subscription = $brand->activeSubscription;
+
+        if (!$subscription) {
+            return null;
+        }
+
+        return $this->purchaseSubscription($brand, $subscription->plan, $user);
+    }
+
+    /**
+     * Upgrade/downgrade to different plan
+     */
+    public function changePlan(Brand $brand, Plan $plan, ?User $user = null): ?BrandSubscription
+    {
+        if (!$plan->isSubscription()) {
+            return null;
+        }
+
+        return $this->purchaseSubscription($brand, $plan, $user);
     }
 }

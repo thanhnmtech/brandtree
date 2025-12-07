@@ -31,10 +31,18 @@ class SubscriptionController extends Controller
     {
         $this->authorize('update', $brand);
 
-        $plans = Plan::active()->orderBy('sort_order')->get();
+        $monthlyPlans = Plan::active()->subscriptions()->monthly()->orderBy('sort_order')->get();
+        $yearlyPlans = Plan::active()->subscriptions()->yearly()->orderBy('sort_order')->get();
+        $creditPackages = Plan::active()->creditPackages()->orderBy('sort_order')->get();
         $currentSubscription = $brand->activeSubscription;
 
-        return view('brands.subscription.create', compact('brand', 'plans', 'currentSubscription'));
+        return view('brands.subscription.create', compact(
+            'brand',
+            'monthlyPlans',
+            'yearlyPlans',
+            'creditPackages',
+            'currentSubscription'
+        ));
     }
 
     /**
