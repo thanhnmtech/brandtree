@@ -73,37 +73,6 @@
             </div>
         </div>
 
-        <!-- Credit Packages -->
-        @if($creditPackages->count() > 0)
-            <div class="tw-mt-12 tw-pt-8 tw-border-t tw-border-gray-200">
-                <div class="tw-text-center tw-mb-6">
-                    <h2 class="tw-text-xl tw-font-bold tw-text-gray-800 tw-mb-2">Nạp thêm Credits</h2>
-                    <p class="tw-text-gray-500 tw-text-sm">Bổ sung thêm credits khi cần thiết</p>
-                </div>
-
-                <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-4 tw-gap-4">
-                    @foreach($creditPackages as $package)
-                        <form action="{{ route('brands.subscription.store', $brand) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="plan_id" value="{{ $package->id }}">
-                            <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-text-center tw-border tw-border-gray-100 hover:tw-border-[#16a249] tw-transition">
-                                <div class="tw-text-2xl tw-font-bold tw-text-[#16a249] tw-mb-1">{{ number_format($package->credits) }}</div>
-                                <div class="tw-text-xs tw-text-gray-500 tw-mb-3">credits</div>
-                                <div class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-3">{{ $package->formatted_price }}</div>
-                                <button type="submit" class="tw-w-full tw-py-2 tw-text-sm tw-rounded-lg tw-font-medium tw-border tw-border-gray-300 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
-                                    Mua ngay
-                                </button>
-                            </div>
-                        </form>
-                    @endforeach
-                </div>
-
-                <p class="tw-text-center tw-text-xs tw-text-gray-400 tw-mt-4">
-                    * Gói nạp thêm credits yêu cầu có subscription đang hoạt động.
-                </p>
-            </div>
-        @endif
-
         <div class="tw-mt-8 tw-text-center">
             <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-text-gray-600 hover:tw-text-gray-800">← Quay lại</a>
         </div>
