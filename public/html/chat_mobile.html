@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Chat – Vườn Cây Thương Hiệu</title>
+
+  <!-- Tailwind with prefix -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      prefix: "tw-",
+      theme: { extend: {} }
+    };
+  </script>
+
+  <!-- Icon pack -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+</head>
+
+<body class="tw-bg-gray-100 tw-min-h-screen tw-flex tw-flex-col tw-relative">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar"></div>
+
+  <!-- TOPBAR -->
+  <div id="topbar"></div>
+
+  <!-- CONTENT -->
+  <div id="chatContainer"
+       class="tw-flex-grow tw-p-4 tw-space-y-3 tw-transition-all tw-duration-300">
+    <div id="chat_message"></div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div class="tw-w-full tw-p-4 tw-bg-white tw-border-t tw-border-gray-200">
+    <div id="inputbar"></div>
+  </div>
+
+  <!-- Load Widgets -->
+  <script>
+    async function loadWidget(id, file) {
+      const html = await fetch(file).then(res => res.text());
+      document.getElementById(id).innerHTML = html;
+    }
+
+    // Load all widgets
+    loadWidget("sidebar", "./mobile_widgets/sidebar.html");
+    loadWidget("topbar", "./mobile_widgets/topbar.html");
+    loadWidget("chat_message", "./mobile_widgets/chat-message.html");
+    loadWidget("inputbar", "./mobile_widgets/input-bar.html");
+  </script>
+
+  <!-- Sidebar Controller (With Slide Animation + Chat Shift) -->
+  <script>
+    function openSidebar() {
+      const overlay = document.getElementById("mobileSidebar");
+      const panel = document.getElementById("mobileSidebarPanel");
+      const chat = document.getElementById("chatContainer");
+
+      if (!overlay || !panel) return;
+
+      overlay.classList.remove("tw-hidden");
+
+      // Delay 20ms to allow transition to apply
+      setTimeout(() => {
+        panel.classList.remove("tw--translate-x-full");
+        chat.classList.add("tw-translate-x-24");
+      }, 20);
+    }
+
+    function closeSidebar() {
+      const overlay = document.getElementById("mobileSidebar");
+      const panel = document.getElementById("mobileSidebarPanel");
+      const chat = document.getElementById("chatContainer");
+
+      if (!overlay || !panel) return;
+
+      panel.classList.add("tw--translate-x-full");
+      chat.classList.remove("tw-translate-x-24");
+
+      setTimeout(() => {
+        overlay.classList.add("tw-hidden");
+      }, 250);
+    }
+  </script>
+<script>
+  // Toggle submenu (works for widget because JS is here)
+  function toggleMenu(menuId, arrowId) {
+    const menu = document.getElementById(menuId);
+    const arrow = document.getElementById(arrowId);
+
+    if (!menu || !arrow) return;
+
+    const isOpen = !menu.classList.contains("tw-hidden");
+
+    if (isOpen) {
+      menu.classList.add("tw-hidden");
+      arrow.classList.remove("tw-rotate-180");
+    } else {
+      menu.classList.remove("tw-hidden");
+      arrow.classList.add("tw-rotate-180");
+    }
+  }
+</script>
+
+</body>
+</html>

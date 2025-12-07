@@ -5,6 +5,9 @@ tailwind.config = {
       fontFamily: {
         bevietnam: ["Be Vietnam Pro", "sans-serif"],
       },
+      colors: {
+        vlbcgreen: "#16a249",
+      },
     },
   },
 };

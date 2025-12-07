@@ -1,0 +1,1051 @@
+/* ============================================
+   AI Cây Thương Hiệu - Sign In Page CSS
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Be Vietnam Pro", sans-serif;
+  background-color: #f8faf9;
+  color: #1a1a1a;
+}
+
+/* ============================================
+   Main Container Layout
+   ============================================ */
+
+.signin-container {
+  padding-top: 60px;
+  display: flex;
+  min-height: 100dvh;
+  height: auto;
+  width: 100%;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.signup-container {
+  padding-top: 60px;
+  display: flex;
+  min-height: 100dvh;
+  height: auto;
+  width: 100%;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.signin-left {
+  flex: 0 0 48%;
+  padding: 40px 60px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Right ===== */
+.signin-right {
+  flex: 0 0 52%;
+  background: linear-gradient(273deg, #fffaf1 0.32%, #f5fff8 99.68%);
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.05);
+  padding: 20px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============================================
+   Task Bar
+   ============================================ */
+
+.top-taskbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+  z-index: 9999;
+}
+
+.taskbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.taskbar-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.taskbar-title h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+}
+
+.taskbar-title p {
+  margin-top: -2px;
+  font-size: 13px;
+  color: #6d7c7c;
+}
+
+.taskbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.taskbar-btn {
+  padding: 6px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid transparent;
+  color: #000;
+  transition: all 0.25s ease;
+}
+
+/* Nút đang active (nằm trang hiện tại) */
+.taskbar-btn.active {
+  border-color: #16a249;
+  color: #16a249;
+}
+
+/* Hover chung */
+.taskbar-btn:hover {
+  color: #16a249;
+}
+
+/* ============================================
+   Header Section
+   ============================================ */
+
+.signin-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.logo img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.header-title h1 {
+  font-size: 23px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #677e78;
+  letter-spacing: 0.3px;
+}
+
+.auth-links {
+  position: absolute;
+  right: 45px;
+  top: 20px;
+  display: flex;
+  gap: 20px;
+  z-index: 10;
+}
+
+.signin-link {
+  font-size: 16px;
+  font-weight: 700;
+  color: #16a249;
+  text-decoration: none;
+  padding: 6px 16px;
+  border: 2px solid #16a249;
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+.signin-link:hover {
+  background-color: #16a249;
+  color: #ffffff;
+}
+
+.signin-link.active {
+  color: #16a249;
+  border-bottom: 2px solid #16a249;
+}
+
+.signup-link {
+  /*font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: color 0.3s ease;*/
+  font-size: 16px;
+  font-weight: 700;
+  color: #000000;
+  text-decoration: none;
+  padding: 6px 16px;
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+.signup-link:hover {
+  color: #16a249;
+}
+
+.signup-link.active {
+  color: #16a249;
+  border-bottom: 2px solid #16a249;
+}
+
+/* ============================================
+   Form Section
+   ============================================ */
+
+.signin-form-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+}
+
+.signin-form {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ============================================
+   Form Groups
+   ============================================ */
+
+.form-group {
+  margin-bottom: 30px;
+}
+
+.form-label {
+  display: block;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  letter-spacing: -0.3px;
+}
+
+.form-input,
+.signin-btn,
+.google-signin-btn {
+  max-width: 600px;
+}
+
+.form-input {
+  width: 100%;
+  height: 50px;
+  padding: 0 20px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #6c8e7a;
+  border: 2px solid #e0eae6;
+  border-radius: 100px;
+  background-color: #ffffff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+.form-input::placeholder {
+  color: #6c8e7a;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #16a249;
+  box-shadow: 0 0 0 3px rgba(22, 162, 73, 0.1);
+}
+
+/* ============================================
+   Form Options
+   ============================================ */
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e0eae6;
+  border-radius: 2px;
+  cursor: pointer;
+  accent-color: #16a249;
+  transition: all 0.3s ease;
+}
+
+.checkbox-input:checked {
+  background-color: #16a249;
+  border-color: #16a249;
+}
+
+.forgot-password-link {
+  font-size: 18px;
+  font-weight: 500;
+  color: #16a249;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.forgot-password-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* ============================================
+   Sign In Button
+   ============================================ */
+
+.signin-btn {
+  width: 100%;
+  height: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(180deg, #34b269 0%, #78d29e 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+  letter-spacing: -0.3px;
+}
+
+.signin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(22, 162, 73, 0.25);
+}
+
+.signin-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   Divider Section
+   ============================================ */
+
+.divider-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: #e0eae6;
+}
+
+.divider-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6c8e7a;
+  white-space: nowrap;
+}
+
+/* ============================================
+   Google Sign In Button
+   ============================================ */
+
+.google-signin-btn {
+  width: 100%;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  background-color: #f3f7f5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+  letter-spacing: -0.3px;
+}
+
+.google-signin-btn:hover {
+  background-color: #e8f4f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Sign Up Prompt
+   ============================================ */
+
+.signup-prompt {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-top: 25px;
+  letter-spacing: -0.3px;
+}
+
+.signup-link-inline {
+  color: #16a249;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.signin-link-inline {
+  color: #16a249;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.signin-link-inline:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* ============================================
+   Right Section - Marketing Content
+   ============================================ */
+
+.marketing-content {
+  max-width: 700px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  scale: 0.92;
+}
+
+.marketing-title {
+  font-size: 60px;
+  font-weight: 700;
+  line-height: 68px;
+  color: #1a1a1a;
+  margin-top: 40px;
+  letter-spacing: 1px;
+  display: block;
+  gap: 5px;
+}
+
+.gradient-text {
+  background: linear-gradient(180deg, #16a249 45.673%, #f59f0a 68.75%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.marketing-description {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #829b99;
+  margin-bottom: 40px;
+  letter-spacing: -0.3px;
+}
+
+.marketing-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.marketing-image img {
+  width: 100%;
+  height: auto;
+  object-fit: contain; /* ✅ không cắt ảnh nữa */
+}
+
+.marketing-section {
+  padding-top: 30px;
+  border-top: 1px solid rgba(130, 155, 153, 0.2);
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+  letter-spacing: -0.5px;
+}
+
+.section-description {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #829b99;
+  letter-spacing: -0.3px;
+}
+
+/* =====================================================
+   DASHBOARD PAGE TASKBAR (Namespace: dashboard-page)
+   Pure BEM — No conflicts with login/signup stylesheet
+  ===================================================== */
+
+.dashboard-page {
+  background: #f8faf9;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+/* TASKBAR WRAPPER */
+.dashboard-page__taskbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+}
+
+/* =========== LEFT ========== */
+.dashboard-page__taskbar-left {
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashboard-page__logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.dashboard-page__title h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.dashboard-page__title p {
+  font-size: 12px;
+  color: #6d7c7c;
+  margin-top: -2px;
+}
+
+/* =========== CENTER MENU ========== */
+.dashboard-page__menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  align-items: center;
+}
+
+.dashboard-page__menu-item {
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #000;
+  transition: color 0.25s;
+}
+
+.dashboard-page__menu-item:hover {
+  color: #16a249;
+}
+
+.dashboard-page__menu-item--active {
+  color: #16a249;
+}
+
+/* =========== RIGHT ========== */
+.dashboard-page__taskbar-right {
+  padding: 0 40px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  align-items: center;
+}
+
+.dashboard-page__btn {
+  padding: 6px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid transparent;
+  color: #000;
+  transition: all 0.25s ease;
+}
+
+.dashboard-page__btn.active {
+  border-color: #16a249;
+  color: #16a249;
+}
+
+.dashboard-page__btn:hover {
+  color: #16a249;
+}
+
+.dashboard-page__upgrade {
+  color: #e63946;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-page__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1400px) {
+  .signin-left,
+  .signin-right {
+    padding: 30px 40px;
+  }
+
+  .signin-left {
+    width: 50%;
+    padding: 30px 40px;
+  }
+
+  .signin-right {
+    width: 50%;
+    padding: 40px;
+    overflow: hidden;
+  }
+
+  .marketing-title {
+    font-size: 48px;
+  }
+
+  .marketing-description {
+    font-size: 16px;
+    line-height: 28px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .section-description {
+    font-size: 16px;
+    line-height: 26px;
+  }
+}
+
+@media (max-width: 1024px) {
+  html,
+  body {
+    overflow: auto; /* dùng scroll khi nhỏ */
+  }
+
+  .signin-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .signup-container {
+    flex-direction: column;
+  }
+
+  .signin-right {
+    order: 1;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    padding: 30px;
+    justify-content: center;
+  }
+
+  .signin-left {
+    order: 2;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    padding: 30px;
+  }
+
+  .auth-links {
+    position: relative;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .signin-header {
+    margin-bottom: 40px;
+  }
+
+  .marketing-content {
+    scale: 1;
+    max-width: 650px;
+  }
+
+  .marketing-title {
+    font-size: 36px;
+    line-height: 44px;
+    margin-bottom: 20px;
+  }
+
+  .marketing-image {
+    height: 300px;
+  }
+}
+
+/* ============================================
+   Responsive cho iPhone 375 x 812
+   ============================================ */
+@media (max-width: 430px) {
+  /* Layout tổng */
+  .signin-container {
+    padding-top: 60px; /* vẫn dưới taskbar */
+  }
+
+  .signup-container {
+    flex-direction: column;
+  }
+
+  .signin-right {
+    order: 1;
+    width: 100%;
+    padding: 20px;
+    box-shadow: none;
+  }
+
+  .signin-left {
+    order: 2;
+    width: 100%;
+    padding: 20px;
+    box-shadow: none;
+  }
+
+  /* Task bar */
+  .top-taskbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    z-index: 9999;
+  }
+
+  .taskbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .taskbar-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .taskbar-title h1 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .taskbar-title p {
+    margin-top: -2px;
+    font-size: 8px;
+    color: #6d7c7c;
+  }
+
+  .taskbar-right {
+    display: none;
+  }
+
+  .taskbar-btn {
+    padding: 3px 6px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    color: #000;
+    transition: all 0.25s ease;
+    font-size: 10px;
+  }
+
+  /* Header */
+  .signin-header {
+    margin-bottom: 30px;
+  }
+
+  /* Form */
+
+  .form-label {
+    font-size: 12px;
+  }
+
+  .form-input {
+    height: 30px;
+    font-size: 12px;
+    padding: 0 16px;
+  }
+
+  .signin-btn,
+  .google-signin-btn {
+    height: 30px;
+    font-size: 12px;
+  }
+
+  /* Form Option */
+
+  .form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .checkbox-input {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #e0eae6;
+    border-radius: 2px;
+    cursor: pointer;
+    accent-color: #16a249;
+    transition: all 0.3s ease;
+  }
+
+  .checkbox-input:checked {
+    background-color: #16a249;
+    border-color: #16a249;
+  }
+
+  .forgot-password-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: #16a249;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .forgot-password-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  /* Divider option */
+  .divider-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 15px 0;
+  }
+
+  .divider-text {
+    font-size: 8px;
+    font-weight: 400;
+    color: #6c8e7a;
+    white-space: nowrap;
+  }
+
+  /* Sign Up Prompt */
+
+  .signup-prompt {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-top: 20px;
+    letter-spacing: -0.3px;
+  }
+
+  .signup-link-inline {
+    color: #16a249;
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+  }
+
+  .signin-link-inline {
+    color: #16a249;
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+  }
+
+  .signin-link-inline:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  /* Marketing content thu nhỏ lại */
+  .marketing-content {
+    scale: 1;
+  }
+
+  .marketing-title {
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  .marketing-description {
+    font-size: 12px;
+    line-height: 22px;
+    margin-bottom: 40px;
+  }
+
+  .marketing-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .marketing-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain; /* ✅ không cắt ảnh nữa */
+  }
+
+  .marketing-section {
+    padding-top: 20px;
+    border-top: 1px solid rgba(130, 155, 153, 0.2);
+  }
+
+  .marketing-image {
+    height: 240px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+  }
+
+  .section-description {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 22px;
+    color: #829b99;
+    letter-spacing: -0.3px;
+  }
+
+  /* Giảm gap */
+  .form-group {
+    margin-bottom: 22px;
+  }
+
+  .form-options {
+    margin-bottom: 20px;
+  }
+
+  /* Auth links */
+  .auth-links {
+    position: relative;
+    top: unset;
+    right: unset;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+}
+
+/* Auto-scale khi content cao hơn màn hình */
+@media (min-width: 1025px) {
+  .signin-right {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .marketing-content {
+    height: fit-content;
+  }
+
+  .marketing-content.scale-down {
+    transform: scale(var(--scale-value));
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  .signin-container {
+    display: none;
+  }
+}

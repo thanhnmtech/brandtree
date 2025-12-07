@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Kết quả phân tích – Vườn Cây Thương Hiệu</title>
+
+    <!-- Tailwind prefix -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        prefix: "tw-",
+        theme: { extend: {} },
+      };
+    </script>
+
+    <!-- Icon pack -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="tw-bg-gray-100 tw-min-h-screen tw-flex tw-flex-col tw-relative">
+    <!-- SIDEBAR -->
+    <div id="sidebar"></div>
+
+    <!-- TOPBAR -->
+    <div id="topbar"></div>
+
+    <!-- CONTENT -->
+    <div class="tw-flex-grow tw-p-4 tw-space-y-6 tw-overflow-y-auto">
+      <h2 class="tw-text-xl tw-font-bold tw-text-green-700">
+        Kết quả phân tích:
+      </h2>
+
+      <!-- Tiến độ -->
+      <div
+        class="tw-bg-white tw-rounded-xl tw-shadow tw-p-4 tw-border tw-border-gray-100"
+      >
+        <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+          <span class="tw-font-medium">Tiến độ hoàn thành phân gốc</span>
+          <span
+            class="tw-bg-gray-100 tw-text-gray-700 tw-text-sm tw-px-3 tw-py-1 tw-rounded-lg"
+            >3 dữ liệu</span
+          >
+        </div>
+
+        <div class="tw-w-full tw-bg-gray-200 tw-h-2 tw-rounded-full">
+          <div
+            class="tw-bg-green-600 tw-h-2 tw-rounded-full"
+            style="width: 15%"
+          ></div>
+        </div>
+
+        <p class="tw-text-gray-600 tw-text-sm tw-mt-2">15% hoàn thành</p>
+      </div>
+
+      <!-- Thẻ phân tích -->
+      <div
+        class="tw-bg-white tw-rounded-xl tw-shadow tw-p-4 tw-border tw-border-gray-100"
+      >
+        <h3 class="tw-font-bold tw-mb-2">Tổng quan thị trường</h3>
+        <ul class="tw-text-sm tw-text-gray-700 tw-space-y-1">
+          <li>• Thị trường socola Việt Nam phát triển mạnh.</li>
+          <li>• Nhu cầu ngày càng cao về sản phẩm chất lượng.</li>
+          <li>• Queenam có lợi thế với socola thật và hương vị đa dạng.</li>
+        </ul>
+      </div>
+
+      <div
+        class="tw-bg-white tw-rounded-xl tw-shadow tw-p-4 tw-border tw-border-gray-100"
+      >
+        <h3 class="tw-font-bold tw-mb-2">Chân dung & Insight Khách hàng</h3>
+        <p class="tw-text-sm tw-text-gray-700">
+          Khách hàng chính: phụ nữ, nhân viên văn phòng, sinh viên.
+        </p>
+        <p class="tw-text-sm tw-text-gray-700">
+          Ưu tiên sản phẩm chất lượng, sẵn sàng chi tiêu.
+        </p>
+        <p class="tw-text-sm tw-text-gray-700">
+          Chọn socola để thư giãn hoặc làm quà tặng.
+        </p>
+      </div>
+
+      <div
+        class="tw-bg-white tw-rounded-xl tw-shadow tw-p-4 tw-border tw-border-gray-100"
+      >
+        <h3 class="tw-font-bold tw-mb-2">
+          Phân tích Đối thủ & Khoảng trống Cạnh tranh
+        </h3>
+        <p class="tw-text-sm tw-text-gray-700">
+          Đối thủ lớn, sản phẩm đa dạng nhưng thiếu yếu tố văn hoá Việt.
+        </p>
+        <p class="tw-text-sm tw-text-gray-700">
+          Cơ hội với sản phẩm kết hợp hương vị bản địa.
+        </p>
+      </div>
+    </div>
+
+    <!-- Load Widgets -->
+    <script>
+      async function loadWidget(id, file) {
+        const html = await fetch(file).then((res) => res.text());
+        document.getElementById(id).innerHTML = html;
+      }
+
+      // Load topbar + sidebar (CHUẨN path)
+      loadWidget("sidebar", "widget/sidebar-mobile.html");
+      loadWidget("topbar", "widget/taskbar.html");
+    </script>
+
+    <!-- Sidebar / submenu JS -->
+    <script>
+      function toggleSidebarMobile() {
+        const overlay = document.getElementById("mobileSidebar");
+        const panel = document.getElementById("mobileSidebarPanel");
+
+        const isClosed = panel.classList.contains("tw--translate-x-full");
+
+        if (isClosed) {
+          // === MỞ SIDE BAR ===
+          overlay.classList.remove("tw-hidden");
+
+          // Delay cho CSS apply trước khi animate
+          setTimeout(() => {
+            panel.classList.remove("tw--translate-x-full");
+          }, 20);
+        } else {
+          // === ĐÓNG SIDE BAR ===
+          panel.classList.add("tw--translate-x-full");
+
+          // ĐỢI ANIMATION XONG RỒI MỚI ẨN OVERLAY
+          setTimeout(() => {
+            overlay.classList.add("tw-hidden");
+          }, 300); // match tw-duration-300
+        }
+      }
+
+      function toggleMenu(menuId, arrowId) {
+        const menu = document.getElementById(menuId);
+        const arrow = document.getElementById(arrowId);
+        if (!menu || !arrow) return;
+
+        const isOpen = !menu.classList.contains("tw-hidden");
+        if (isOpen) {
+          menu.classList.add("tw-hidden");
+          arrow.classList.remove("tw-rotate-180");
+        } else {
+          menu.classList.remove("tw-hidden");
+          arrow.classList.add("tw-rotate-180");
+        }
+      }
+    </script>
+  </body>
+</html>

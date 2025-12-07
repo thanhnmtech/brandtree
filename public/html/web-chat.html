@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VLBC Brand Garden — Web Chat</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icon pack -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Config prefix phải đặt SAU khi load CDN -->
+    <script src="./assets/js/tailwind-config.js"></script>
+  </head>
+
+  <body
+    class="tw-font-bevietnam tw-bg-[#FFFFFF] tw-text-[#1a1a1a] tw-h-screen tw-flex tw-flex-col tw-overflow-hidden"
+  >
+    <!-- HEADER / TOP TASKBAR -->
+    <header class="tw-h-[60px]">
+      <div id="taskbar"></div>
+    </header>
+
+    <!-- SIDEBAR MOBILE -->
+    <div id="sidebar-mobile"></div>
+
+    <main id="chatContainer" class="tw-flex tw-flex-1 tw-overflow-hidden">
+      <!-- SIDEBAR -->
+      <aside
+        id="sidebar"
+        class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300"
+      ></aside>
+
+      <!-- CHAT AREA -->
+      <div
+        id="chat-area"
+        class="tw-flex-1 md:tw-flex-1 tw-bg-white tw-border tw-border-gray-200 tw-flex tw-flex-col tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300"
+      >
+        <!-- Chat header -->
+        <div
+          class="tw-hidden md:tw-flex tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center tw-gap-3"
+        >
+          <div id="logo-chat">
+            <img
+              src="./assets/img/logo-nenTangDuLieu.svg"
+              class="tw-w-[38px] tw-h-[38px] tw-object-contain"
+            />
+          </div>
+          <div class="tw-flex-1 tw-min-w-0">
+            <div
+              class="tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap"
+            >
+              Nhà Phân tích Thổ nhưỡng
+            </div>
+            <div
+              class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap"
+            >
+              Đánh giá thị trường, đối thủ và cơ hội kinh doanh.
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat messages -->
+        <section
+          id="chat-messages-container"
+          class="tw-flex-1 tw-overflow-y-auto tw-px-5 tw-py-4 tw-bg-[#F3F7F5]"
+        >
+          <div id="chat-messages" class="tw-space-y-2"></div>
+        </section>
+
+        <!-- Input bar -->
+        <div
+          class="tw-w-full tw-bg-white tw-border-t tw-border-gray-200 tw-px-5 tw-py-4 tw-flex tw-flex-col tw-justify-end"
+        >
+          <div id="inputbar"></div>
+        </div>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <aside
+        id="resultbar"
+        class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-overflow-y-auto tw-h-full tw-transition-all tw-duration-300"
+      ></aside>
+    </main>
+
+    <!-- IMPORT WIDGETS -->
+    <script>
+      function loadWidget(id, file) {
+        return fetch(file)
+          .then((res) => res.text())
+          .then((html) => (document.getElementById(id).innerHTML = html));
+      }
+
+      // Load standalone widgets
+      loadWidget("taskbar", "./widget/taskbar.html");
+      loadWidget("sidebar", "./widget/sidebar.html");
+      loadWidget("sidebar-mobile", "./widget/sidebar-mobile.html");
+
+      loadWidget("inputbar", "./widget/inputbar.html").then(() => {
+        handlerTextareaInputBar();
+      });
+
+      loadWidget("resultbar", "./widget/resultbar.html").then(() => {
+        // After loading result bar, load result cards
+        loadResultCards();
+      });
+
+      // Load result cards
+      function loadResultCards() {
+        return fetch("./widget/result-card.html")
+          .then((res) => res.text())
+          .then((template) => {
+            let html = "";
+
+            html += template
+              .replace("{{TITLE}}", "Tổng quan thị trường")
+              .replace("{{META}}", "test")
+              .replace(
+                "{{BODY}}",
+                `<ul>
+              <li>Thị trường socola Việt Nam phát triển mạnh.</li>
+              <li>Nhu cầu tăng cao về sản phẩm chất lượng.</li>
+              <li>Queenam có lợi thế về socola thủ công và hương vị đa dạng.</li>
+            </ul>`
+              );
+
+            html += template
+              .replace("{{TITLE}}", "Chân dung & Insight khách hàng")
+              .replace("{{META}}", "")
+              .replace(
+                "{{BODY}}",
+                "Khách hàng chính: phụ nữ, nhân viên văn phòng, sinh viên. Ưa thích sản phẩm chất lượng."
+              );
+
+            document.getElementById("result-panel").innerHTML = html;
+          });
+      }
+
+      // Cuộn chat xuống dưới cùng
+      function scrollChatToBottom() {
+        requestAnimationFrame(() => {
+          const chat = document.getElementById("chat-messages-container");
+          chat.scrollTop = chat.scrollHeight;
+        });
+      }
+
+      // Load chat messages
+      Promise.all([
+        fetch("./widget/assistant-message.html").then((r) => r.text()),
+        fetch("./widget/user-message.html").then((r) => r.text()),
+      ]).then(([assistantTemplate, userTemplate]) => {
+        let html = "";
+
+        // Assistant message
+        html += assistantTemplate
+          .replaceAll(
+            "{{AST_MESSAGE_CONTENT}}",
+            "Xin chào! Tôi là Giám đốc phòng Marketing ảo..."
+          )
+          .replaceAll("{{TIME}}", "13:28");
+
+        // User message
+        html += userTemplate
+          .replaceAll(
+            "{{USER_MESSAGE_CONTENT}}",
+            "(Ví dụ) Tôi muốn tập trung vào giá trị truyền thống..."
+          )
+          .replaceAll("{{TIME}}", "13:30");
+
+        // Assistant message
+        html += assistantTemplate
+          .replaceAll(
+            "{{AST_MESSAGE_CONTENT}}",
+            "Xin chào! Tôi là Giám đốc phòng Marketing ảo..."
+          )
+          .replaceAll("{{TIME}}", "13:28");
+
+        // User message
+        html += userTemplate
+          .replaceAll(
+            "{{USER_MESSAGE_CONTENT}}",
+            "(Ví dụ) Tôi muốn tập trung vào giá trị truyền thống..."
+          )
+          .replaceAll("{{TIME}}", "13:30");
+
+        // Assistant message
+        html += assistantTemplate
+          .replaceAll(
+            "{{AST_MESSAGE_CONTENT}}",
+            "Xin chào! Tôi là Giám đốc phòng Marketing ảo..."
+          )
+          .replaceAll("{{TIME}}", "13:28");
+
+        // User message
+        html += userTemplate
+          .replaceAll(
+            "{{USER_MESSAGE_CONTENT}}",
+            "(Ví dụ) Tôi muốn tập trung vào giá trị truyền thống..."
+          )
+          .replaceAll("{{TIME}}", "13:30");
+
+        // Assistant message
+        html += assistantTemplate
+          .replaceAll(
+            "{{AST_MESSAGE_CONTENT}}",
+            "Xin chào! Tôi là Giám đốc phòng Marketing ảo..."
+          )
+          .replaceAll("{{TIME}}", "13:28");
+
+        // User message
+        html += userTemplate
+          .replaceAll(
+            "{{USER_MESSAGE_CONTENT}}",
+            "(Ví dụ) Tôi muốn tập trung vào giá trị truyền thống..."
+          )
+          .replaceAll("{{TIME}}", "13:30");
+
+        // Assistant message
+        html += assistantTemplate
+          .replaceAll(
+            "{{AST_MESSAGE_CONTENT}}",
+            "Xin chào! Tôi là Giám đốc phòng Marketing ảo..."
+          )
+          .replaceAll("{{TIME}}", "13:28");
+
+        // User message
+        html += userTemplate
+          .replaceAll(
+            "{{USER_MESSAGE_CONTENT}}",
+            "(Ví dụ) Tôi muốn tập trung vào giá trị truyền thống..."
+          )
+          .replaceAll("{{TIME}}", "13:30");
+
+        document.querySelector("#chat-messages").innerHTML = html;
+
+        scrollChatToBottom();
+      });
+
+      function handlerTextareaInputBar() {
+        const textarea = document.getElementById("chat-input");
+
+        if (!textarea) return;
+
+        const maxLines = 6;
+        const lineHeight = 20;
+        const padding = 16;
+
+        const maxHeight = maxLines * lineHeight + padding;
+
+        textarea.addEventListener("input", () => {
+          textarea.style.height = "auto";
+          textarea.style.height =
+            Math.min(textarea.scrollHeight, maxHeight) + "px";
+          textarea.scrollTop = textarea.scrollHeight;
+        });
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+
+        const logoSidebar = document.getElementById("logo-sidebar");
+        const contentSidebar = document.getElementById("content-sidebar");
+        const dataSection = document.getElementById("dataPlatformSection");
+        const chatSection = document.getElementById("chatHistorySection");
+
+        const isCollapsed = sidebar.classList.contains("tw-w-[48px]");
+
+        if (isCollapsed) {
+          // ==== MỞ SIDEBAR ====
+          sidebar.classList.remove("tw-w-[48px]", "tw-min-w-[48px]");
+          sidebar.classList.add("tw-w-[280px]", "tw-min-w-[200px]");
+
+          logoSidebar.classList.remove("tw-hidden");
+          contentSidebar.classList.remove("tw-hidden");
+          dataSection.classList.remove("tw-hidden");
+          chatSection.classList.remove("tw-hidden");
+        } else {
+          // ==== THU SIDEBAR ====
+          sidebar.classList.add("tw-w-[48px]", "tw-min-w-[48px]");
+          sidebar.classList.remove("tw-w-[280px]", "tw-min-w-[200px]");
+
+          logoSidebar.classList.add("tw-hidden");
+          contentSidebar.classList.add("tw-hidden");
+          dataSection.classList.add("tw-hidden");
+          chatSection.classList.add("tw-hidden");
+        }
+      }
+
+      function toggleSidebarMobile() {
+        const overlay = document.getElementById("mobileSidebar");
+        const panel = document.getElementById("mobileSidebarPanel");
+
+        const isClosed = panel.classList.contains("tw--translate-x-full");
+
+        if (isClosed) {
+          // === MỞ SIDE BAR ===
+          overlay.classList.remove("tw-hidden");
+
+          // Delay cho CSS apply trước khi animate
+          setTimeout(() => {
+            panel.classList.remove("tw--translate-x-full");
+          }, 20);
+        } else {
+          // === ĐÓNG SIDE BAR ===
+          panel.classList.add("tw--translate-x-full");
+
+          // ĐỢI ANIMATION XONG RỒI MỚI ẨN OVERLAY
+          setTimeout(() => {
+            overlay.classList.add("tw-hidden");
+          }, 300); // match tw-duration-300
+        }
+      }
+
+      // Toggle submenu (works for widget because JS is here)
+      function toggleMenu(menuId, arrowId) {
+        const menu = document.getElementById(menuId);
+        const arrow = document.getElementById(arrowId);
+
+        if (!menu || !arrow) return;
+
+        const isOpen = !menu.classList.contains("tw-hidden");
+
+        if (isOpen) {
+          menu.classList.add("tw-hidden");
+          arrow.classList.add("tw-rotate-[-90deg]");
+        } else {
+          menu.classList.remove("tw-hidden");
+          arrow.classList.remove("tw-rotate-[-90deg]");
+        }
+      }
+
+      function toggleAccountPopup() {
+        const popup = document.getElementById("accountPopup");
+        if (!popup) return;
+
+        const isHidden = popup.classList.contains("tw-hidden");
+
+        if (isHidden) {
+          popup.classList.remove("tw-hidden");
+        } else {
+          popup.classList.add("tw-hidden");
+        }
+      }
+    </script>
+  </body>
+</html>
