@@ -7,7 +7,7 @@
     <div class="tw-p-4 tw-border-b tw-border-gray-100">
         <div class="tw-flex tw-items-center tw-gap-3">
             @if($brand->logo_path)
-                <img src="{{ asset('storage/' . $brand->logo_path) }}" alt="{{ $brand->name }}" class="tw-w-12 tw-h-12 tw-object-contain tw-rounded-lg tw-bg-gray-100 tw-p-1">
+                <img src="{{ asset('assets/storage/' . $brand->logo_path) }}" alt="{{ $brand->name }}" class="tw-w-12 tw-h-12 tw-object-contain tw-rounded-lg tw-bg-gray-100 tw-p-1">
             @else
                 <div class="tw-w-12 tw-h-12 tw-bg-gradient-to-br tw-from-[#16a249] tw-to-[#138a3e] tw-rounded-lg tw-flex tw-items-center tw-justify-center">
                     <span class="tw-text-lg tw-font-bold tw-text-white">{{ strtoupper(substr($brand->name, 0, 2)) }}</span>
@@ -103,4 +103,3 @@
         </div>
     @endif
 </div>
-

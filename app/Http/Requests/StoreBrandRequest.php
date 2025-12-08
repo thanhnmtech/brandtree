@@ -25,7 +25,7 @@ class StoreBrandRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'industry' => ['nullable', 'string', 'max:255'],
             'target_market' => ['nullable', 'string', 'max:255'],
-            'founded_year' => ['nullable', 'integer', 'min:1900', 'max:' . date('Y')],
+            'founded_year' => ['nullable', 'integer', 'min:1901', 'max:' . date('Y')],
             'description' => ['nullable', 'string', 'max:5000'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];

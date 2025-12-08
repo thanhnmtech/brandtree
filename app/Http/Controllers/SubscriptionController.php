@@ -21,7 +21,23 @@ class SubscriptionController extends Controller
         $subscription = $brand->activeSubscription;
         $plans = Plan::active()->orderBy('sort_order')->get();
 
-        return view('brands.subscription.show', compact('brand', 'subscription', 'plans'));
+        // Monthly subscription plans
+        $monthlyPlans = Plan::active()
+            ->subscriptions()
+            ->monthly()
+            ->orderBy('sort_order')
+            ->get();
+
+        // Yearly subscription plans
+        $yearlyPlans = Plan::active()
+            ->subscriptions()
+            ->yearly()
+            ->orderBy('sort_order')
+            ->get();
+
+         $currentSubscription = $brand->activeSubscription;
+
+        return view('brands.subscription.show', compact('brand', 'subscription', 'plans', 'monthlyPlans', 'yearlyPlans', 'currentSubscription'));
     }
 
     /**

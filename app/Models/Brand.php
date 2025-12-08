@@ -325,4 +325,16 @@ class Brand extends Model
     {
         return $this->hasActiveSubscription();
     }
+
+    public function getProcessRoot(){
+        return rand(10, 100).'%';
+    }
+
+    public function getProcessTrunk(){
+        return rand(10, 100).'%';
+    }
+
+    public function getNextProcess(){
+        return 'Cây cần hoàn thiện phân tích SWOT.';
+    }
 }

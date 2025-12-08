@@ -1,19 +1,7 @@
 <x-app-layout>
+    <main class="tw-flex tw-flex-col md:tw-rounded-[10px] md:tw-bg-[#F3F7F5] md:tw-mt-[36px] md:tw-mx-[71px] tw-p-10">
     <!-- Header -->
     <div class="tw-mb-6">
-        <nav class="tw-flex tw-mb-4" aria-label="Breadcrumb">
-            <ol class="tw-inline-flex tw-items-center tw-space-x-1 md:tw-space-x-3">
-                <li><a href="{{ route('dashboard') }}" class="tw-text-gray-500 hover:tw-text-gray-700">Dashboard</a></li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <a href="{{ route('brands.show', $brand) }}" class="tw-text-gray-500 hover:tw-text-gray-700">{{ $brand->name }}</a>
-                </li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <span class="tw-text-gray-700">Chi tiết thanh toán</span>
-                </li>
-            </ol>
-        </nav>
         <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Chi tiết thanh toán</h1>
     </div>
 
@@ -126,4 +114,5 @@
     <div class="tw-mt-6 tw-text-center">
         <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-text-gray-600 hover:tw-text-gray-800">← Quay lại gói dịch vụ</a>
     </div>
+    </main>
 </x-app-layout>

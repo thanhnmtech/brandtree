@@ -1,102 +1,142 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="tw-flex tw-items-center tw-justify-between">
-            <div class="tw-flex tw-items-center tw-gap-4">
-                <a href="{{ route('brands.index') }}" class="tw-text-gray-500 hover:tw-text-gray-700 tw-transition">
-                    <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </a>
-                <div>
-                    <h2 class="tw-text-2xl md:tw-text-3xl tw-font-bold tw-text-gray-800">Gói dịch vụ</h2>
-                    <p class="tw-text-sm tw-text-gray-500">{{ $brand->name }}</p>
+    <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10 tw-mb-5">
+        <div class="tw-mb-6 tw-px-8">
+            <nav class="tw-flex tw-mb-4" aria-label="Breadcrumb">
+                <ol class="tw-inline-flex tw-items-center tw-space-x-1 md:tw-space-x-3">
+                    <li><a href="{{ route('dashboard') }}" class="tw-text-gray-500 hover:tw-text-gray-700">Trang chủ</a>
+                    </li>
+                    <li class="tw-flex tw-items-center">
+                        <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <a href="{{ route('brands.show', $brand) }}"
+                            class="tw-text-gray-500 hover:tw-text-gray-700">{{ $brand->name }}</a>
+                    </li>
+                    <li class="tw-flex tw-items-center">
+                        <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="tw-text-gray-700">Gói dịch vụ</span>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Gói dịch vụ</h1>
+        </div>
+        <!-- ====================== GÓI DỊCH VỤ HIỆN TẠI ====================== -->
+        <section class="tw-px-8">
+            <div class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-sm tw-p-6">
+                <div class="tw-flex tw-items-start tw-justify-between">
+                    <h2 class="tw-text-sm tw-font-semibold tw-text-gray-500">
+                        Gói hiện tại
+                        <p class="tw-text-lg tw-font-bold tw-text-black">
+                            {{ $brand->activeSubscription->plan->name }}
+                        </p>
+                    </h2>
+                </div>
+
+                <!-- Gói + Ngày hết hạn -->
+                <div class="tw-grid md:tw-grid-cols-3 tw-mt-2 tw-items-center tw-gap-4">
+                    <!-- GÓI -->
+                    <div>
+                        <div class="tw-flex tw-items-center tw-gap-2 tw-mt-1">
+                            <i class="ri-flashlight-fill tw-text-vlbcgreen tw-text-lg"></i>
+                            <p class="tw-text-sm tw-text-gray-500">Năng Lượng còn lại</p>
+                        </div>
+
+                        <div class="tw-mt-1">
+                            <span class="tw-text-vlbcgreen tw-font-semibold tw-text-2xl">
+                                {{ $brand->credits_remaining }}</span>
+                            <span class="tw-text-gray-500">/ {{ $brand->total_credits }}</span>
+                        </div>
+                    </div>
+
+                    <!-- NGÀY HẾT HẠN -->
+                    <div class="tw-text-center">
+                        <p class="tw-text-sm tw-text-gray-500">Ngày làm mới năng lượng</p>
+                        <p class="tw-text-2xl tw-font-bold tw-mt-1">
+                            {{ $brand->activeSubscription->credits_reset_at->format('d/m/Y') }}</p>
+                    </div>
+
+                    <div class="tw-text-center">
+                        <p class="tw-text-sm tw-text-gray-500">Ngày gia hạn</p>
+                        <p class="tw-text-2xl tw-font-bold tw-mt-1">
+                            {{ $brand->activeSubscription->expires_at->format('d/m/Y') }}</p>
+                    </div>
                 </div>
             </div>
-            @can('update', $brand)
-                <a href="{{ route('brands.subscription.create', $brand) }}" class="tw-inline-flex tw-items-center tw-gap-2 tw-px-4 tw-py-2 tw-bg-[#16a249] tw-text-white tw-rounded-lg tw-font-medium hover:tw-bg-[#138a3e] tw-transition">
-                    <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                    Nâng cấp
-                </a>
-            @endcan
-        </div>
-    </x-slot>
+        </section>
 
-    <div class="tw-flex tw-flex-col lg:tw-flex-row tw-gap-6">
-        <!-- Sidebar -->
-        <div class="lg:tw-w-64 tw-flex-shrink-0">
-            @include('brands.partials.sidebar', ['brand' => $brand])
-        </div>
+        <!-- ====================== CHỌN GÓI DỊCH VỤ ====================== -->
+        <section class="tw-px-8">
+            <div class="tw-w-full tw-flex tw-flex-col tw-gap-6">
+                <h2 class="tw-text-xl tw-font-bold tw-flex tw-items-center tw-gap-2">
+                    <i class="ri-flashlight-line tw-text-[#1AA24C]"></i>
+                    Chọn gói dịch vụ
+                </h2>
 
-        <!-- Main Content -->
-        <div class="tw-flex-1 tw-min-w-0">
-    @if($subscription)
-        <!-- Current Subscription -->
-        <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-6 tw-mb-6">
-            <div class="tw-flex tw-items-start tw-justify-between tw-mb-6">
-                <div>
-                    <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">Gói hiện tại</h3>
-                    <p class="tw-text-gray-500">{{ $subscription->plan->name }}</p>
+                <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-6">
+                    @foreach ($monthlyPlans as $plan)
+                        <form action="{{ route('brands.subscription.store', $brand) }}" method="POST"
+                            class="tw-h-full">
+                            @csrf
+                            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                            <div
+                                class="tw-bg-white tw-shadow-sm tw-rounded-xl tw-border @if ($plan->is_popular) tw-relative tw-border-[#1AA24C] @else tw-border-[#E4ECE8] @endif tw-p-6 tw-flex tw-flex-col tw-justify-between">
+                                <span
+                                    class="tw-absolute tw-top-[-10px] tw-right-3 tw-bg-[#1AA24C] tw-text-white tw-text-[10px] tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                                    Phổ biến nhất
+                                </span>
+                                <div>
+                                    <p class="tw-font-bold tw-text-lg">{{ $plan->name }}</p>
+
+                                    <div class="tw-mt-4 tw-flex tw-items-baseline tw-gap-4">
+                                        <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_price }}</span>
+                                        @if (!$plan->is_trial && $plan->price > 0)
+                                            <span
+                                                class="tw-text-sm tw-text-gray-500">/{{ $plan->isYearly() ?? false ? 'năm' : 'tháng' }}</span>
+                                        @endif
+                                    </div>
+                                    <ul class="tw-mt-5 tw-space-y-2 tw-text-sm tw-text-gray-700">
+                                        <li>✔ {{ number_format($plan->credits) }} năng
+                                            lượng/{{ $plan->isYearly() ?? false ? 'năm' : 'tháng' }}</li>
+                                        <li>✔ {{ count($plan->models_allowed) }} AI Model</li>
+                                    </ul>
+                                </div>
+                                @if ($currentSubscription && $currentSubscription->plan_id === $plan->id)
+                                    <button
+                                        class="tw-w-full tw-bg-[#DCE2E0] tw-text-gray-600 tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6">
+                                        Gói hiện tại
+                                    </button>
+                                @endif
+                                @if (!$plan->is_trial)
+                                    <button type="submit"
+                                        class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6 hover:tw-opacity-90">
+                                        Đăng ký
+                                    </button>
+                                @endif
+                            </div>
+                        </form>
+                    @endforeach
+                    <div
+                        class="tw-bg-white tw-shadow-sm tw-rounded-xl tw-border tw-border-[#E4ECE8] tw-p-6 tw-flex tw-flex-col tw-justify-between">
+                        <div>
+                            <p class="tw-font-bold tw-text-lg">Gói Tối Ưu (Premium)</p>
+                            <p class="tw-text-3xl tw-font-bold tw-mt-6">Liên hệ</p>
+
+                            <ul class="tw-mt-5 tw-space-y-2 tw-text-sm tw-text-gray-700">
+                                <li>✔ 20.000 Credits/tháng</li>
+                                <li>✔ 5 AI Agents</li>
+                                <li>✔ Tạo nội dung không giới hạn</li>
+                                <li>✔ Hỗ trợ 24/7 ưu tiên + tư vấn chiến lược</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <span class="tw-px-3 tw-py-1 tw-text-sm tw-font-medium tw-rounded-full {{ $subscription->isActive() ? 'tw-bg-green-100 tw-text-green-700' : 'tw-bg-red-100 tw-text-red-700' }}">
-                    {{ $subscription->isActive() ? 'Đang hoạt động' : 'Hết hạn' }}
-                </span>
             </div>
-
-            <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-4 tw-gap-4 tw-mb-6">
-                <div class="tw-bg-gray-50 tw-rounded-lg tw-p-4">
-                    <p class="tw-text-sm tw-text-gray-500 tw-mb-1">Credits còn lại</p>
-                    <p class="tw-text-2xl tw-font-bold tw-text-gray-800">{{ number_format($subscription->credits_remaining) }}</p>
-                </div>
-                <div class="tw-bg-gray-50 tw-rounded-lg tw-p-4">
-                    <p class="tw-text-sm tw-text-gray-500 tw-mb-1">Tổng credits</p>
-                    <p class="tw-text-2xl tw-font-bold tw-text-gray-800">{{ number_format($subscription->plan->credits) }}</p>
-                </div>
-                <div class="tw-bg-gray-50 tw-rounded-lg tw-p-4">
-                    <p class="tw-text-sm tw-text-gray-500 tw-mb-1">Ngày hết hạn</p>
-                    <p class="tw-text-lg tw-font-semibold tw-text-gray-800">{{ $subscription->expires_at?->format('d/m/Y') ?? 'Không giới hạn' }}</p>
-                </div>
-                <div class="tw-bg-gray-50 tw-rounded-lg tw-p-4">
-                    <p class="tw-text-sm tw-text-gray-500 tw-mb-1">Còn lại</p>
-                    <p class="tw-text-lg tw-font-semibold tw-text-gray-800">{{ $subscription->days_remaining ?? '∞' }} ngày</p>
-                </div>
-            </div>
-
-            <!-- Credit Usage Bar -->
-            <div class="tw-mb-4">
-                <div class="tw-flex tw-justify-between tw-text-sm tw-text-gray-600 tw-mb-2">
-                    <span>Đã sử dụng</span>
-                    <span>{{ $subscription->credit_usage_percent }}%</span>
-                </div>
-                <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-2.5">
-                    <div class="tw-bg-[#16a249] tw-h-2.5 tw-rounded-full" style="width: {{ $subscription->credit_usage_percent }}%"></div>
-                </div>
-            </div>
-
-            @can('update', $brand)
-                @if(!$subscription->plan->is_trial)
-                    <form action="{{ route('brands.subscription.destroy', $brand) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn hủy gói này?')" class="tw-mt-4">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="tw-text-red-600 tw-text-sm hover:tw-underline">Hủy gói</button>
-                    </form>
-                @endif
-            @endcan
-        </div>
-    @else
-        <!-- No Subscription -->
-        <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-8 tw-text-center">
-            <div class="tw-w-16 tw-h-16 tw-bg-gray-100 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-4">
-                <svg class="tw-w-8 tw-h-8 tw-text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-2">Chưa có gói dịch vụ</h3>
-            <p class="tw-text-gray-600 tw-mb-6">Chọn một gói để bắt đầu sử dụng các tính năng của BrandTree.</p>
-            @can('update', $brand)
-                <a href="{{ route('brands.subscription.create', $brand) }}" class="tw-inline-flex tw-items-center tw-gap-2 tw-px-6 tw-py-3 tw-bg-[#16a249] tw-text-white tw-rounded-lg tw-font-medium hover:tw-bg-[#138a3e] tw-transition">
-                    Chọn gói ngay
-                </a>
-            @endcan
-        </div>
-    @endif
-        </div>
-    </div>
+        </section>
+    </main>
 </x-app-layout>
