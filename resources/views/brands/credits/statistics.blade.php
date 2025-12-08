@@ -1,19 +1,10 @@
 <x-app-layout>
     <!-- Header -->
     <div class="tw-mb-6">
-        <nav class="tw-flex tw-mb-4" aria-label="Breadcrumb">
-            <ol class="tw-inline-flex tw-items-center tw-space-x-1 md:tw-space-x-3">
-                <li><a href="{{ route('dashboard') }}" class="tw-text-gray-500 hover:tw-text-gray-700">Dashboard</a></li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <a href="{{ route('brands.show', $brand) }}" class="tw-text-gray-500 hover:tw-text-gray-700">{{ $brand->name }}</a>
-                </li>
-                <li class="tw-flex tw-items-center">
-                    <svg class="tw-w-4 tw-h-4 tw-text-gray-400 tw-mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <span class="tw-text-gray-700">Thống kê Credit</span>
-                </li>
-            </ol>
-        </nav>
+        <x-breadcrumb :items="[
+            ['label' => 'Dashboard', 'url' => route('dashboard')],
+            ['label' => $brand->name, 'url' => route('brands.show', $brand)]
+        ]" />
         <div class="tw-flex tw-flex-wrap tw-justify-between tw-items-center tw-gap-4">
             <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Thống kê sử dụng Credit</h1>
             <select onchange="window.location.href=this.value" class="tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg tw-text-sm">
@@ -131,4 +122,3 @@
     </script>
     @endpush
 </x-app-layout>
-
