@@ -741,7 +741,7 @@
       </section>
     </main>
     <footer class="tw-bg-white tw-border-t tw-border-gray-200 tw-mt-10">
-      <div id="footer_widget"></div>
+      <div id="footer"></div>
     </footer>
 
     <!-- =================== LOAD WIDGETS =================== -->
@@ -755,7 +755,7 @@
       // Load Taskbar & Footer
       loadWidget("brand_switcher_container", "./widget/brand_switcher.html");
       loadWidget("taskbar", "./widget/taskbar.html");
-      loadWidget("footer_widget", "./widget/footer.html");
+      loadWidget("footer", "./widget/footer.html");
 
       document.addEventListener("click", function (e) {
         const body = document.body;
@@ -772,27 +772,22 @@
           if (brandBtn === e.target || brandBtn.contains(e.target)) {
             e.stopPropagation();
 
-            if (isMobile) {
-              // ✅ MOBILE: hiện giữa màn hình
+            const isOpening = brandPanel.classList.contains("tw-hidden");
+
+            if (isOpening) {
+              // ✅ luôn hiện giữa màn hình
+              brandPanel.classList.remove("tw-hidden");
+
               brandPanel.style.top = "50%";
               brandPanel.style.left = "50%";
               brandPanel.style.transform = "translate(-50%, -50%)";
-            } else {
-              // ✅ DESKTOP: hiện ngay dưới icon
-              const rect = brandBtn.getBoundingClientRect();
 
-              brandPanel.style.transform = "";
-              brandPanel.style.top = rect.bottom + 8 + "px";
-              brandPanel.style.left =
-                rect.left + rect.width / 2 - brandPanel.offsetWidth / 2 + "px";
+              body.classList.add("tw-overflow-hidden");
+            } else {
+              brandPanel.classList.add("tw-hidden");
+              body.classList.remove("tw-overflow-hidden");
             }
 
-            brandPanel.classList.toggle("tw-hidden");
-
-            body.classList.toggle(
-              "tw-overflow-hidden",
-              !brandPanel.classList.contains("tw-hidden")
-            );
             return;
           }
 

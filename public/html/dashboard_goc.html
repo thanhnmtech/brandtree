@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>VLBC – Bản Đồ Hành Trình Gốc Cây</title>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Remix Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./assets/js/tailwind-config.js"></script>
+  </head>
+  <div id="brand_switcher_container"></div>
+
+  <body
+    class="tw-bg-[#FFFFFF] tw-text-gray-800 tw-min-h-screen tw-flex tw-flex-col"
+  >
+    <!-- HEADER / TOP TASKBAR -->
+    <header class="tw-h-[60px]">
+      <div id="taskbar"></div>
+    </header>
+
+    <!-- MAIN CONTENT GRID -->
+    <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10">
+      <!-- HERO -->
+      <div
+        class="tw-w-full tw-bg-[rgba(217,217,217,0.5)] tw-py-10 tw-px-6 tw-border-b tw-border-gray-200"
+      >
+        <div class="tw-max-w-5xl tw-mx-auto tw-text-center">
+          <div
+            class="tw-inline-block tw-text-xs tw-font-semibold tw-uppercase tw-rounded-full tw-border tw-border-white tw-bg-[rgba(255,255,255,0.5)] tw-px-4 tw-py-2"
+          >
+            GIAI ĐOẠN GỐC CÂY ĐANG HOẠT ĐỘNG
+          </div>
+
+          <h1 class="tw-text-4xl tw-font-bold tw-mt-3">
+            Bản Đồ Hành Trình <span class="tw-text-vlbcgreen">Gốc Cây</span>
+          </h1>
+
+          <p
+            class="tw-text-base tw-text-gray-600 tw-mt-3 tw-max-w-2xl tw-mx-auto"
+          >
+            Xây dựng nền tảng chiến lược vững chắc cho thương hiệu của bạn. Tuân
+            thủ lộ trình tuyến tính để đảm bảo tính nhất quán và hiệu quả trong
+            mọi quyết định.
+          </p>
+        </div>
+      </div>
+
+      <!-- ===== HEADER BLOCK ===== -->
+      <div
+        class="tw-w-full tw-bg-[#F9F8F5] tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between"
+      >
+        <div>
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <h2 class="tw-text-3xl tw-font-bold tw-text-gray-900">
+              VLBC Brand Garden
+            </h2>
+            <i class="ri-settings-3-line tw-text-gray-600 tw-text-2xl"></i>
+            <i
+              id="brandSwitcherBtn"
+              class="ri-arrow-down-s-line tw-text-gray-500 tw-text-2xl tw-cursor-pointer"
+            ></i>
+          </div>
+
+          <p class="tw-text-md tw-text-gray-500 tw-mt-1">
+            Xây dựng và phát triển thương hiệu dựa trên cốt lõi của bạn
+          </p>
+        </div>
+
+        <div class="tw-flex tw-items-center">
+          <div class="tw-relative tw-w-[124px] tw-h-[124px]">
+            <svg class="tw-w-full tw-h-full" viewBox="0 0 120 120">
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                stroke="#E8EDEB"
+                stroke-width="8"
+                fill="none"
+              />
+            </svg>
+
+            <svg
+              class="tw-w-full tw-h-full tw-absolute tw-top-0 tw-left-0 tw-rotate-[-90deg]"
+              viewBox="0 0 120 120"
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                stroke="#1AA24C"
+                stroke-width="8"
+                stroke-linecap="round"
+                fill="none"
+                stroke-dasharray="326"
+                stroke-dashoffset="153"
+              />
+            </svg>
+
+            <div
+              class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center"
+            >
+              <div class="tw-text-center">
+                <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">53%</p>
+                <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Hoàn thành</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT AREA ===== -->
+      <div class="tw-px-8 tw-w-full tw-flex tw-gap-10">
+        <!-- LEFT COLUMN -->
+        <div class="tw-flex tw-flex-col tw-flex-1 tw-gap-6">
+          <step-card
+            state="ready"
+            step="G1"
+            title="Phân Tích Thị Trường"
+            description="Hoàn thiện Bản đồ Giá trị Giải pháp: phác hoạ chân dung khách hàng..."
+            aifeature="AI Định vị Giá trị giải pháp"
+          ></step-card>
+
+          <step-card
+            state="locked"
+            step="G2"
+            title="Định Vị Giá Trị Giải Pháp"
+            description="Hoàn thiện Bản đồ Giá trị Giải pháp: phác hoạ chân dung khách hàng..."
+            aifeature="AI Định vị Giá trị giải pháp"
+          ></step-card>
+
+          <step-card
+            state="locked"
+            step="G3"
+            title="Khám Phá Văn Hoá & Giá Trị Cốt Lõi"
+            description="Hoàn thiện Bản đồ Giá trị Giải pháp: phác hoạ chân dung khách hàng..."
+            aifeature="AI Định vị Giá trị giải pháp"
+          ></step-card>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <aside class="tw-hidden md:tw-flex tw-flex-col tw-w-[350px] tw-gap-6">
+          <!-- PROGRESS BLOCK GỐC CÂY -->
+          <div
+            class="tw-bg-white tw-rounded-xl tw-border tw-border-gray-200 tw-shadow-sm tw-p-6 tw-space-y-5"
+          >
+            <div class="tw-flex tw-items-start tw-justify-between tw-gap-4">
+              <h3
+                class="tw-flex-1 tw-text-xl tw-font-bold tw-text-gray-900 leading-tight"
+              >
+                Tiến Độ Giai Đoạn Gốc Cây
+              </h3>
+
+              <div class="tw-flex-col tw-text-right">
+                <p class="tw-text-[#829B99] tw-font-semibold tw-text-md">
+                  0/3 bước
+                </p>
+                <p
+                  class="tw-text-[#829B99] tw-font-semibold tw-text-md tw--mt-1"
+                >
+                  hoàn thành
+                </p>
+              </div>
+            </div>
+
+            <div class="tw-flex tw-flex-col tw-gap-2">
+              <div class="tw-w-full tw-h-3 tw-rounded-full tw-bg-beige"></div>
+
+              <div
+                class="tw-grid tw-grid-cols-3 tw-items-center tw-text-sm tw-text-gray-600"
+              >
+                <span class="tw-text-left">Bắt Đầu</span>
+                <span class="tw-text-center">0%</span>
+                <span class="tw-text-right">Hoàn Thành</span>
+              </div>
+            </div>
+
+            <div class="tw-flex tw-items-start tw-justify-between tw-pt-1">
+              <div
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#567A63] tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold"
+              >
+                G1
+              </div>
+
+              <div
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold"
+              >
+                G2
+              </div>
+
+              <div
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold"
+              >
+                G3
+              </div>
+            </div>
+          </div>
+
+          <!-- NEXT STEP WIDGET -->
+          <div
+            class="tw-bg-[radial-gradient(50%_50%_at_50%_50%,_#F6EBD4_0%,_#F8F8F6_100%)] tw-rounded-xl tw-border tw-border-gray-200 tw-shadow-sm tw-p-6 tw-relative tw-overflow-hidden"
+          >
+            <div class="tw-flex tw-items-center tw-justify-between">
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <div
+                  class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-white tw-filter tw-drop-shadow-[0_0_15px_rgba(0,0,0,0.1)] tw-flex tw-items-center tw-justify-center"
+                >
+                  <img
+                    src="./assets/img/icon-star-green.svg"
+                    alt="ok"
+                    class="tw-w-[20px] tw-h-[20px]"
+                  />
+                </div>
+
+                <h4 class="tw-font-bold tw-text-gray-800 tw-text-lg">
+                  Bước Tiếp Theo
+                </h4>
+              </div>
+
+              <span
+                class="tw-flex tw-items-center tw-gap-1 tw-text-[#7B7773] tw-font-semibold tw-rounded-full tw-border tw-border-[#E0EAE6] tw-text-xs tw-py-1 tw-px-3 tw-rounded-full"
+              >
+                <i class="ri-robot-line"></i>
+                AI Điều Phối
+              </span>
+            </div>
+
+            <p class="tw-text-sm tw-text-[#7B7773] tw-mt-3 tw-leading-relaxed">
+              Tuyệt vời! Hãy tiếp tục với G1: Khám phá Văn hoá & Giá trị Cốt
+              lõi.
+            </p>
+
+            <button
+              class="tw-mt-3 tw-bg-vlbcgreen tw-text-white tw-text-sm tw-font-medium tw-py-2 tw-px-5 tw-rounded-lg tw-flex tw-items-center tw-gap-2"
+            >
+              Bắt Đầu Phân Tích
+              <i class="ri-arrow-right-line tw-text-base"></i>
+            </button>
+
+            <p class="tw-text-sm tw-text-[#829B99] tw-mt-2 tw-font-medium">
+              Được hướng dẫn bởi Orchestrator Agent
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- 🔥 FOOTER (LOAD WIDGET) -->
+    <footer class="tw-bg-white tw-border-t tw-border-gray-200 tw-mt-10">
+      <div id="footer"></div>
+    </footer>
+
+    <!-- LOAD WIDGETS -->
+    <script>
+      async function loadWidget(id, file) {
+        const html = await fetch(file).then((res) => res.text());
+        document.getElementById(id).innerHTML = html;
+      }
+
+      loadWidget("brand_switcher_container", "./widget/brand_switcher.html");
+      loadWidget("taskbar", "./widget/taskbar.html");
+      loadWidget("footer", "./widget/footer.html");
+
+      class StepCard extends HTMLElement {
+        async connectedCallback() {
+          const template = await fetch("./widget/step_card.html").then((r) =>
+            r.text()
+          );
+          this.innerHTML = template;
+
+          const root = this.querySelector(".step-card");
+
+          // ===== ATTRIBUTES =====
+          const state = this.getAttribute("state"); // locked | ready
+          const step = this.getAttribute("step");
+          const title = this.getAttribute("title");
+          const description = this.getAttribute("description");
+          const aiFeature = this.getAttribute("aifeature");
+
+          // ===== CONTENT =====
+          root.querySelector(".step-number").textContent = `BƯỚC ${step}`;
+          root.querySelector(".title").textContent = title;
+          root.querySelector(".description").textContent = description;
+          root.querySelector(".ai-feature").textContent = aiFeature;
+
+          // ===== STATE CONFIG =====
+          const presets = {
+            locked: {
+              root: ["tw-bg-beige", "tw-border", "tw-border-gray-200"],
+              icon: ["ri-lock-line", "tw-text-[#7B7773]"],
+              stepColor: "tw-text-[#7B7773]",
+              badgeText: "Đã Khóa",
+              badgeClass: ["tw-bg-[#e7e5df]", "tw-text-gray-600"],
+              textColor: "tw-text-[#7B7773]",
+              titleColor: "tw-text-[#7B7773]",
+              aiBox: [
+                "tw-bg-[#F7F6F4]",
+                "tw-border-[#E0EAE6]",
+                "tw-text-[#7B7773]",
+              ],
+              show: { start: false, result: false, locked: true },
+            },
+
+            ready: {
+              root: [
+                "tw-bg-gradient-to-r",
+                "tw-from-vlbcGreen1",
+                "tw-to-vlbcGreen2",
+              ],
+              icon: ["ri-time-line", "tw-text-vlbcGreen"],
+              stepColor: "tw-text-[#F7C163]",
+              badgeText: "Sẵn Sàng",
+              badgeClass: ["tw-bg-vlbcgreen", "tw-text-white"],
+              textColor: "tw-text-white/90",
+              titleColor: "tw-text-[#F2F307]",
+              aiBox: [
+                "tw-bg-white/20",
+                "tw-border-white/30",
+                "tw-text-white/90",
+              ],
+              show: { start: true, result: true, locked: false },
+            },
+          };
+
+          const p = presets[state];
+
+          // ===== APPLY STATE =====
+          root.classList.add(...p.root);
+
+          root.querySelector(".icon").classList.add(...p.icon);
+          root.querySelector(".step-number").classList.add(p.stepColor);
+          root.querySelector(".title").classList.add(p.titleColor);
+          root.querySelector(".description").classList.add(p.textColor);
+
+          const badge = root.querySelector(".badge");
+          badge.textContent = p.badgeText;
+          badge.classList.add(...p.badgeClass);
+
+          const aiBox = root.querySelector(".ai-box");
+          aiBox.classList.add(...p.aiBox);
+
+          // buttons
+          root
+            .querySelector(".start-btn")
+            .classList.toggle("tw-hidden", !p.show.start);
+          root
+            .querySelector(".result-btn")
+            .classList.toggle("tw-hidden", !p.show.result);
+          root
+            .querySelector(".locked-btn")
+            .classList.toggle("tw-hidden", !p.show.locked);
+        }
+      }
+
+      customElements.define("step-card", StepCard);
+
+      document.addEventListener("click", function (e) {
+        const body = document.body;
+
+        /* ================= BRAND SWITCHER ================= */
+        const brandBtn = document.getElementById("brandSwitcherBtn");
+        const brandPanel = document.getElementById("brandSwitcherPanel");
+        const brandClose = document.getElementById("brandSwitcherClose");
+
+        if (brandBtn && brandPanel) {
+          const isMobile = window.innerWidth < 768; // md breakpoint
+
+          // Toggle panel
+          if (brandBtn === e.target || brandBtn.contains(e.target)) {
+            e.stopPropagation();
+
+            const isOpening = brandPanel.classList.contains("tw-hidden");
+
+            if (isOpening) {
+              // ✅ luôn hiện giữa màn hình
+              brandPanel.classList.remove("tw-hidden");
+
+              brandPanel.style.top = "50%";
+              brandPanel.style.left = "50%";
+              brandPanel.style.transform = "translate(-50%, -50%)";
+
+              body.classList.add("tw-overflow-hidden");
+            } else {
+              brandPanel.classList.add("tw-hidden");
+              body.classList.remove("tw-overflow-hidden");
+            }
+
+            return;
+          }
+
+          // Close button
+          if (brandClose && brandClose.contains(e.target)) {
+            brandPanel.classList.add("tw-hidden");
+            body.classList.remove("tw-overflow-hidden");
+            return;
+          }
+
+          // Click outside
+          if (!brandPanel.contains(e.target)) {
+            brandPanel.classList.add("tw-hidden");
+            body.classList.remove("tw-overflow-hidden");
+          }
+        }
+
+        /* ================= EDIT BRAND OVERLAY ================= */
+        const editBtn = document.querySelector(".ri-settings-3-line");
+        const editOverlay = document.getElementById("editBrandOverlay");
+        const editClose = document.getElementById("editBrandClose");
+        const editContent = editOverlay?.querySelector(":scope > div");
+
+        if (editBtn && editOverlay && editContent) {
+          // Open overlay
+          if (editBtn === e.target || editBtn.contains(e.target)) {
+            e.stopPropagation();
+            editOverlay.classList.remove("tw-hidden");
+            body.classList.add("tw-overflow-hidden");
+            return;
+          }
+
+          // Close button
+          if (editClose && editClose.contains(e.target)) {
+            editOverlay.classList.add("tw-hidden");
+            body.classList.remove("tw-overflow-hidden");
+            return;
+          }
+
+          // Click outside modal
+          if (!editContent.contains(e.target)) {
+            editOverlay.classList.add("tw-hidden");
+            body.classList.remove("tw-overflow-hidden");
+          }
+        }
+      });
+
+      function toggleAccountPopup() {
+        const popup = document.getElementById("accountPopup");
+        if (!popup) return;
+
+        const isHidden = popup.classList.contains("tw-hidden");
+
+        if (isHidden) {
+          popup.classList.remove("tw-hidden");
+        } else {
+          popup.classList.add("tw-hidden");
+        }
+      }
+    </script>
+  </body>
+</html>
