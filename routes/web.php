@@ -66,6 +66,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::post('payments', [PaymentController::class, 'store'])->name('brands.payments.store');
                 Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('brands.payments.show');
                 Route::post('payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
+                Route::get('payments/{payment}/status', [PaymentController::class, 'checkStatusAjax'])->name('brands.payments.status');
 
                 // Credit usage routes
                 Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.stats');

@@ -112,6 +112,10 @@
             }).showToast();
         }
 
+        // Alias for showToast to support different naming conventions
+        window.showNotification = showToast;
+        window.showToast = showToast;
+
         // Show flash messages on page load
         document.addEventListener('DOMContentLoaded', function() {
             @if (session('success'))

@@ -5,9 +5,12 @@
     <div x-data="{
         addBrandModal: {{ $errors->any() && old('_brand_modal_mode') === 'create' ? 'true' : 'false' }},
         logoPreview: null,
+        isSubmitting: false,
+        formErrors: {},
 
         openAddBrand() {
             this.addBrandModal = true;
+            this.formErrors = {};
             this.$nextTick(() => this.$refs.brandNameInput?.focus());
         },
 
@@ -19,6 +22,57 @@
         resetForm() {
             this.$refs.brandForm.reset();
             this.clearLogoPreview();
+            this.formErrors = {};
+        },
+
+        async submitBrandForm(event) {
+            this.isSubmitting = true;
+            this.formErrors = {};
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Success
+                    this.closeAddBrand();
+
+                    // Show success notification
+                    if (window.showNotification) {
+                        window.showNotification(data.message, 'success');
+                    }
+
+                    // Redirect to brand page
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    // Validation errors
+                    if (data.errors) {
+                        this.formErrors = data.errors;
+                    } else {
+                        this.formErrors.general = data.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.formErrors.general = 'Có lỗi xảy ra. Vui lòng thử lại.';
+            } finally {
+                this.isSubmitting = false;
+            }
         },
 
         previewLogo(event) {

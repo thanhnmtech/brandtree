@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Brand extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'name',
         'slug',
@@ -56,15 +59,18 @@ class Brand extends Model
         return 'slug';
     }
 
-    /**
-     * Generate a unique slug with random suffix
-     */
     public static function generateUniqueSlug(string $name): string
     {
         $baseSlug = Str::slug($name);
-        $randomSuffix = Str::lower(Str::random(6));
+        $slug = $baseSlug;
+        $counter = 1;
 
-        return $baseSlug . '-' . $randomSuffix;
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     /**
@@ -326,15 +332,18 @@ class Brand extends Model
         return $this->hasActiveSubscription();
     }
 
-    public function getProcessRoot(){
-        return rand(10, 100).'%';
+    public function getProcessRoot()
+    {
+        return rand(10, 100) . '%';
     }
 
-    public function getProcessTrunk(){
-        return rand(10, 100).'%';
+    public function getProcessTrunk()
+    {
+        return rand(10, 100) . '%';
     }
 
-    public function getNextProcess(){
+    public function getNextProcess()
+    {
         return 'Cây cần hoàn thiện phân tích SWOT.';
     }
 }

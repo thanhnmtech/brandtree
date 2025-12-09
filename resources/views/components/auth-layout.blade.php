@@ -17,7 +17,7 @@
     <!-- TOP TASKBAR -->
     <div class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-[70px] tw-bg-white tw-shadow-md tw-flex tw-items-center tw-justify-between tw-px-6 md:tw-px-14 tw-z-[999]">
         <div class="tw-flex tw-items-center tw-gap-3">
-            <img src="{{ asset('assets/html/assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg') }}" class="tw-w-[42px] tw-h-[42px] tw-object-contain" />
+            <img src="{{ asset('assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg') }}" class="tw-w-[42px] tw-h-[42px] tw-object-contain" />
             <div class="tw-leading-tight">
                 <h1 class="tw-text-base md:tw-text-lg tw-font-bold">AI Cây Thương Hiệu</h1>
                 <p class="tw-text-[10px] md:tw-text-xs tw-text-gray-500 tw--mt-1">By VLBC</p>
@@ -62,7 +62,7 @@
                 </p>
 
                 <div class="tw-hidden lg:tw-block tw-rounded-xl tw-overflow-hidden tw-w-full">
-                    <img src="{{ asset('assets/html/assets/img/9b17fdbe0cd6a3609fe3980d667fee9518d98207.png') }}" class="tw-w-full tw-object-contain" />
+                    <img src="{{ asset('assets/img/9b17fdbe0cd6a3609fe3980d667fee9518d98207.png') }}" class="tw-w-full tw-object-contain" />
                 </div>
 
                 <div class="tw-hidden lg:tw-block tw-pt-4 md:tw-pt-4 tw-border-t tw-border-gray-300 tw-mt-6 md:tw-mt-6">

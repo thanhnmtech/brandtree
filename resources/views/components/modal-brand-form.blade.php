@@ -30,7 +30,7 @@
             {{ $title }}
         </h2>
 
-        <form x-ref="brandForm" action="{{ $action }}" method="POST" enctype="multipart/form-data" class="tw-mt-4 tw-space-y-4">
+        <form x-ref="brandForm" @submit.prevent="submitBrandForm" action="{{ $action }}" method="POST" enctype="multipart/form-data" class="tw-mt-4 tw-space-y-4">
             @csrf
             @if($isEdit)
                 @method('PUT')
@@ -39,16 +39,23 @@
             <!-- Hidden field để track modal mode khi có validation error -->
             <input type="hidden" name="_brand_modal_mode" value="{{ $mode }}">
 
+            <!-- Error message container -->
+            <div x-show="formErrors.general" x-cloak class="tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-700 tw-px-4 tw-py-3 tw-rounded-lg tw-text-sm">
+                <span x-text="formErrors.general"></span>
+            </div>
+
             <!-- Tên thương hiệu -->
             <div>
                 <label for="brand_name" class="tw-text-sm tw-font-medium">Tên thương hiệu <span class="tw-text-red-500">*</span></label>
                 <input type="text" id="brand_name" name="name" required
                     value="{{ old('name', $brand->name ?? '') }}" x-ref="brandNameInput"
+                    :class="formErrors.name ? 'tw-border-red-500' : 'tw-border-gray-300'"
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('name') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
                     placeholder="Nhập tên thương hiệu">
                 @error('name')
                     <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
                 @enderror
+                <p x-show="formErrors.name" x-text="formErrors.name" class="tw-text-red-500 tw-text-sm tw-mt-1"></p>
             </div>
 
             <!-- Ngành nghề -->
@@ -141,12 +148,13 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit"
-                class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-semibold tw-py-2.5 tw-rounded-lg tw-mt-2 hover:tw-bg-[#148a3f] tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2">
+            <button type="submit" :disabled="isSubmitting"
+                class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-semibold tw-py-2.5 tw-rounded-lg tw-mt-2 hover:tw-bg-[#148a3f] tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed">
+                <i x-show="isSubmitting" class="ri-loader-4-line tw-animate-spin"></i>
                 @if($submitIcon)
-                    <i class="{{ $submitIcon }}"></i>
+                    <i x-show="!isSubmitting" class="{{ $submitIcon }}"></i>
                 @endif
-                {{ $submitText }}
+                <span x-text="isSubmitting ? 'Đang xử lý...' : '{{ $submitText }}'"></span>
             </button>
         </form>
     </x-modal-transition>
