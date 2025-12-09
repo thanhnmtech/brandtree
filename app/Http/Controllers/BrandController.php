@@ -91,16 +91,6 @@ class BrandController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Brand $brand): View
-    {
-        $this->authorize('update', $brand);
-
-        return view('brands.edit', compact('brand'));
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateBrandRequest $request, Brand $brand): RedirectResponse

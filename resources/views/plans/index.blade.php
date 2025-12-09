@@ -26,22 +26,22 @@
         </div>
 
         <!-- Monthly Plans -->
-        <div x-show="billingCycle === 'monthly'" x-transition:enter="tw-transition tw-ease-out tw-duration-200" x-transition:enter-start="tw-opacity-0" x-transition:enter-end="tw-opacity-100">
+        <x-modal-transition type="fade" x-show="billingCycle === 'monthly'">
             <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6">
                 @foreach($monthlyPlans as $plan)
                     @include('plans.partials.plan-card', ['plan' => $plan, 'isYearly' => false])
                 @endforeach
             </div>
-        </div>
+        </x-modal-transition>
 
         <!-- Yearly Plans -->
-        <div x-show="billingCycle === 'yearly'" x-transition:enter="tw-transition tw-ease-out tw-duration-200" x-transition:enter-start="tw-opacity-0" x-transition:enter-end="tw-opacity-100">
+        <x-modal-transition type="fade" x-show="billingCycle === 'yearly'">
             <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 tw-max-w-3xl tw-mx-auto">
                 @foreach($yearlyPlans as $plan)
                     @include('plans.partials.plan-card', ['plan' => $plan, 'isYearly' => true])
                 @endforeach
             </div>
-        </div>
+        </x-modal-transition>
 
         <!-- Credit Packages -->
         @if($creditPackages->count() > 0)

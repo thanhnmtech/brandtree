@@ -1,4 +1,45 @@
 <x-app-layout>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+    <div x-data="{
+        editBrandModal: {{ $errors->any() && old('_brand_modal_mode') === 'edit' ? 'true' : 'false' }},
+        logoPreview: '{{ $brand->logo_path ? Storage::url($brand->logo_path) : null }}',
+
+        openEditBrand() {
+            this.editBrandModal = true;
+            this.$nextTick(() => this.$refs.brandNameInput?.focus());
+        },
+
+        closeEditBrand() {
+            this.editBrandModal = false;
+            this.resetLogoPreview();
+        },
+
+        previewLogo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Logo không được lớn hơn 2MB');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.logoPreview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+
+        resetLogoPreview() {
+            this.logoPreview = '{{ $brand->logo_path ? Storage::url($brand->logo_path) : null }}';
+            const input = this.$refs.logoInput;
+            if (input) input.value = '';
+        }
+    }">
     <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10">
     <!-- =================== HERO =================== -->
     <div class="tw-w-full tw-bg-[#F9F8F5] tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between">
@@ -7,8 +48,47 @@
                 <h2 class="tw-text-3xl tw-font-bold tw-text-gray-900">
                     {{ $brand->name }}
                 </h2>
-                <i class="ri-settings-3-line tw-text-gray-600 tw-text-2xl tw-cursor-pointer" class="edit-brand"></i>
-                <i class="ri-arrow-down-s-line tw-text-gray-500 tw-text-2xl tw-cursor-pointer" id="brandSwitcherBtn"></i>
+                @if($brand->isAdmin(auth()->user()))
+                    <div class="tw-relative" x-data="{ open: false }" @click.away="open = false">
+                        <i class="ri-more-2-fill tw-text-gray-600 tw-text-2xl tw-cursor-pointer hover:tw-text-gray-800 tw-transition" @click="open = !open"></i>
+
+                        <!-- Dropdown Menu -->
+                        <x-modal-transition type="dropdown"
+                             x-show="open"
+                             class="tw-absolute tw-left-0 tw-top-full tw-mt-2 tw-w-64 tw-bg-white tw-rounded-lg tw-shadow-lg tw-border tw-border-gray-200 tw-z-50"
+                             style="display: none;">
+                            <div class="tw-py-2">
+                                <!-- Menu Items -->
+                                <button @click="openEditBrand()" type="button" class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                    <i class="ri-edit-line tw-text-lg tw-text-gray-500"></i>
+                                    <span class="tw-text-sm tw-font-medium">Cập nhật thương hiệu</span>
+                                </button>
+
+                                <a href="{{ route('brands.subscription.show', $brand) }}" class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                    <i class="ri-flashlight-line tw-text-lg tw-text-gray-500"></i>
+                                    <span class="tw-text-sm tw-font-medium">Quản lý gói</span>
+                                </a>
+
+                                <a href="{{ route('brands.members.index', $brand) }}" class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                    <i class="ri-group-line tw-text-lg tw-text-gray-500"></i>
+                                    <span class="tw-text-sm tw-font-medium">Quản lý thành viên</span>
+                                </a>
+
+                                <a href="{{ route('brands.payments.index', $brand) }}" class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                    <i class="ri-bank-card-line tw-text-lg tw-text-gray-500"></i>
+                                    <span class="tw-text-sm tw-font-medium">Lịch sử thanh toán</span>
+                                </a>
+
+                                <a href="{{ route('brands.credits.stats', $brand) }}" class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition tw-border-t tw-border-gray-100">
+                                    <i class="ri-bar-chart-box-line tw-text-lg tw-text-gray-500"></i>
+                                    <span class="tw-text-sm tw-font-medium">Thống kê năng lượng</span>
+                                </a>
+                            </div>
+                        </x-modal-transition>
+                    </div>
+                @endif
+                {{-- <i class="ri-arrow-down-s-line tw-text-gray-500 tw-text-2xl tw-cursor-pointer" id="brandSwitcherBtn"></i> --}}
+
             </div>
             <p class="tw-text-md tw-text-gray-500 tw-mt-1">
                 Năm thành lập: {{ $brand->founded_year }}
@@ -441,6 +521,10 @@
             </div>
         </div>
     </section>
+
+    <!-- Edit Brand Modal Component -->
+    <x-modal-brand-form :brand="$brand" mode="edit" />
+
     <!-- =================== AI AGENTS CHUYÊN BIỆT =================== -->
     <section class="tw-px-8">
         <h2 class="tw-text-2xl tw-font-bold tw-text-gray-800 tw-mb-4">
@@ -550,4 +634,5 @@
         </div>
     </section>
 </main>
+    </div>
 </x-app-layout>

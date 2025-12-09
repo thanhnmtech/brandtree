@@ -40,9 +40,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         Route::prefix('brands/{brand}')
             ->middleware('brand.access')
             ->group(function () {
-                // Brand resource routes (show, edit, update, destroy)
+                // Brand resource routes (show, update, destroy)
                 Route::get('/', [BrandController::class, 'show'])->name('brands.show');
-                Route::get('/edit', [BrandController::class, 'edit'])->name('brands.edit');
                 Route::put('/', [BrandController::class, 'update'])->name('brands.update');
                 Route::patch('/', [BrandController::class, 'update']);
                 Route::delete('/', [BrandController::class, 'destroy'])->name('brands.destroy');
@@ -68,8 +67,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::post('payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
 
                 // Credit usage routes
-                Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.index');
-                Route::get('credits/statistics', [CreditController::class, 'statistics'])->name('brands.credits.statistics');
+                Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.stats');
+                Route::get('credits/index', [CreditController::class, 'index'])->name('brands.credits.index');
                 Route::get('credits/export', [CreditController::class, 'export'])->name('brands.credits.export');
             });
     });

@@ -3,12 +3,12 @@
         [x-cloak] { display: none !important; }
     </style>
     <div x-data="{
-        addBrandModal: false,
+        addBrandModal: {{ $errors->any() && old('_brand_modal_mode') === 'create' ? 'true' : 'false' }},
         logoPreview: null,
 
         openAddBrand() {
             this.addBrandModal = true;
-            this.$nextTick(() => this.$refs.brandNameInput.focus());
+            this.$nextTick(() => this.$refs.brandNameInput?.focus());
         },
 
         closeAddBrand() {
@@ -242,131 +242,9 @@
             @endforeach
         </div>
     </section>
-    <!-- ================= ADD BRAND POPUP ================= -->
-    <div x-show="addBrandModal" x-cloak
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]"
-        x-transition:enter="tw-transition tw-ease-out tw-duration-200"
-        x-transition:enter-start="tw-opacity-0"
-        x-transition:enter-end="tw-opacity-100"
-        x-transition:leave="tw-transition tw-ease-in tw-duration-150"
-        x-transition:leave-start="tw-opacity-100"
-        x-transition:leave-end="tw-opacity-0">
-        <div
-            class="tw-bg-white tw-rounded-2xl tw-w-[600px] tw-max-w-[90%] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
-            x-transition:enter="tw-transition tw-ease-out tw-duration-200 tw-transform"
-            x-transition:enter-start="tw-opacity-0 tw-scale-95"
-            x-transition:enter-end="tw-opacity-100 tw-scale-100"
-            x-transition:leave="tw-transition tw-ease-in tw-duration-150 tw-transform"
-            x-transition:leave-start="tw-opacity-100 tw-scale-100"
-            x-transition:leave-end="tw-opacity-0 tw-scale-95">
-            <!-- Close Button -->
-            <button type="button" @click="closeAddBrand()"
-                class="tw-absolute tw-top-3 tw-right-3 tw-text-gray-600 hover:tw-text-black tw-text-xl">
-                <i class="ri-close-line"></i>
-            </button>
 
-            <h2 class="tw-text-lg tw-font-bold tw-text-[#1AA24C] tw-flex tw-items-center tw-gap-2">
-                <i class="ri-add-circle-line tw-text-2xl"></i>
-                Thêm thương hiệu mới
-            </h2>
-
-            <form x-ref="brandForm" action="{{ route('brands.store') }}" method="POST" enctype="multipart/form-data" class="tw-mt-4 tw-space-y-4">
-                @csrf
-                <div>
-                    <label for="brand_name" class="tw-text-sm tw-font-medium">Tên thương hiệu <span class="tw-text-red-500">*</span></label>
-                    <input type="text" id="brand_name" name="name" required value="{{ old('name') }}" x-ref="brandNameInput"
-                        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('name') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                        placeholder="Nhập tên thương hiệu">
-                    @error('name')
-                        <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="brand_industry" class="tw-text-sm tw-font-medium">Ngành nghề <span class="tw-text-red-500">*</span></label>
-                    <input type="text" id="brand_industry" name="industry" required value="{{ old('industry') }}"
-                        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('industry') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                        placeholder="Nhập ngành nghề">
-                    @error('industry')
-                        <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="brand_target_market" class="tw-text-sm tw-font-medium">Thị trường mục tiêu <span class="tw-text-red-500">*</span></label>
-                    <input type="text" id="brand_target_market" name="target_market" required value="{{ old('target_market') }}"
-                        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('target_market') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                        placeholder="Nhập thị trường mục tiêu">
-                    @error('target_market')
-                        <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="brand_founded_year" class="tw-text-sm tw-font-medium">Năm thành lập <span class="tw-text-red-500">*</span></label>
-                    <input type="number" id="brand_founded_year" name="founded_year" required min="1900" max="{{ date('Y') }}" value="{{ old('founded_year') }}"
-                        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('founded_year') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                        placeholder="Nhập năm thành lập">
-                    @error('founded_year')
-                        <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="brand_description" class="tw-text-sm tw-font-medium">Mô tả <span class="tw-text-red-500">*</span></label>
-                    <textarea id="brand_description" name="description" required rows="3"
-                        class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none tw-resize-none {{ $errors->has('description') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                        placeholder="Nhập mô tả">{{ old('description') }}</textarea>
-                    @error('description')
-                        <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="tw-text-sm tw-font-medium">Logo thương hiệu <span class="tw-text-red-500">*</span></label>
-                    <div class="tw-mt-1">
-                        <div class="tw-relative tw-w-full tw-h-32 tw-border-2 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100 tw-transition {{ $errors->has('logo') ? 'tw-border-red-500' : 'tw-border-gray-300' }}" @click="$refs.logoInput.click()">
-                            <!-- Preview khi đã chọn file -->
-                            <div x-show="logoPreview" x-cloak class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
-                                <img :src="logoPreview" class="tw-max-h-28 tw-max-w-full tw-object-contain" alt="Preview">
-                                <button type="button" @click.stop="clearLogoPreview()"
-                                    class="tw-absolute tw-top-1 tw-right-1 tw-bg-red-500 tw-text-white tw-rounded-full tw-w-6 tw-h-6 tw-flex tw-items-center tw-justify-center tw-text-xs hover:tw-bg-red-600">
-                                    <i class="ri-close-line"></i>
-                                </button>
-                            </div>
-                            <!-- Placeholder khi chưa chọn file -->
-                            <div x-show="!logoPreview" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-full">
-                                <i class="ri-upload-cloud-2-line tw-text-3xl tw-text-gray-400 tw-mb-2"></i>
-                                <p class="tw-text-sm tw-text-gray-500">Nhấn để chọn hoặc kéo thả</p>
-                                <p class="tw-text-xs tw-text-gray-400">PNG, JPG, GIF (tối đa 2MB)</p>
-                            </div>
-                        </div>
-                        <input type="file" name="logo" accept="image/*" required class="tw-hidden" x-ref="logoInput" @change="previewLogo($event)">
-                        @error('logo')
-                            <p class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <button type="submit"
-                    class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-semibold tw-py-2.5 tw-rounded-lg tw-mt-2 hover:tw-bg-[#148a3f] tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2">
-                    Thêm ngay
-                </button>
-            </form>
-        </div>
-    </div>
+    <!-- Add Brand Modal Component -->
+    <x-modal-brand-form mode="create" />
     </main>
-
-    @if ($errors->any())
-    <script>
-        // Auto-open modal khi có validation errors
-        setTimeout(() => {
-            const alpineElement = document.querySelector('[x-data]');
-            if (alpineElement && alpineElement.__x) {
-                alpineElement.__x.$data.addBrandModal = true;
-            }
-        }, 100);
-    </script>
-    @endif
     </div>
 </x-app-layout>

@@ -3,12 +3,12 @@
         [x-cloak] { display: none !important; }
     </style>
     <div x-data="{
-        inviteModal: false,
-        editModal: false,
+        inviteModal: {{ $errors->any() && old('_modal_type') === 'invite' ? 'true' : 'false' }},
+        editModal: {{ $errors->any() && old('_modal_type') === 'edit' ? 'true' : 'false' }},
         deleteModal: false,
-        currentRole: 'editor',
-        editMemberId: null,
-        editMemberRole: '',
+        currentRole: '{{ old('role', 'editor') }}',
+        editMemberId: {{ old('_member_id', 'null') }},
+        editMemberRole: '{{ old('role', '') }}',
         deleteMemberId: null,
         deleteMemberName: '',
 
@@ -172,23 +172,13 @@
 
     <!-- ================= INVITE MEMBER POPUP ================= -->
     @if($isAdmin)
-    <div x-show="inviteModal" x-cloak
+    <x-modal-transition type="overlay"
+        x-show="inviteModal"
+        x-cloak
         @click.self="inviteModal = false"
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]"
-        x-transition:enter="tw-transition tw-ease-out tw-duration-200"
-        x-transition:enter-start="tw-opacity-0"
-        x-transition:enter-end="tw-opacity-100"
-        x-transition:leave="tw-transition tw-ease-in tw-duration-150"
-        x-transition:leave-start="tw-opacity-100"
-        x-transition:leave-end="tw-opacity-0">
-        <div
+        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]">
+        <x-modal-transition type="modal"
             class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-max-h-[85dvh] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
-            x-transition:enter="tw-transition tw-ease-out tw-duration-200 tw-transform"
-            x-transition:enter-start="tw-opacity-0 tw-scale-95"
-            x-transition:enter-end="tw-opacity-100 tw-scale-100"
-            x-transition:leave="tw-transition tw-ease-in tw-duration-150 tw-transform"
-            x-transition:leave-start="tw-opacity-100 tw-scale-100"
-            x-transition:leave-end="tw-opacity-0 tw-scale-95"
             @click.away="inviteModal = false">
             <button @click="inviteModal = false" type="button"
                 class="tw-absolute tw-top-4 tw-right-4 tw-text-gray-400 hover:tw-text-black">
@@ -197,6 +187,9 @@
 
             <form action="{{ route('brands.members.store', $brand) }}" method="POST">
                 @csrf
+
+                <!-- Hidden field để track modal type -->
+                <input type="hidden" name="_modal_type" value="invite">
 
                 <!-- Title -->
                 <h2 class="tw-text-[20px] tw-font-bold tw-text-gray-900">
@@ -209,9 +202,11 @@
                 <!-- Email -->
                 <label class="tw-block tw-font-medium tw-mt-5 tw-mb-1 tw-text-sm">Email thành viên</label>
                 <input type="email" name="email" id="memberEmail" required
-                    class="tw-w-full tw-border tw-border-gray-300 tw-rounded-xl tw-px-3 tw-py-2 focus:tw-border-vlbcgreen focus:tw-ring-0"
+                    class="tw-w-full tw-border {{ $errors->has('email') ? 'tw-border-red-500' : 'tw-border-gray-300' }} tw-rounded-xl tw-px-3 tw-py-2 focus:tw-border-vlbcgreen focus:tw-ring-0"
                     placeholder="Email@company.com" value="{{ old('email') }}" />
-                <span id="emailError" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></span>
+                @error('email')
+                    <span class="tw-text-red-500 tw-text-sm tw-mt-1">{{ $message }}</span>
+                @enderror
 
                 <!-- Roles -->
                 <p class="tw-font-medium tw-mt-5 tw-mb-2 tw-text-sm">Chọn vai trò</p>
@@ -220,6 +215,7 @@
                     <!-- Admin -->
                     <label class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none">
                         <input type="radio" name="role" value="admin"
+                            {{ old('role') === 'admin' ? 'checked' : '' }}
                             class="tw-mt-1 tw-h-4 tw-w-4 tw-text-vlbcgreen focus:tw-ring-vlbcgreen"
                             @change="updatePermissionDisplay('admin')" />
                         <div>
@@ -232,7 +228,8 @@
 
                     <!-- Editor -->
                     <label class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none">
-                        <input type="radio" name="role" value="editor" checked
+                        <input type="radio" name="role" value="editor"
+                            {{ old('role', 'editor') === 'editor' ? 'checked' : '' }}
                             class="tw-mt-1 tw-h-4 tw-w-4 tw-text-vlbcgreen focus:tw-ring-vlbcgreen"
                             @change="updatePermissionDisplay('editor')" />
                         <div>
@@ -304,22 +301,20 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
+        </x-modal-transition>
+    </x-modal-transition>
     @endif
 
     <!-- ================= EDIT ROLE POPUP ================= -->
     @if($isAdmin)
-    <div x-show="editModal" x-cloak
+    <x-modal-transition type="overlay"
+        x-show="editModal"
+        x-cloak
         @click.self="editModal = false"
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]"
-        x-transition>
-        <div
+        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]">
+        <x-modal-transition type="modal"
             class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-p-6 tw-relative tw-border tw-border-gray-300"
-            @click.away="editModal = false"
-            x-transition:enter="tw-transition tw-ease-out tw-duration-200 tw-transform"
-            x-transition:enter-start="tw-opacity-0 tw-scale-95"
-            x-transition:enter-end="tw-opacity-100 tw-scale-100">
+            @click.away="editModal = false">
             <button type="button" @click="editModal = false"
                 class="tw-absolute tw-top-4 tw-right-4 tw-text-gray-400 hover:tw-text-black">
                 <i class="ri-close-line tw-text-2xl"></i>
@@ -329,13 +324,17 @@
                 @csrf
                 @method('PUT')
 
+                <!-- Hidden fields để track modal và member ID -->
+                <input type="hidden" name="_modal_type" value="edit">
+                <input type="hidden" name="_member_id" :value="editMemberId">
+
                 <h2 class="tw-text-[20px] tw-font-bold tw-text-gray-900">Thay đổi vai trò</h2>
                 <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Chọn vai trò mới cho thành viên</p>
 
                 <div class="tw-mt-5 tw-space-y-3">
                     <label class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none">
                         <input type="radio" name="role" value="admin"
-                            :checked="editMemberRole === 'admin'"
+                            :checked="editMemberRole === 'admin' || '{{ old('role') }}' === 'admin'"
                             class="tw-mt-1 tw-h-4 tw-w-4" />
                         <div>
                             <p class="tw-font-semibold">Quản trị viên</p>
@@ -345,7 +344,7 @@
 
                     <label class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none">
                         <input type="radio" name="role" value="editor"
-                            :checked="editMemberRole === 'editor'"
+                            :checked="editMemberRole === 'editor' || '{{ old('role') }}' === 'editor'"
                             class="tw-mt-1 tw-h-4 tw-w-4" />
                         <div>
                             <p class="tw-font-semibold">Nhà thực thi / Marketing</p>
@@ -353,6 +352,10 @@
                         </div>
                     </label>
                 </div>
+
+                @error('role')
+                    <p class="tw-text-red-500 tw-text-sm tw-mt-2">{{ $message }}</p>
+                @enderror
 
                 <div class="tw-flex tw-justify-end tw-gap-3 tw-mt-6">
                     <button type="button" @click="editModal = false"
@@ -365,22 +368,20 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
+        </x-modal-transition>
+    </x-modal-transition>
     @endif
 
     <!-- ================= DELETE CONFIRMATION POPUP ================= -->
     @if($isAdmin)
-    <div x-show="deleteModal" x-cloak
+    <x-modal-transition type="overlay"
+        x-show="deleteModal"
+        x-cloak
         @click.self="deleteModal = false"
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]"
-        x-transition>
-        <div
+        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]">
+        <x-modal-transition type="modal"
             class="tw-bg-white tw-rounded-2xl tw-w-[400px] tw-max-w-[90%] tw-p-6 tw-relative tw-border tw-border-gray-300"
-            @click.away="deleteModal = false"
-            x-transition:enter="tw-transition tw-ease-out tw-duration-200 tw-transform"
-            x-transition:enter-start="tw-opacity-0 tw-scale-95"
-            x-transition:enter-end="tw-opacity-100 tw-scale-100">
+            @click.away="deleteModal = false">
             <div class="tw-text-center">
                 <div
                     class="tw-mx-auto tw-flex tw-items-center tw-justify-center tw-h-12 tw-w-12 tw-rounded-full tw-bg-red-100">
@@ -408,8 +409,8 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
+        </x-modal-transition>
+    </x-modal-transition>
     @endif
     </div>
 </x-app-layout>
