@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BrandController;
-use App\Http\Controllers\BrandMemberController;
 use App\Http\Controllers\CreditController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LadipageController;
+use App\Http\Controllers\BrandTreeController;
+use App\Http\Controllers\DashboardController;
 
+use App\Http\Controllers\BrandMemberController;
 use App\Http\Controllers\SepayWebhookController;
 use App\Http\Controllers\SubscriptionController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -70,6 +71,12 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.stats');
                 Route::get('credits/index', [CreditController::class, 'index'])->name('brands.credits.index');
                 Route::get('credits/export', [CreditController::class, 'export'])->name('brands.credits.export');
+
+                //Build Brand Tree
+                Route::get('root', [BrandTreeController::class, 'root'])->name('brands.root.show');
+                Route::get('trunk', [BrandTreeController::class, 'trunk'])->name('brands.trunk.show');
+                Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');
+
             });
     });
 

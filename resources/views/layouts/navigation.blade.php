@@ -20,18 +20,20 @@
         </div>
 
         <!-- ==== MENU DESKTOP (>=1024px) ==== -->
-
+        @php
+            $brand = session('brand');
+        @endphp
         <div class="tw-hidden lg:tw-flex tw-flex-1 tw-justify-center tw-items-center tw-gap-[20px] lg:tw-gap-[40px]">
             <a href="{{ route('dashboard') }}"
                 class="tw-bg-vlbcgreen tw-text-[14px] tw-text-white tw-font-semibold tw-cursor-pointer tw-px-4 tw-py-1 tw-rounded-full">Trang
                 chủ</a>
-            <a
+            <a href="{{ route('brands.root.show',$currentBrand) }}"
                 class="tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-text-black tw-transition-colors tw-duration-200 hover:tw-text-vlbcgreen">Gốc
                 cây</a>
-            <a href="{{ route('profile.edit') }}"
+            <a href="{{ route('brands.trunk.show',$currentBrand) }}"
                 class="tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-text-black tw-transition-colors tw-duration-200 hover:tw-text-vlbcgreen">Thân
                 cây</a>
-            <a href="{{ route('profile.edit') }}"
+            <a href="{{ route('brands.canopy.show',$currentBrand) }}"
                 class="tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-text-black tw-transition-colors tw-duration-200 hover:tw-text-vlbcgreen">Tán
                 cây</a>
         </div>
