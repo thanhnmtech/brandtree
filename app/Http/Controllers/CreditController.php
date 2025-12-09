@@ -23,7 +23,9 @@ class CreditController extends Controller
         $this->authorize('view', $brand);
 
         $subscription = $brand->activeSubscription;
-        $period = $request->get('period', 'month');
+        $period = $request->get('period', '30days');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
 
         // Get usage history with filters
         $query = CreditUsage::where('brand_id', $brand->id)
@@ -31,13 +33,19 @@ class CreditController extends Controller
             ->orderBy('created_at', 'desc');
 
         // Filter by period
-        if ($period === 'week') {
-            $query->where('created_at', '>=', now()->startOfWeek());
-        } elseif ($period === 'month') {
-            $query->where('created_at', '>=', now()->startOfMonth());
-        } elseif ($period === 'year') {
-            $query->where('created_at', '>=', now()->startOfYear());
+        if ($period === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                \Carbon\Carbon::parse($startDate)->startOfDay(),
+                \Carbon\Carbon::parse($endDate)->endOfDay(),
+            ]);
+        } elseif ($period === '7days') {
+            $query->where('created_at', '>=', now()->subDays(7));
+        } elseif ($period === '30days') {
+            $query->where('created_at', '>=', now()->subDays(30));
+        } elseif ($period === '60days') {
+            $query->where('created_at', '>=', now()->subDays(60));
         }
+        // 'all' = no filter
 
         // Filter by action type
         if ($request->filled('action')) {
@@ -47,10 +55,10 @@ class CreditController extends Controller
         $usages = $query->paginate(20)->withQueryString();
 
         // Get stats
-        $stats = $this->creditService->getUsageStats($brand, $period);
+        $stats = $this->creditService->getUsageStats($brand, $period, $startDate, $endDate);
 
         // Get daily usage for chart
-        $dailyUsage = $this->creditService->getDailyUsage($brand, $period);
+        $dailyUsage = $this->creditService->getDailyUsage($brand, $period, $startDate, $endDate);
 
         return view('brands.credits.index', compact('brand', 'subscription', 'usages', 'stats', 'period', 'dailyUsage'));
     }

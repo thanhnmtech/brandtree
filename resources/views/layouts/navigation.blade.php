@@ -1,134 +1,118 @@
-<nav x-data="{ open: false }" class="tw-bg-white tw-shadow-sm tw-sticky tw-top-0 tw-z-50">
-    <!-- Primary Navigation Menu -->
-    <div class="tw-max-w-7xl tw-mx-auto tw-px-4 sm:tw-px-6 lg:tw-px-8">
-        <div class="tw-flex tw-justify-between tw-h-16 md:tw-h-[70px]">
-            <div class="tw-flex tw-items-center">
-                <!-- Logo -->
-                <div class="tw-flex tw-items-center tw-gap-3">
-            <img src="{{ asset('html/assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg') }}" class="tw-w-[42px] tw-h-[42px] tw-object-contain" />
-            <div class="tw-leading-tight">
-                <h1 class="tw-text-base md:tw-text-lg tw-font-bold">AI Cây Thương Hiệu</h1>
-                <p class="tw-text-[10px] md:tw-text-xs tw-text-gray-500 tw--mt-1">By VLBC</p>
+<header class="tw-h-[60px]">
+    <div
+        class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-[60px] tw-bg-[#F3F7F5] tw-flex tw-items-center tw-justify-between tw-px-0 md:tw-px-8 tw-z-[999]">
+        <!-- Menu icon -->
+        <button class="tw-p-4 tw-text-gray-800 tw-text-2xl md:tw-hidden" onclick="toggleSidebarMobile()">
+            <i class="ri-menu-line"></i>
+        </button>
+        <!-- Logo + Title -->
+        <div class="tw-flex tw-items-center tw-gap-[14px]">
+            <img src="{{ asset('assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg') }}"
+                class="tw-w-[28px] tw-h-[28px] md:tw-w-[34px] md:tw-h-[34px] tw-object-contain" alt="logo" />
+            <div class="dashboard-page__title">
+                <h1 class="tw-text md:tw-text-lg tw-font-bold">
+                    Vườn Cây Thương Hiệu
+                </h1>
+                <p class="tw-hidden md:tw-block md:tw-text-sm tw-text-gray-500 tw--mt-0">
+                    Quản lý danh mục thương hiệu của bạn
+                </p>
             </div>
         </div>
-            </div>
 
-            <!-- Navigation Links -->
-            <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-8 tw-space-x-6">
-                @auth
-                    <a href="{{ route('dashboard') }}"
-                       class="tw-text-sm tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-text-[#16a249]' : 'tw-text-gray-600 hover:tw-text-gray-800' }} tw-transition">
-                        Trang chủ
-                    </a>
-                @endauth
-            </div>
+        <!-- ==== MENU DESKTOP (>=1024px) ==== -->
+        @if(!empty($currentBrand))
+        <div class="tw-hidden lg:tw-flex tw-flex-1 tw-justify-center tw-items-center tw-gap-[20px] lg:tw-gap-[40px]">
+            <a href="{{ route('dashboard') }}"
+                class="{{ request()->routeIs('dashboard') ? 'tw-bg-vlbcgreen tw-text-white' : 'tw-bg-transparent tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-px-4 tw-py-1 tw-rounded-full tw-transition-colors tw-duration-200">
+                <i class="ri-home-line tw-transition"></i> Trang chủ
+            </a>
+            <a href="{{ route('brands.root.show',$currentBrand) }}"
+                class="{{ request()->routeIs('brands.root.show') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                <i class="ri-plant-line tw-transition"></i> Gốc cây
+            </a>
+            <a href="{{ route('brands.trunk.show',$currentBrand) }}"
+                class="{{ request()->routeIs('brands.trunk.show') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                <i class="ri-tree-line tw-transition"></i> Thân cây
+            </a>
+            <a href="{{ route('brands.canopy.show',$currentBrand) }}"
+                class="{{ request()->routeIs('brands.canopy.show') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                <i class="ri-leaf-line tw-transition"></i> Tán cây
+            </a>
+        </div>
+        @endif
 
-            <!-- Settings Dropdown (Auth) -->
-            @auth
-                <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-ml-6">
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-border tw-border-transparent tw-text-sm tw-leading-4 tw-font-medium tw-rounded-md tw-text-gray-600 hover:tw-text-gray-800 focus:tw-outline-none tw-transition tw-ease-in-out tw-duration-150">
-                                <div>{{ Auth::user()->name }}</div>
 
-                                <div class="tw-ml-1">
-                                    <svg class="tw-fill-current tw-h-4 tw-w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
+        <!-- ==== MENU MOBILE (<1024px) ==== -->
+        @if(!empty($currentBrand))
+        <div class="tw-flex tw-flex-1 lg:tw-hidden tw-items-center tw-justify-evenly tw-text-gray-800 tw-text-xl tw-gap-5">
+            <!-- GỐC CÂY -->
+            <a href="{{ route('brands.root.show',$currentBrand) }}"
+                class="{{ request()->routeIs('brands.root.show') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
+                <i class="ri-plant-line"></i>
+            </a>
 
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
-                                Hồ sơ
-                            </x-dropdown-link>
+            <!-- THÂN CÂY -->
+            <a href="{{ route('brands.trunk.show',$currentBrand) }}"
+                class="{{ request()->routeIs('brands.trunk.show') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
+                <i class="ri-tree-line"></i>
+            </a>
 
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
+            <!-- TÁN CÂY -->
+            <a href="{{ route('brands.canopy.show',$currentBrand) }}"
+                class="{{ request()->routeIs('brands.canopy.show') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
+                <i class="ri-leaf-line"></i>
+            </a>
+        </div>
+        @endif
 
-                                <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
-                                    Đăng xuất
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
-                </div>
-            @else
-                <!-- Guest Links -->
-                <div class="tw-hidden sm:tw-flex sm:tw-items-center sm:tw-gap-3">
-                    <a href="{{ route('login') }}" class="tw-py-1 tw-px-4 tw-rounded-full tw-font-semibold tw-text-[#16a249] tw-border-2 tw-border-[#16a249] tw-text-sm tw-transition hover:tw-bg-[#16a249] hover:tw-text-white">
-                        Đăng nhập
-                    </a>
-                    <a href="{{ route('register') }}" class="tw-py-1 tw-px-4 tw-rounded-full tw-font-semibold tw-text-gray-600 hover:tw-text-[#16a249] tw-text-sm tw-transition">
-                        Đăng ký
-                    </a>
-                </div>
-            @endauth
+        <div class="tw-hidden md:tw-flex tw-items-center tw-justify-end tw-gap-[14px]">
+            {{-- <a class="tw-text-[14px] tw-text-[#e63946] tw-font-semibold tw-cursor-pointer">Upgrade plan</a> --}}
+            <!-- Avatar (ONLY ONE) — CLICK TO OPEN POPUP -->
+            <button onclick="toggleAccountPopup()">
+                <img id="accountBtn" src="{{ asset('assets/img/default-avatar.svg') }}"
+                    class="tw-w-[36px] tw-h-[36px] tw-rounded-full tw-object-cover tw-cursor-pointer tw-border tw-border-gray-300"
+                    alt="avatar" />
+            </button>
+        </div>
 
-            <!-- Hamburger -->
-            <div class="tw--mr-2 tw-flex tw-items-center sm:tw-hidden">
-                <button @click="open = ! open" class="tw-inline-flex tw-items-center tw-justify-center tw-p-2 tw-rounded-md tw-text-gray-400 hover:tw-text-gray-600 hover:tw-bg-gray-100 focus:tw-outline-none focus:tw-bg-gray-100 focus:tw-text-gray-600 tw-transition tw-duration-150 tw-ease-in-out">
-                    <svg class="tw-h-6 tw-w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'tw-hidden': open, 'tw-inline-flex': ! open }" class="tw-inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'tw-hidden': ! open, 'tw-inline-flex': open }" class="tw-hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+        <div id="accountBtn"
+            class="tw-flex md:tw-flex-1 md:tw-hidden tw-p-4 tw-items-center tw-gap-5 tw-text-gray-800 tw-text-xl">
+            <!-- USER -->
+            <button onclick="toggleAccountPopup()">
+                <i class="ri-user-3-line hover:tw-text-green-600 tw-transition"></i>
+            </button>
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'tw-block': open, 'tw-hidden': ! open}" class="tw-hidden sm:tw-hidden">
-        <div class="tw-pt-2 tw-pb-3 tw-space-y-1">
-            @auth
-                <a href="{{ route('dashboard') }}"
-                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-text-base tw-font-medium {{ request()->routeIs('dashboard') ? 'tw-border-[#16a249] tw-text-[#16a249] tw-bg-green-50' : 'tw-border-transparent tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300' }} tw-transition">
-                    Trang chủ
+    <!-- ============= ACCOUNT POPUP ============= -->
+    <div id="accountPopup"
+        class="tw-fixed tw-top-[70px] tw-right-5 tw-w-72 md:tw-w-[360px] tw-bg-[#4E634B] tw-text-white tw-rounded-2xl tw-shadow-2xl tw-border tw-border-black/20 tw-hidden tw-transition-all tw-duration-300 tw-z-[9999]">
+        <div class="tw-p-5">
+            <p class="tw-text-sm tw-opacity-80">Tài khoản</p>
+            <div class="tw-flex tw-items-center tw-gap-3 tw-mt-3 tw-py-2">
+                <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-white/40"></div>
+                <div>
+                    <p class="tw-font-semibold">{{ request()->user()->name }}</p>
+                    <p class="tw-text-sm tw-opacity-80">{{ request()->user()->email }}</p>
+                </div>
+            </div>
+
+            <div class="tw-h-px tw-bg-white/30 tw-my-4"></div>
+
+            <div class="tw-space-y-4">
+                <a href="{{ route('profile.edit') }}" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
+                    <i class="ri-settings-3-line tw-text md:tw-text-xl"></i> Cập nhật tài khoản
                 </a>
-            @endauth
+                <a href="#" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
+                    <i class="ri-shopping-cart-2-line tw-text md:tw-text-xl"></i>Lịch sử đơn hàng
+                </a>
+            </div>
+
+            <div class="tw-h-px tw-bg-white/30 tw-my-4"></div>
+
+            <a href="{{ route('logout') }}" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
+                <i class="ri-logout-box-r-line tw-text md:tw-text-xl"></i> Thoát
+            </a>
         </div>
-
-        <!-- Responsive Settings Options -->
-        @auth
-            <div class="tw-pt-4 tw-pb-1 tw-border-t tw-border-gray-200">
-                <div class="tw-px-4">
-                    <div class="tw-font-medium tw-text-base tw-text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="tw-font-medium tw-text-sm tw-text-gray-500">{{ Auth::user()->email }}</div>
-                </div>
-
-                <div class="tw-mt-3 tw-space-y-1">
-                    <a href="{{ route('profile.edit') }}"
-                       class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
-                        Hồ sơ
-                    </a>
-
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-
-                        <a href="{{ route('logout') }}"
-                           onclick="event.preventDefault(); this.closest('form').submit();"
-                           class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
-                            Đăng xuất
-                        </a>
-                    </form>
-                </div>
-            </div>
-        @else
-            <div class="tw-pt-4 tw-pb-3 tw-border-t tw-border-gray-200 tw-space-y-1">
-                <a href="{{ route('login') }}"
-                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-[#16a249] hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
-                    Đăng nhập
-                </a>
-                <a href="{{ route('register') }}"
-                   class="tw-block tw-pl-3 tw-pr-4 tw-py-2 tw-border-l-4 tw-border-transparent tw-text-base tw-font-medium tw-text-gray-600 hover:tw-text-gray-800 hover:tw-bg-gray-50 hover:tw-border-gray-300 tw-transition">
-                    Đăng ký
-                </a>
-            </div>
-        @endauth
     </div>
-</nav>
+</header>

@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BrandController;
-use App\Http\Controllers\BrandMemberController;
 use App\Http\Controllers\CreditController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LadipageController;
+use App\Http\Controllers\BrandTreeController;
+use App\Http\Controllers\DashboardController;
 
+use App\Http\Controllers\BrandMemberController;
 use App\Http\Controllers\SepayWebhookController;
 use App\Http\Controllers\SubscriptionController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -31,7 +32,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         // Profile routes
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Brand resource routes (index, create, store don't need brand.access)
         Route::resource('brands', BrandController::class)->only(['index', 'create', 'store']);
@@ -40,9 +41,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         Route::prefix('brands/{brand}')
             ->middleware('brand.access')
             ->group(function () {
-                // Brand resource routes (show, edit, update, destroy)
+                // Brand resource routes (show, update, destroy)
                 Route::get('/', [BrandController::class, 'show'])->name('brands.show');
-                Route::get('/edit', [BrandController::class, 'edit'])->name('brands.edit');
                 Route::put('/', [BrandController::class, 'update'])->name('brands.update');
                 Route::patch('/', [BrandController::class, 'update']);
                 Route::delete('/', [BrandController::class, 'destroy'])->name('brands.destroy');
@@ -66,11 +66,18 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::post('payments', [PaymentController::class, 'store'])->name('brands.payments.store');
                 Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('brands.payments.show');
                 Route::post('payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
+                Route::get('payments/{payment}/status', [PaymentController::class, 'checkStatusAjax'])->name('brands.payments.status');
 
                 // Credit usage routes
-                Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.index');
-                Route::get('credits/statistics', [CreditController::class, 'statistics'])->name('brands.credits.statistics');
+                Route::get('credits', [CreditController::class, 'index'])->name('brands.credits.stats');
+                Route::get('credits/index', [CreditController::class, 'index'])->name('brands.credits.index');
                 Route::get('credits/export', [CreditController::class, 'export'])->name('brands.credits.export');
+
+                //Build Brand Tree
+                Route::get('root', [BrandTreeController::class, 'root'])->name('brands.root.show');
+                Route::get('trunk', [BrandTreeController::class, 'trunk'])->name('brands.trunk.show');
+                Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');
+
             });
     });
 

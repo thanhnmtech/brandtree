@@ -14,12 +14,18 @@ return new class extends Migration
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+             $table->string('slug')->unique();
             $table->string('industry')->nullable();
             $table->string('target_market')->nullable();
             $table->year('founded_year')->nullable();
             $table->text('description')->nullable();
             $table->string('logo_path')->nullable();
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->text('root_data')->nullable();
+            $table->text('trunk_data')->nullable();
+            $table->bigInteger('created_by');
+            $table->enum('status', ['seedling', 'growing', 'completed'])->default('seedling');
+
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index('name');

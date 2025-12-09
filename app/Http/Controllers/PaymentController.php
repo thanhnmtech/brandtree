@@ -7,6 +7,7 @@ use App\Models\BrandSubscription;
 use App\Models\Payment;
 use App\Services\SepayService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -123,7 +124,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Check payment status via Sepay API.
+     * Check payment status via Sepay API (form submit).
      */
     public function checkStatus(Brand $brand, Payment $payment): RedirectResponse
     {
@@ -140,7 +141,6 @@ class PaymentController extends Controller
         $transaction = $this->sepayService->checkTransaction($payment->transaction_id);
 
         if ($transaction && ($transaction['transferAmount'] ?? 0) >= $payment->amount) {
-            $this->activatePayment($payment, $transaction['id'] ?? null);
             return back()->with('success', __('messages.payment.success'));
         }
 
@@ -148,27 +148,33 @@ class PaymentController extends Controller
     }
 
     /**
-     * Activate payment and subscription.
+     * Check payment status via AJAX (for auto-polling).
      */
-    protected function activatePayment(Payment $payment, ?string $sepayReference = null): void
+    public function checkStatusAjax(Brand $brand, Payment $payment): JsonResponse
     {
-        // Update payment
-        $payment->update([
-            'status' => Payment::STATUS_COMPLETED,
-            'sepay_reference' => $sepayReference,
-            'paid_at' => now(),
-        ]);
+        $this->authorize('view', $brand);
 
-        // Activate subscription
-        $subscription = $payment->subscription;
-        if ($subscription && $subscription->status === BrandSubscription::STATUS_PENDING) {
-            $subscription->update([
-                'status' => BrandSubscription::STATUS_ACTIVE,
-                'started_at' => now(),
-                'expires_at' => now()->addDays($subscription->plan->duration_days),
-                'credits_remaining' => $subscription->plan->credits,
-                'credits_reset_at' => now(),
+        if ($payment->brand_id !== $brand->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Reload payment from database to get latest status
+        $payment = $payment->fresh(['subscription.plan']);
+
+        if (!$payment->isPending()) {
+            return response()->json([
+                'status' => $payment->status,
+                'completed' => true,
+                'message' => 'Thanh toán đã được xử lý',
+                'redirect' => route('brands.subscription.show', $brand)
             ]);
         }
+
+        return response()->json([
+            'status' => $payment->status,
+            'completed' => false,
+            'message' => 'Đang chờ thanh toán'
+        ]);
     }
+
 }

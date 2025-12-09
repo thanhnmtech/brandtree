@@ -21,10 +21,9 @@ class EnsureBrandAccess
 
         // If brand is not already resolved (string slug or ID), resolve it
         if (!$brand instanceof Brand) {
-            // Try to find by slug first (since we use getRouteKeyName = 'slug')
-            // Laravel's route model binding should handle this, but just in case
-            $brand = Brand::where('slug', $brand)->first()
-                  ?? Brand::find($brand);
+           $brand = Brand::with(['members', 'activeSubscription.plan'])
+            ->where('slug', $brand)
+            ->first() ?? Brand::find($brand);
         }
 
         if (!$brand) {

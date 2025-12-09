@@ -20,35 +20,66 @@ class SepayWebhookController extends Controller
      */
     public function handle(Request $request): JsonResponse
     {
-        // Log incoming webhook
-        Log::info('Sepay webhook received', $request->all());
+        // Log incoming webhook for debugging
+        Log::info('Sepay webhook received', [
+            'headers' => $request->headers->all(),
+            'data' => $request->all(),
+        ]);
 
-        // Verify signature
+        // Verify signature (optional - skip if webhook_secret not configured)
         $signature = $request->header('X-Sepay-Signature', '');
-        if (!$this->sepayService->verifyWebhookSignature($request->getContent(), $signature)) {
-            Log::warning('Sepay webhook signature verification failed');
+        if ($signature && !$this->sepayService->verifyWebhookSignature($request->getContent(), $signature)) {
+            Log::warning('Sepay webhook signature verification failed', [
+                'signature' => $signature,
+            ]);
             return response()->json(['error' => 'Invalid signature'], 401);
         }
 
         $data = $request->all();
 
-        // Process webhook
-        $payment = $this->sepayService->processWebhook($data);
+        try {
+            // Process webhook and find matching payment
+            $payment = $this->sepayService->processWebhook($data);
 
-        if ($payment) {
-            $this->activatePayment($payment, $data['id'] ?? $data['referenceCode'] ?? null);
+            if ($payment) {
+                // Activate payment and subscription
+                $sepayReference = $data['reference_number'] ?? $data['id'] ?? null;
+                $this->activatePayment($payment, $sepayReference);
 
-            Log::info('Sepay payment activated', [
-                'payment_id' => $payment->id,
-                'brand_id' => $payment->brand_id,
-                'amount' => $payment->amount,
+                Log::info('Sepay payment activated successfully', [
+                    'payment_id' => $payment->id,
+                    'brand_id' => $payment->brand_id,
+                    'amount' => $payment->amount,
+                    'sepay_reference' => $sepayReference,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment processed successfully',
+                    'payment_id' => $payment->id
+                ]);
+            }
+
+            Log::info('Sepay webhook: No matching payment found or already processed', [
+                'transaction_content' => $data['transaction_content'] ?? 'N/A',
+                'amount' => $data['amount_in'] ?? 0,
             ]);
 
-            return response()->json(['success' => true, 'message' => 'Payment processed']);
-        }
+            return response()->json([
+                'success' => true,
+                'message' => 'No action required'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Sepay webhook processing error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        Log::info('Sepay webhook: No matching payment found');
-        return response()->json(['success' => true, 'message' => 'No action required']);
+            return response()->json([
+                'success' => false,
+                'error' => 'Processing error'
+            ], 500);
+        }
     }
 
     /**

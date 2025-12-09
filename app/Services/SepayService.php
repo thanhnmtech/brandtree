@@ -27,10 +27,14 @@ class SepayService
 
     /**
      * Generate unique payment code for tracking
+     * Format: BT{brand_id}{payment_id}
+     * Example: BT0001000001 (brand 1, payment 1)
      */
     public function generatePaymentCode(Payment $payment): string
     {
-        return 'BT'.str_pad($payment->id, 6, '0', STR_PAD_LEFT);
+        $brandId = str_pad($payment->brand_id, 4, '0', STR_PAD_LEFT);
+        $paymentId = str_pad($payment->id, 6, '0', STR_PAD_LEFT);
+        return "BT{$brandId}{$paymentId}";
     }
 
     /**
@@ -128,26 +132,50 @@ class SepayService
     }
 
     /**
-     * Process webhook data
+     * Process webhook data from Sepay
      */
     public function processWebhook(array $data): ?Payment
     {
-        $content = $data['content'] ?? $data['transaction_content'] ?? '';
+        // Sepay webhook data structure:
+        // {
+        //     "id": "123456",
+        //     "gateway": "MB",
+        //     "transaction_date": "2024-01-01 12:00:00",
+        //     "account_number": "0123456789",
+        //     "sub_account": "",
+        //     "amount_in": 100000,
+        //     "amount_out": 0,
+        //     "accumulated": 1000000,
+        //     "code": "",
+        //     "transaction_content": "BT0001000001",
+        //     "reference_number": "FT24001123456",
+        //     "body": "..."
+        // }
 
-        // Extract payment code from content (format: BT0001P000001)
-        if (preg_match('/BT(\d{4})P(\d{6})/', strtoupper($content), $matches)) {
+        $content = $data['transaction_content'] ?? $data['content'] ?? '';
+        $amount = $data['amount_in'] ?? $data['transferAmount'] ?? 0;
+
+        // Extract payment code from content (format: BT0001000001)
+        // BT = Brand Tree, 0001 = brand_id, 000001 = payment_id
+        if (preg_match('/BT(\d{4})(\d{6})/', strtoupper($content), $matches)) {
             $brandId = (int) $matches[1];
             $paymentId = (int) $matches[2];
 
             $payment = Payment::where('id', $paymentId)
                 ->where('brand_id', $brandId)
                 ->where('status', Payment::STATUS_PENDING)
+                ->with('subscription.plan')
                 ->first();
 
-            if ($payment && $data['transferAmount'] >= $payment->amount) {
+            if ($payment && $amount >= $payment->amount) {
                 return $payment;
             }
         }
+
+        Log::warning('Sepay webhook: Payment not found or amount mismatch', [
+            'content' => $content,
+            'amount' => $amount,
+        ]);
 
         return null;
     }

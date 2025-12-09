@@ -8,6 +8,7 @@ use App\Models\Plan;
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -38,7 +39,7 @@ class BrandController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBrandRequest $request): RedirectResponse
+    public function store(StoreBrandRequest $request): RedirectResponse|JsonResponse
     {
         $this->authorize('create', Brand::class);
         $data = $request->validated();
@@ -74,6 +75,16 @@ class BrandController extends Controller
             ]);
         }
 
+        // Return JSON response for AJAX requests
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.brand.created'),
+                'brand' => $brand->load('activeSubscription.plan'),
+                'redirect' => route('brands.show', $brand)
+            ], 201);
+        }
+
         return redirect()->route('brands.show', $brand)
             ->with('success', __('messages.brand.created'));
     }
@@ -91,19 +102,9 @@ class BrandController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Brand $brand): View
-    {
-        $this->authorize('update', $brand);
-
-        return view('brands.edit', compact('brand'));
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBrandRequest $request, Brand $brand): RedirectResponse
+    public function update(UpdateBrandRequest $request, Brand $brand): RedirectResponse|JsonResponse
     {
         $this->authorize('update', $brand);
         $data = $request->validated();
@@ -119,6 +120,16 @@ class BrandController extends Controller
 
         $brand->update($data);
 
+        // Return JSON response for AJAX requests
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.brand.updated'),
+                'brand' => $brand->fresh()->load('activeSubscription.plan'),
+                'redirect' => route('brands.show', $brand->fresh())
+            ]);
+        }
+
         return redirect()->route('brands.show', $brand)
             ->with('success', __('messages.brand.updated'));
     }
@@ -126,18 +137,23 @@ class BrandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand): RedirectResponse
+    public function destroy(Brand $brand): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $brand);
 
-        // Delete logo if exists
-        if ($brand->logo_path) {
-            Storage::disk('public')->delete($brand->logo_path);
-        }
-
+        // Soft delete the brand (logo will be kept for recovery)
         $brand->delete();
 
-        return redirect()->route('brands.index')
+        // Return JSON response for AJAX requests
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.brand.deleted'),
+                'redirect' => route('dashboard')
+            ]);
+        }
+
+        return redirect()->route('dashboard')
             ->with('success', __('messages.brand.deleted'));
     }
 }

@@ -8,7 +8,7 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Toastify CSS (Local) -->
-        <link rel="stylesheet" href="{{ asset('css/toastify.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/toastify.min.css') }}">
 
         <!-- Vite Assets (Tailwind + App) -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -27,7 +27,7 @@
         </div>
 
         <!-- Toastify JS (Local) -->
-        <script src="{{ asset('js/toastify.min.js') }}"></script>
+        <script src="{{ asset('assets/js/toastify.min.js') }}"></script>
         <script>
             function showToast(message, type = 'success') {
                 const config = {
