@@ -35,7 +35,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Brand resource routes (index, create, store don't need brand.access)
-        Route::resource('brands', BrandController::class)->only(['index', 'create', 'store']);
+        Route::resource('brands', BrandController::class)->only(['store']);
 
         // Routes that require brand access check
         Route::prefix('brands/{brand}')

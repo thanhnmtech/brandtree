@@ -64,67 +64,51 @@ class CreditController extends Controller
     }
 
     /**
-     * Display detailed statistics.
-     */
-    public function statistics(Request $request, Brand $brand): View
-    {
-        $this->authorize('view', $brand);
-
-        $period = $request->get('period', 'month');
-
-        $stats = $this->creditService->getUsageStats($brand, $period);
-        $dailyUsage = $this->creditService->getDailyUsage($brand, $period);
-        $subscription = $brand->activeSubscription;
-
-        return view('brands.credits.statistics', compact('brand', 'stats', 'dailyUsage', 'period', 'subscription'));
-    }
-
-    /**
      * Export credit usage to CSV.
      */
-    public function export(Request $request, Brand $brand): StreamedResponse
-    {
-        $this->authorize('view', $brand);
+    // public function export(Request $request, Brand $brand): StreamedResponse
+    // {
+    //     $this->authorize('view', $brand);
 
-        $period = $request->get('period', 'month');
+    //     $period = $request->get('period', 'month');
 
-        $query = CreditUsage::where('brand_id', $brand->id)
-            ->with('user')
-            ->orderBy('created_at', 'desc');
+    //     $query = CreditUsage::where('brand_id', $brand->id)
+    //         ->with('user')
+    //         ->orderBy('created_at', 'desc');
 
-        if ($period === 'week') {
-            $query->where('created_at', '>=', now()->startOfWeek());
-        } elseif ($period === 'month') {
-            $query->where('created_at', '>=', now()->startOfMonth());
-        } elseif ($period === 'year') {
-            $query->where('created_at', '>=', now()->startOfYear());
-        }
+    //     if ($period === 'week') {
+    //         $query->where('created_at', '>=', now()->startOfWeek());
+    //     } elseif ($period === 'month') {
+    //         $query->where('created_at', '>=', now()->startOfMonth());
+    //     } elseif ($period === 'year') {
+    //         $query->where('created_at', '>=', now()->startOfYear());
+    //     }
 
-        $usages = $query->get();
+    //     $usages = $query->get();
 
-        $filename = "credits-{$brand->id}-{$period}-" . now()->format('Y-m-d') . ".csv";
+    //     $filename = "credits-{$brand->id}-{$period}-" . now()->format('Y-m-d') . ".csv";
 
-        return response()->streamDownload(function () use ($usages) {
-            $handle = fopen('php://output', 'w');
+    //     return response()->streamDownload(function () use ($usages) {
+    //         $handle = fopen('php://output', 'w');
 
-            // Header
-            fputcsv($handle, ['Thời gian', 'Người dùng', 'Loại', 'Model', 'Credits', 'Mô tả']);
+    //         // Header
+    //         fputcsv($handle, ['Thời gian', 'Người dùng', 'Loại', 'Model', 'Credits', 'Mô tả']);
 
-            // Data
-            foreach ($usages as $usage) {
-                fputcsv($handle, [
-                    $usage->created_at->format('d/m/Y H:i:s'),
-                    $usage->user->name,
-                    $usage->action_type,
-                    $usage->model_used ?? '',
-                    $usage->amount,
-                    $usage->description ?? '',
-                ]);
-            }
+    //         // Data
+    //         foreach ($usages as $usage) {
+    //             fputcsv($handle, [
+    //                 $usage->created_at->format('d/m/Y H:i:s'),
+    //                 $usage->user->name,
+    //                 $usage->action_type,
+    //                 $usage->model_used ?? '',
+    //                 $usage->amount,
+    //                 $usage->description ?? '',
+    //             ]);
+    //         }
 
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv',
-        ]);
-    }
+    //         fclose($handle);
+    //     }, $filename, [
+    //         'Content-Type' => 'text/csv',
+    //     ]);
+    // }
 }
