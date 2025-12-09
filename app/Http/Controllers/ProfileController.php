@@ -40,24 +40,24 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $user = $request->user();
+    // public function destroy(Request $request): RedirectResponse
+    // {
+    //     $user = $request->user();
 
-        // If user has Google ID and no password set, skip password validation
-        if (!$user->google_id) {
-            $request->validateWithBag('userDeletion', [
-                'password' => ['required', 'current_password'],
-            ]);
-        }
+    //     // If user has Google ID and no password set, skip password validation
+    //     if (!$user->google_id) {
+    //         $request->validateWithBag('userDeletion', [
+    //             'password' => ['required', 'current_password'],
+    //         ]);
+    //     }
 
-        Auth::logout();
+    //     Auth::logout();
 
-        $user->delete();
+    //     $user->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    //     $request->session()->invalidate();
+    //     $request->session()->regenerateToken();
 
-        return Redirect::to('/');
-    }
+    //     return Redirect::to('/');
+    // }
 }

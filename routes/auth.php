@@ -65,14 +65,14 @@ Route::middleware('guest')->group(function () {
         ->name('password.update');
 
     // Original password reset routes (kept for backward compatibility)
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request.old');
+    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+    //     ->name('password.request.old');
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset.old');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+    //     ->name('password.reset.old');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
