@@ -6,7 +6,7 @@
             <i class="ri-menu-line"></i>
         </button>
         <!-- Logo + Title -->
-        <div class="tw-flex tw-items-center tw-gap-[14px]">
+        <a href="{{ route('dashboard') }}" class="tw-flex tw-items-center tw-gap-[14px]">
             <img src="{{ asset('assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg') }}"
                 class="tw-w-[28px] tw-h-[28px] md:tw-w-[34px] md:tw-h-[34px] tw-object-contain" alt="logo" />
             <div class="dashboard-page__title">
@@ -17,7 +17,7 @@
                     Quản lý danh mục thương hiệu của bạn
                 </p>
             </div>
-        </div>
+        </a>
 
         <!-- ==== MENU DESKTOP (>=1024px) ==== -->
         @if(!empty($currentBrand))
