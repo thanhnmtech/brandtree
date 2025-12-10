@@ -1,104 +1,8 @@
 <x-app-layout>
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
-    <div x-data="{
-        addBrandModal: {{ $errors->any() && old('_brand_modal_mode') === 'create' ? 'true' : 'false' }},
-        logoPreview: null,
-        isSubmitting: false,
-        formErrors: {},
-
-        openAddBrand() {
-            this.addBrandModal = true;
-            this.formErrors = {};
-            this.$nextTick(() => this.$refs.brandNameInput?.focus());
-        },
-
-        closeAddBrand() {
-            this.addBrandModal = false;
-            this.resetForm();
-        },
-
-        resetForm() {
-            this.$refs.brandForm.reset();
-            this.clearLogoPreview();
-            this.formErrors = {};
-        },
-
-        async submitBrandForm(event) {
-            this.isSubmitting = true;
-            this.formErrors = {};
-
-            const form = event.target;
-            const formData = new FormData(form);
-
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Success
-                    this.closeAddBrand();
-
-                    // Show success notification
-                    if (window.showNotification) {
-                        window.showNotification(data.message, 'success');
-                    }
-
-                    // Redirect to brand page
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    // Validation errors
-                    if (data.errors) {
-                        this.formErrors = data.errors;
-                    } else {
-                        this.formErrors.general = data.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                this.formErrors.general = 'Có lỗi xảy ra. Vui lòng thử lại.';
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-
-        previewLogo(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Check file size (2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Logo không được lớn hơn 2MB');
-                event.target.value = '';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.logoPreview = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        },
-
-        clearLogoPreview() {
-            this.logoPreview = null;
-            const input = this.$refs.logoInput;
-            if (input) input.value = '';
-        }
-    }">
+    <div
+        data-controller="brand-form"
+        data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
+        data-brand-form-modal-mode-value="{{ old('_brand_modal_mode') }}">
     <main class="tw-flex tw-flex-col md:tw-rounded-[10px] md:tw-bg-[#F3F7F5] md:tw-mt-[36px] md:tw-mx-[71px] md:tw-mb-10">
     <section class="tw-flex tw-flex-col tw-pt-[13px]">
         <!-- SUMMARY GRID -->
@@ -210,7 +114,7 @@
 
             <!-- Button -->
             <div class="tw-relative">
-                <button @click="openAddBrand()"
+                <button data-action="click->brand-form#openAdd"
                     class="tw-h-[44px] tw-w-[235px] tw-px-4 tw-rounded-[7px] tw-bg-[linear-gradient(180deg,#34b269_0%,#78d29e_100%)] tw-text-white tw-font-light tw-text-sm tw-shadow-sm tw-whitespace-nowrap hover:tw-scale-[1.02] hover:tw-shadow-md tw-transition">
                     <img src="./assets/img/add-vector.svg" alt="add"
                         class="tw-absolute tw-left-[12px] tw-top-1/2 -tw-translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />

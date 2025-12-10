@@ -3,14 +3,6 @@
 
     <form method="POST" action="{{ route('login') }}" class="tw-space-y-6">
         @csrf
-
-        <!-- Session Status -->
-        @if (session('status'))
-            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded-lg">
-                {{ session('status') }}
-            </div>
-        @endif
-
         <!-- Email -->
         <div class="tw-space-y-2">
             <label for="email" class="tw-text-base md:tw-text-lg tw-font-medium">Địa chỉ email</label>
@@ -24,9 +16,6 @@
                 required
                 autofocus
             />
-            @error('email')
-                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
-            @enderror
         </div>
 
         <!-- Password -->
@@ -40,9 +29,7 @@
                 placeholder="Nhập mật khẩu"
                 required
             />
-            @error('password')
-                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
-            @enderror
+
         </div>
 
         <!-- Options -->
@@ -56,11 +43,6 @@
                 <span>Ghi nhớ đăng nhập</span>
             </label>
 
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="tw-text-[#16a249] tw-font-medium tw-text-sm md:tw-text-base hover:tw-underline">
-                    Quên mật khẩu?
-                </a>
-            @endif
         </div>
 
         <!-- Submit -->

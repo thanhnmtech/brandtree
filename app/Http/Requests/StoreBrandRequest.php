@@ -27,7 +27,7 @@ class StoreBrandRequest extends FormRequest
             'target_market' => ['required', 'string', 'max:255'],
             'founded_year' => ['required', 'integer', 'min:1901', 'max:' . date('Y')],
             'description' => ['required', 'string', 'max:5000'],
-            'logo' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'logo' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
     }
 

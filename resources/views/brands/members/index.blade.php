@@ -1,62 +1,7 @@
 <x-app-layout>
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
-    <div x-data="{
-        inviteModal: {{ $errors->any() && old('_modal_type') === 'invite' ? 'true' : 'false' }},
-        editModal: {{ $errors->any() && old('_modal_type') === 'edit' ? 'true' : 'false' }},
-        deleteModal: false,
-        currentRole: '{{ old('role', 'editor') }}',
-        editMemberId: {{ old('_member_id', 'null') }},
-        editMemberRole: '{{ old('role', '') }}',
-        deleteMemberId: null,
-        deleteMemberName: '',
-
-        openInvite() {
-            this.inviteModal = true;
-            this.currentRole = 'editor';
-        },
-
-        openEdit(memberId, role) {
-            this.editMemberId = memberId;
-            this.editMemberRole = role;
-            this.editModal = true;
-        },
-
-        openDelete(memberId, name) {
-            this.deleteMemberId = memberId;
-            this.deleteMemberName = name;
-            this.deleteModal = true;
-        },
-
-        updatePermissionDisplay(role) {
-            this.currentRole = role;
-        },
-
-        getPermClass(part, role) {
-            // Admin: Toàn quyền tất cả
-            if (role === 'admin') {
-                return 'tw-text-sm tw-rounded-full tw-px-4 tw-py-1 tw-bg-vlbcgreen tw-text-white tw-font-medium';
-            }
-            // Editor: Toàn quyền Tán Cây (crown), chỉ xem Gốc (root) và Thân (stem)
-            else if (role === 'editor' && part === 'crown') {
-                return 'tw-text-sm tw-rounded-full tw-px-4 tw-py-1 tw-bg-vlbcgreen tw-text-white tw-font-medium';
-            }
-            return 'tw-text-sm tw-border tw-border-gray-400 tw-rounded-full tw-px-4 tw-py-1 tw-text-gray-700';
-        },
-
-        getPermText(part, role) {
-            // Admin: Toàn quyền tất cả
-            if (role === 'admin') {
-                return 'Toàn quyền';
-            }
-            // Editor: Toàn quyền Tán Cây (crown), chỉ xem Gốc (root) và Thân (stem)
-            else if (role === 'editor' && part === 'crown') {
-                return 'Toàn quyền';
-            }
-            return 'Chỉ xem';
-        }
-    }">
+    <div
+        data-controller="member-management"
+        data-member-management-current-role-value="{{ old('role', 'editor') }}">
     <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-5">
         <div class="tw-px-8">
             <x-breadcrumb :items="[
@@ -71,7 +16,7 @@
 
                 @if($isAdmin)
                 <div class="tw-relative tw-mt-2">
-                    <button @click="openInvite()"
+                    <button data-action="click->member-management#openInvite"
                         class="tw-relative tw-bg-vlbcgreen tw-text-white tw-pl-10 tw-pr-4 tw-py-2 tw-rounded-lg tw-shadow hover:tw-scale-105 tw-transition">
                         <img src="{{ asset('assets/img/add-vector.svg') }}" alt="add"
                             class="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-w-4 tw-h-4 tw-pointer-events-none" />
@@ -146,11 +91,15 @@
                         <!-- Actions -->
                         <div class="tw-flex tw-items-center tw-gap-4">
                             @if($isAdmin && $member->user_id !== auth()->id() && $member->user_id !== $brand->created_by)
-                            <button @click="openEdit({{ $member->id }}, '{{ $member->role }}')"
+                            <button data-action="click->member-management#openEdit"
+                                data-member-id="{{ $member->id }}"
+                                data-member-role="{{ $member->role }}"
                                 class="tw-flex tw-items-center tw-gap-1 tw-font-semibold hover:tw-text-[#1AA24C]">
                                 <i class="ri-edit-line"></i> Sửa
                             </button>
-                            <button @click="openDelete({{ $member->id }}, '{{ addslashes($member->user->name) }}')"
+                            <button data-action="click->member-management#openDelete"
+                                data-member-id="{{ $member->id }}"
+                                data-member-name="{{ addslashes($member->user->name) }}"
                                 class="tw-flex tw-items-center tw-gap-1 tw-font-semibold hover:tw-text-red-500">
                                 <i class="ri-user-unfollow-line"></i> Gỡ bỏ
                             </button>
@@ -172,15 +121,13 @@
 
     <!-- ================= INVITE MEMBER POPUP ================= -->
     @if($isAdmin)
-    <x-modal-transition type="overlay"
-        x-show="inviteModal"
-        x-cloak
-        @click.self="inviteModal = false"
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]">
-        <x-modal-transition type="modal"
-            class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-max-h-[85dvh] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
-            @click.away="inviteModal = false">
-            <button @click="inviteModal = false" type="button"
+    <div data-member-management-target="inviteModal"
+        class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-z-[9999]"
+        style="display: none;"
+        data-action="click->member-management#closeInvite">
+        <div class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-max-h-[85dvh] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300 tw-mx-auto tw-my-[7.5vh]"
+            data-action="click->member-management#stopPropagation">
+            <button data-action="click->member-management#closeInvite" type="button"
                 class="tw-absolute tw-top-4 tw-right-4 tw-text-gray-400 hover:tw-text-black">
                 <i class="ri-close-line tw-text-2xl"></i>
             </button>
@@ -217,7 +164,7 @@
                         <input type="radio" name="role" value="admin"
                             {{ old('role') === 'admin' ? 'checked' : '' }}
                             class="tw-mt-1 tw-h-4 tw-w-4 tw-text-vlbcgreen focus:tw-ring-vlbcgreen"
-                            @change="updatePermissionDisplay('admin')" />
+                            data-action="change->member-management#updatePermissions" />
                         <div>
                             <p class="tw-font-semibold tw-text-gray-800">Quản trị viên</p>
                             <p class="tw-text-sm tw-text-gray-500">
@@ -231,7 +178,7 @@
                         <input type="radio" name="role" value="editor"
                             {{ old('role', 'editor') === 'editor' ? 'checked' : '' }}
                             class="tw-mt-1 tw-h-4 tw-w-4 tw-text-vlbcgreen focus:tw-ring-vlbcgreen"
-                            @change="updatePermissionDisplay('editor')" />
+                            data-action="change->member-management#updatePermissions" />
                         <div>
                             <p class="tw-font-semibold tw-text-gray-800">
                                 Nhà Thực thi / Marketing
@@ -259,7 +206,7 @@
                                 </div>
                                 <span class="tw-text-gray-800 tw-font-medium tw-text-sm">Gốc Cây (Nền tảng)</span>
                             </div>
-                            <span :class="getPermClass('root', currentRole)" x-text="getPermText('root', currentRole)"></span>
+                            <span data-member-management-target="rootPerm" class="tw-text-xs tw-font-medium tw-px-2 tw-py-1 tw-rounded-full tw-bg-green-100 tw-text-green-700">Toàn quyền</span>
                         </div>
 
                         <!-- Stem -->
@@ -271,7 +218,7 @@
                                 </div>
                                 <span class="tw-text-gray-800 tw-font-medium tw-text-sm">Thân Cây (Chiến lược)</span>
                             </div>
-                            <span :class="getPermClass('stem', currentRole)" x-text="getPermText('stem', currentRole)"></span>
+                            <span data-member-management-target="stemPerm" class="tw-text-xs tw-font-medium tw-px-2 tw-py-1 tw-rounded-full tw-bg-green-100 tw-text-green-700">Toàn quyền</span>
                         </div>
 
                         <!-- Crown -->
@@ -283,14 +230,14 @@
                                 </div>
                                 <span class="tw-text-gray-800 tw-font-medium tw-text-sm">Tán Cây (Triển khai)</span>
                             </div>
-                            <span :class="getPermClass('crown', currentRole)" x-text="getPermText('crown', currentRole)"></span>
+                            <span data-member-management-target="crownPerm" class="tw-text-xs tw-font-medium tw-px-2 tw-py-1 tw-rounded-full tw-bg-green-100 tw-text-green-700">Toàn quyền</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer buttons -->
                 <div class="tw-flex tw-justify-end tw-gap-3 tw-mt-6">
-                    <button type="button" @click="inviteModal = false"
+                    <button type="button" data-action="click->member-management#closeInvite"
                         class="tw-bg-gray-100 tw-text-gray-700 tw-rounded-lg tw-px-5 tw-py-2 tw-font-medium hover:tw-bg-gray-200">
                         Hủy
                     </button>
@@ -301,40 +248,37 @@
                     </button>
                 </div>
             </form>
-        </x-modal-transition>
-    </x-modal-transition>
+        </div>
+    </div>
     @endif
 
     <!-- ================= EDIT ROLE POPUP ================= -->
     @if($isAdmin)
-    <x-modal-transition type="overlay"
-        x-show="editModal"
-        x-cloak
-        @click.self="editModal = false"
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]">
-        <x-modal-transition type="modal"
-            class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-p-6 tw-relative tw-border tw-border-gray-300"
-            @click.away="editModal = false">
-            <button type="button" @click="editModal = false"
+    <div data-member-management-target="editModal"
+        class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-z-[9999]"
+        style="display: none;"
+        data-action="click->member-management#closeEdit">
+        <div class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-p-6 tw-relative tw-border tw-border-gray-300 tw-mx-auto tw-my-[7.5vh]"
+            data-action="click->member-management#stopPropagation">
+            <button type="button" data-action="click->member-management#closeEdit"
                 class="tw-absolute tw-top-4 tw-right-4 tw-text-gray-400 hover:tw-text-black">
                 <i class="ri-close-line tw-text-2xl"></i>
             </button>
 
-            <form :action="`{{ route('brands.members.index', $brand) }}/${editMemberId}`" method="POST">
+            <form data-member-management-target="editForm" action="{{ route('brands.members.index', $brand) }}" method="POST">
                 @csrf
                 @method('PUT')
 
                 <!-- Hidden fields để track modal và member ID -->
                 <input type="hidden" name="_modal_type" value="edit">
-                <input type="hidden" name="_member_id" :value="editMemberId">
+                <input type="hidden" data-member-management-target="editMemberIdInput" name="_member_id" value="">
 
                 <h2 class="tw-text-[20px] tw-font-bold tw-text-gray-900">Thay đổi vai trò</h2>
                 <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Chọn vai trò mới cho thành viên</p>
 
                 <div class="tw-mt-5 tw-space-y-3">
                     <label class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none">
-                        <input type="radio" name="role" value="admin"
-                            :checked="editMemberRole === 'admin' || '{{ old('role') }}' === 'admin'"
+                        <input type="radio" data-member-management-target="editRoleAdmin" name="role" value="admin"
                             class="tw-mt-1 tw-h-4 tw-w-4" />
                         <div>
                             <p class="tw-font-semibold">Quản trị viên</p>
@@ -343,8 +287,7 @@
                     </label>
 
                     <label class="tw-flex tw-items-start tw-gap-3 tw-cursor-pointer tw-select-none">
-                        <input type="radio" name="role" value="editor"
-                            :checked="editMemberRole === 'editor' || '{{ old('role') }}' === 'editor'"
+                        <input type="radio" data-member-management-target="editRoleEditor" name="role" value="editor"
                             class="tw-mt-1 tw-h-4 tw-w-4" />
                         <div>
                             <p class="tw-font-semibold">Nhà thực thi / Marketing</p>
@@ -358,7 +301,7 @@
                 @enderror
 
                 <div class="tw-flex tw-justify-end tw-gap-3 tw-mt-6">
-                    <button type="button" @click="editModal = false"
+                    <button type="button" data-action="click->member-management#closeEdit"
                         class="tw-bg-gray-100 tw-text-gray-700 tw-rounded-lg tw-px-5 tw-py-2 tw-font-medium hover:tw-bg-gray-200">
                         Hủy
                     </button>
@@ -368,20 +311,18 @@
                     </button>
                 </div>
             </form>
-        </x-modal-transition>
-    </x-modal-transition>
+        </div>
+    </div>
     @endif
 
     <!-- ================= DELETE CONFIRMATION POPUP ================= -->
     @if($isAdmin)
-    <x-modal-transition type="overlay"
-        x-show="deleteModal"
-        x-cloak
-        @click.self="deleteModal = false"
-        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-z-[9999]">
-        <x-modal-transition type="modal"
-            class="tw-bg-white tw-rounded-2xl tw-w-[400px] tw-max-w-[90%] tw-p-6 tw-relative tw-border tw-border-gray-300"
-            @click.away="deleteModal = false">
+    <div data-member-management-target="deleteModal"
+        class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-z-[9999]"
+        style="display: none;"
+        data-action="click->member-management#closeDelete">
+        <div class="tw-bg-white tw-rounded-2xl tw-w-[400px] tw-max-w-[90%] tw-p-6 tw-relative tw-border tw-border-gray-300 tw-mx-auto tw-my-[7.5vh]"
+            data-action="click->member-management#stopPropagation">
             <div class="tw-text-center">
                 <div
                     class="tw-mx-auto tw-flex tw-items-center tw-justify-center tw-h-12 tw-w-12 tw-rounded-full tw-bg-red-100">
@@ -389,16 +330,16 @@
                 </div>
                 <h3 class="tw-mt-4 tw-text-lg tw-font-bold tw-text-gray-900">Gỡ bỏ thành viên</h3>
                 <p class="tw-mt-2 tw-text-sm tw-text-gray-500">
-                    Bạn có chắc chắn muốn gỡ bỏ <span x-text="deleteMemberName"
+                    Bạn có chắc chắn muốn gỡ bỏ <span data-member-management-target="deleteMemberName"
                         class="tw-font-semibold tw-text-gray-900"></span> khỏi thương hiệu?
                 </p>
 
-                <form :action="`{{ route('brands.members.index', $brand) }}/${deleteMemberId}`" method="POST" class="tw-mt-6">
+                <form data-member-management-target="deleteForm" action="{{ route('brands.members.index', $brand) }}" method="POST" class="tw-mt-6">
                     @csrf
                     @method('DELETE')
 
                     <div class="tw-flex tw-gap-3">
-                        <button type="button" @click="deleteModal = false"
+                        <button type="button" data-action="click->member-management#closeDelete"
                             class="tw-flex-1 tw-bg-gray-100 tw-text-gray-700 tw-rounded-lg tw-px-4 tw-py-2 tw-font-medium hover:tw-bg-gray-200">
                             Hủy
                         </button>
@@ -409,8 +350,8 @@
                     </div>
                 </form>
             </div>
-        </x-modal-transition>
-    </x-modal-transition>
+        </div>
+    </div>
     @endif
     </div>
 </x-app-layout>
