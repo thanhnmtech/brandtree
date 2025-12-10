@@ -81,19 +81,19 @@
             const config = {
                 success: {
                     background: 'linear-gradient(to right, #00b09b, #96c93d)',
-                    icon: '✓'
+                    icon: '✓ '
                 },
                 error: {
                     background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
-                    icon: '✕'
+                    icon: '✕ '
                 },
                 warning: {
                     background: 'linear-gradient(to right, #f093fb, #f5576c)',
-                    icon: '⚠'
+                    icon: '⚠ '
                 },
                 info: {
                     background: 'linear-gradient(to right, #4facfe, #00f2fe)',
-                    icon: 'ℹ'
+                    icon: 'ℹ '
                 }
             };
 

@@ -1,153 +1,12 @@
 <x-app-layout>
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
-    <div x-data="{
-        editBrandModal: {{ $errors->any() && old('_brand_modal_mode') === 'edit' ? 'true' : 'false' }},
-        deleteBrandModal: false,
-        deleteConfirmName: '',
-        logoPreview: '{{ $brand->logo_path ? Storage::url($brand->logo_path) : null }}',
-        isSubmitting: false,
-        formErrors: {},
-
-        openEditBrand() {
-            this.editBrandModal = true;
-            this.formErrors = {};
-            this.$nextTick(() => this.$refs.brandNameInput?.focus());
-        },
-
-        closeEditBrand() {
-            this.editBrandModal = false;
-            this.resetLogoPreview();
-            this.formErrors = {};
-        },
-
-        openDeleteBrand() {
-            this.deleteBrandModal = true;
-            this.deleteConfirmName = '';
-            this.$nextTick(() => this.$refs.deleteConfirmInput?.focus());
-        },
-
-        closeDeleteBrand() {
-            this.deleteBrandModal = false;
-            this.deleteConfirmName = '';
-        },
-
-        async submitDeleteBrand() {
-            if (this.deleteConfirmName !== '{{ $brand->name }}') {
-                alert('Tên thương hiệu không chính xác!');
-                return;
-            }
-
-            this.isSubmitting = true;
-
-            try {
-                const response = await fetch('{{ route('brands.destroy', $brand) }}', {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    this.closeDeleteBrand();
-
-                    if (window.showNotification) {
-                        window.showNotification(data.message, 'success');
-                    }
-
-                    setTimeout(() => {
-                        window.location.href = data.redirect || '{{ route('dashboard') }}';
-                    }, 500);
-                } else {
-                    alert(data.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra. Vui lòng thử lại.');
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-
-        async submitBrandForm(event) {
-            this.isSubmitting = true;
-            this.formErrors = {};
-
-            const form = event.target;
-            const formData = new FormData(form);
-
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Success
-                    this.closeEditBrand();
-
-                    // Show success notification
-                    if (window.showNotification) {
-                        window.showNotification(data.message, 'success');
-                    }
-
-                    // Redirect to updated brand URL (slug might have changed)
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    // Validation errors
-                    if (data.errors) {
-                        this.formErrors = data.errors;
-                    } else {
-                        this.formErrors.general = data.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                this.formErrors.general = 'Có lỗi xảy ra. Vui lòng thử lại.';
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-
-        previewLogo(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Check file size (2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Logo không được lớn hơn 2MB');
-                event.target.value = '';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.logoPreview = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        },
-
-        resetLogoPreview() {
-            this.logoPreview = '{{ $brand->logo_path ? Storage::url($brand->logo_path) : null }}';
-            const input = this.$refs.logoInput;
-            if (input) input.value = '';
-        }
-    }">
+    <div
+        data-controller="brand-form"
+        data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
+        data-brand-form-modal-mode-value="{{ old('_brand_modal_mode') }}"
+        data-brand-form-brand-logo-value="{{ $brand->logo_path ? Storage::url($brand->logo_path) : '' }}"
+        data-brand-form-brand-name-value="{{ $brand->name }}"
+        data-brand-form-delete-url-value="{{ route('brands.destroy', $brand) }}"
+        data-brand-form-redirect-url-value="{{ route('dashboard') }}">
     <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10">
     <!-- =================== HERO =================== -->
     <div class="tw-w-full tw-bg-[#F9F8F5] tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between">
@@ -157,17 +16,15 @@
                     {{ $brand->name }}
                 </h2>
                 @if($brand->isAdmin(auth()->user()))
-                    <div class="tw-relative" x-data="{ open: false }" @click.away="open = false">
-                        <i class="ri-more-2-fill tw-text-gray-600 tw-text-2xl tw-cursor-pointer hover:tw-text-gray-800 tw-transition" @click="open = !open"></i>
+                    <div class="tw-relative" data-controller="dropdown">
+                        <i class="ri-more-2-fill tw-text-gray-600 tw-text-2xl tw-cursor-pointer hover:tw-text-gray-800 tw-transition" data-action="click->dropdown#toggle"></i>
 
                         <!-- Dropdown Menu -->
-                        <x-modal-transition type="dropdown"
-                             x-show="open"
-                             class="tw-absolute tw-left-0 tw-top-full tw-mt-2 tw-w-64 tw-bg-white tw-rounded-lg tw-shadow-lg tw-border tw-border-gray-200 tw-z-50"
-                             style="display: none;">
+                        <div data-dropdown-target="menu"
+                             class="tw-hidden tw-absolute tw-left-0 tw-top-full tw-mt-2 tw-w-64 tw-bg-white tw-rounded-lg tw-shadow-lg tw-border tw-border-gray-200 tw-z-50">
                             <div class="tw-py-2">
                                 <!-- Menu Items -->
-                                <button @click="openEditBrand()" type="button" class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                <button data-action="click->brand-form#openEdit click->dropdown#close" type="button" class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
                                     <i class="ri-edit-line tw-text-lg tw-text-gray-500"></i>
                                     <span class="tw-text-sm tw-font-medium">Cập nhật thương hiệu</span>
                                 </button>
@@ -192,12 +49,12 @@
                                     <span class="tw-text-sm tw-font-medium">Thống kê năng lượng</span>
                                 </a>
 
-                                <button @click="openDeleteBrand(); open = false" type="button" class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-red-600 hover:tw-bg-red-50 tw-transition tw-border-t tw-border-gray-100">
+                                <button data-action="click->brand-form#openDelete click->dropdown#close" type="button" class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-red-600 hover:tw-bg-red-50 tw-transition tw-border-t tw-border-gray-100">
                                     <i class="ri-delete-bin-line tw-text-lg"></i>
                                     <span class="tw-text-sm tw-font-medium">Xóa thương hiệu</span>
                                 </button>
                             </div>
-                        </x-modal-transition>
+                        </div>
                     </div>
                 @endif
                 {{-- <i class="ri-arrow-down-s-line tw-text-gray-500 tw-text-2xl tw-cursor-pointer" id="brandSwitcherBtn"></i> --}}
@@ -639,12 +496,8 @@
     <x-modal-brand-form :brand="$brand" mode="edit" />
 
     <!-- Delete Brand Confirmation Modal -->
-    <x-modal-transition
-        x-show="deleteBrandModal"
-        @click.away="closeDeleteBrand()"
-        x-cloak>
-        <div class="tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-flex tw-items-center tw-justify-center tw-z-50 tw-p-4">
-            <div class="tw-bg-white tw-rounded-2xl tw-shadow-2xl tw-max-w-md tw-w-full tw-p-6" @click.stop>
+    <div data-brand-form-target="deleteModal" class="tw-hidden tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-z-50 tw-p-4" style="display: none;" data-action="click->brand-form#closeOnBackdrop">
+        <div class="tw-bg-white tw-rounded-2xl tw-shadow-2xl tw-max-w-md tw-w-full tw-p-6" data-action="click->brand-form#stopPropagation">
                 <!-- Header -->
                 <div class="tw-flex tw-items-start tw-justify-between tw-mb-6">
                     <div class="tw-flex tw-items-center tw-gap-3">
@@ -657,7 +510,7 @@
                         </div>
                     </div>
                     <button
-                        @click="closeDeleteBrand()"
+                        data-action="click->brand-form#closeDelete"
                         type="button"
                         class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition">
                         <i class="ri-close-line tw-text-2xl"></i>
@@ -678,37 +531,30 @@
                         Để xác nhận, vui lòng nhập tên thương hiệu: <strong class="tw-text-red-600">{{ $brand->name }}</strong>
                     </label>
                     <input
-                        x-ref="deleteConfirmInput"
-                        x-model="deleteConfirmName"
+                        data-brand-form-target="deleteConfirmInput"
+                        data-action="input->brand-form#updateDeleteConfirmName"
                         type="text"
                         class="tw-w-full tw-px-4 tw-py-3 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-red-500 focus:tw-border-transparent tw-transition"
-                        placeholder="Nhập tên thương hiệu"
-                        @keydown.enter="submitDeleteBrand()">
+                        placeholder="Nhập tên thương hiệu">
                 </div>
 
                 <!-- Actions -->
                 <div class="tw-flex tw-gap-3">
                     <button
-                        @click="closeDeleteBrand()"
+                        data-action="click->brand-form#closeDelete"
                         type="button"
-                        :disabled="isSubmitting"
                         class="tw-flex-1 tw-px-4 tw-py-3 tw-bg-gray-100 tw-text-gray-700 tw-font-medium tw-rounded-lg hover:tw-bg-gray-200 tw-transition disabled:tw-opacity-50">
                         Hủy
                     </button>
                     <button
-                        @click="submitDeleteBrand()"
+                        data-action="click->brand-form#submitDeleteBrand"
                         type="button"
-                        :disabled="isSubmitting || deleteConfirmName !== '{{ $brand->name }}'"
                         class="tw-flex-1 tw-px-4 tw-py-3 tw-bg-red-600 tw-text-white tw-font-medium tw-rounded-lg hover:tw-bg-red-700 tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-justify-center tw-gap-2">
-                        <span x-show="isSubmitting">
-                            <i class="ri-loader-4-line tw-animate-spin"></i>
-                        </span>
-                        <span x-text="isSubmitting ? 'Đang xóa...' : 'Xóa thương hiệu'"></span>
+                        <span>Xóa thương hiệu</span>
                     </button>
                 </div>
             </div>
         </div>
-    </x-modal-transition>
 
     <!-- =================== AI AGENTS CHUYÊN BIỆT =================== -->
     <section class="tw-px-8">

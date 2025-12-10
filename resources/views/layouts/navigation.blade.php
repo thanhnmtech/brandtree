@@ -110,9 +110,12 @@
 
             <div class="tw-h-px tw-bg-white/30 tw-my-4"></div>
 
-            <a href="{{ route('logout') }}" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
-                <i class="ri-logout-box-r-line tw-text md:tw-text-xl"></i> Thoát
-            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-w-full tw-text-left tw-p-0">
+                    <i class="ri-logout-box-r-line tw-text md:tw-text-xl"></i> Thoát
+                </button>
+            </form>
         </div>
     </div>
 </header>
