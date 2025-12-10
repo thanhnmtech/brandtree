@@ -62,7 +62,7 @@ Route::middleware('guest')->group(function () {
         ->name('password.reset');
 
     Route::post('reset-password-otp', [OtpPasswordResetController::class, 'reset'])
-        ->name('password.update');
+        ->name('password.reset.otp');
 
     // Original password reset routes (kept for backward compatibility)
     // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])

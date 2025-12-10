@@ -1,7 +1,7 @@
 <x-auth-layout>
     <x-slot name="title">Đặt lại mật khẩu - AI Cây Thương Hiệu</x-slot>
 
-    <form method="POST" action="{{ route('password.update') }}" class="tw-space-y-6">
+    <form method="POST" action="{{ route('password.reset.otp') }}" class="tw-space-y-6">
         @csrf
 
         <!-- Description -->
