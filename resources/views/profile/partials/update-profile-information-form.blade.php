@@ -1,9 +1,9 @@
 <section>
-    <header>
-        <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800">
+    <header class="tw-mb-6">
+        <h2 class="tw-text-xl tw-font-bold tw-text-gray-900 tw-flex tw-items-center tw-gap-2">
+            <i class="ri-user-line tw-text-2xl tw-text-[#1AA24C]"></i>
             Thông tin cá nhân
         </h2>
-
         <p class="tw-mt-2 tw-text-sm tw-text-gray-600">
             Cập nhật thông tin hồ sơ và địa chỉ email của bạn.
         </p>
@@ -13,13 +13,14 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="tw-mt-6 tw-space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="tw-space-y-5">
         @csrf
         @method('patch')
 
+        <!-- Họ tên -->
         <div>
             <label for="name" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                Họ tên
+                Họ tên <span class="tw-text-red-500">*</span>
             </label>
             <input
                 id="name"
@@ -29,57 +30,66 @@
                 required
                 autofocus
                 autocomplete="name"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-base focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] focus:tw-outline-none tw-transition"
+                class="tw-w-full tw-p-3 tw-border tw-rounded-lg focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none tw-transition {{ $errors->has('name') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
+                placeholder="Nhập họ tên của bạn"
             />
             @error('name')
                 <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
             @enderror
         </div>
 
+        <!-- Email -->
         <div>
-            <label for="email" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                Email
+            <label for="phone" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
+                Số điện thoại <span class="tw-text-red-500">*</span>
             </label>
             <input
-                id="email"
-                name="email"
-                type="email"
-                value="{{ old('email', $user->email) }}"
+                id="phone"
+                name="phone"
+                type="text"
+                value="{{ old('phone', $user->phone) }}"
                 required
-                autocomplete="username"
-                class="tw-w-full tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-4 md:tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-base focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] focus:tw-outline-none tw-transition"
+                autocomplete="tel"
+                class="tw-w-full tw-p-3 tw-border tw-rounded-lg focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none tw-transition {{ $errors->has('phone') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
+                placeholder="Nhập số điện thoại của bạn"
             />
-            @error('email')
+            @error('phone')
                 <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
             @enderror
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div class="tw-mt-3">
-                    <p class="tw-text-sm tw-text-gray-800">
-                        Địa chỉ email của bạn chưa được xác thực.
+                <div class="tw-mt-3 tw-p-3 tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded-lg">
+                    <div class="tw-flex tw-items-start tw-gap-2">
+                        <i class="ri-alert-line tw-text-yellow-600 tw-text-lg tw-mt-0.5"></i>
+                        <div class="tw-flex-1">
+                            <p class="tw-text-sm tw-text-gray-800">
+                                Địa chỉ email của bạn chưa được xác thực.
+                                <button
+                                    form="send-verification"
+                                    type="submit"
+                                    class="tw-underline tw-text-sm tw-text-[#1AA24C] hover:tw-text-[#148a3f] tw-font-medium">
+                                    Gửi lại email xác thực
+                                </button>
+                            </p>
 
-                        <button
-                            form="send-verification"
-                            type="submit"
-                            class="tw-underline tw-text-sm tw-text-[#16a249] hover:tw-text-[#34b269] tw-ml-1">
-                            Nhấn vào đây để gửi lại email xác thực.
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="tw-mt-2 tw-font-medium tw-text-sm tw-text-green-600">
-                            Một liên kết xác thực mới đã được gửi đến địa chỉ email của bạn.
-                        </p>
-                    @endif
+                            @if (session('status') === 'verification-link-sent')
+                                <p class="tw-mt-2 tw-text-sm tw-text-green-600 tw-font-medium">
+                                    ✓ Đã gửi email xác thực mới đến hộp thư của bạn.
+                                </p>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>
 
-        <div class="tw-flex tw-items-center tw-gap-4">
+        <!-- Submit Button -->
+        <div class="tw-flex tw-items-center tw-gap-4 tw-pt-2">
             <button
                 type="submit"
-                class="tw-h-[44px] md:tw-h-[50px] tw-px-6 md:tw-px-8 tw-bg-[linear-gradient(180deg,_#34b269_0%,_#78d29e_100%)] tw-text-white tw-rounded-lg tw-font-semibold tw-text-sm md:tw-text-base tw-transition tw-transform hover:tw-scale-[1.03] hover:tw-shadow-lg">
-                Lưu thay đổi
+                class="tw-bg-[#1AA24C] tw-text-white tw-font-semibold tw-py-3 tw-px-6 tw-rounded-lg hover:tw-bg-[#148a3f] tw-transition tw-flex tw-items-center tw-gap-2">
+                <i class="ri-save-line"></i>
+                <span>Lưu thay đổi</span>
             </button>
 
             @if (session('status') === 'profile-updated')
@@ -87,9 +97,11 @@
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="tw-text-sm tw-text-green-600 tw-font-medium"
-                >Đã lưu!</p>
+                    x-init="setTimeout(() => show = false, 3000)"
+                    class="tw-text-sm tw-text-green-600 tw-font-medium tw-flex tw-items-center tw-gap-1">
+                    <i class="ri-checkbox-circle-fill"></i>
+                    Đã lưu thành công!
+                </p>
             @endif
         </div>
     </form>

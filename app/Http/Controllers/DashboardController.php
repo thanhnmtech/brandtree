@@ -25,6 +25,11 @@ class DashboardController extends Controller
 
         $brands = $brandsQuery->latest()->paginate(9)->withQueryString();
 
+        // Filter out any null brands that might exist
+        $brands->getCollection()->transform(function ($brand) {
+            return $brand;
+        })->filter();
+
         // Stats
         $totalBrands = $user->brands()->count();
         $activeBrands = $user->brands()

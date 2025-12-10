@@ -128,6 +128,7 @@
     <section class="tw-p-[26px]">
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-[20px]">
             @foreach ($brands as $brand)
+                @if($brand)
                 <brand-card badge="NeedsAttention" avatar="E" title="Eco Garden" update="2 giờ trước" root="85"
                     stem="20"
                     description="Cây cần hoàn thiện phân tích SWOT."><!-- Brand card widget: matches Figma node 226:78 -->
@@ -197,6 +198,7 @@
                         </div>
                     </article>
                 </brand-card>
+                @endif
             @endforeach
         </div>
     </section>
