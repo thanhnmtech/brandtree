@@ -9,7 +9,7 @@
         id="sidebar"
         class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300"
       >
-    @include('partials.chat-left-sidebar')
+    @include('partials.left-sidebar')
     </aside>
 
       <!-- CHAT AREA -->
@@ -56,7 +56,7 @@
           class="tw-w-full tw-bg-white tw-border-t tw-border-gray-200 tw-px-5 tw-py-4 tw-flex tw-flex-col tw-justify-end"
         >
           <div id="inputbar">
-            @include('partials.chat-input-bar')
+            @include('partials.input-bar')
           </div>
         </div>
       </div>
