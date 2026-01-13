@@ -80,6 +80,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
 
             });
         Route::view('/test', 'chat.chat');
+        Route::view('/test2', 'user.user-management');
     });
 
     require __DIR__ . '/auth.php';

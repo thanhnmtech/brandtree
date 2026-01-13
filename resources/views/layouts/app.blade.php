@@ -23,9 +23,21 @@
 
 <body class="tw-font-bevietnam tw-bg-[#FFFFFF] tw-text-[#1a1a1a] tw-min-h-screen tw-overflow-x-hidden">
     @include('layouts.navigation')
-     {{ $slot }}
+    <main>
+        @yield('content')
+    </main>
     @include('layouts.footer')
+
+    <div
+        id="invite-member"
+        class="tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm
+            tw-flex tw-items-center tw-justify-center
+            tw-z-[9999] tw-hidden">
+        @include('user.partials.user-invite')
+    </div>
+
     <!-- Form Submit Loading Script -->
+    <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get all forms in the page
