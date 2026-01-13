@@ -9,7 +9,7 @@
         id="sidebar"
         class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300"
       >
-    @include('chat.partials.chat-left-sidebar')
+    @include('partials.chat-left-sidebar')
     </aside>
 
       <!-- CHAT AREA -->
@@ -47,7 +47,7 @@
           class="tw-flex-1 tw-overflow-y-auto tw-px-5 tw-py-4 tw-bg-[#F3F7F5]"
         >
           <div id="chat-messages" class="tw-space-y-2">
-            {{ $slot }} {{-- Truyền các message (gồm user và assistant) vào đây --}}
+            <!-- render tin nhắn ở đây -->
           </div>
         </section>
 
@@ -56,7 +56,7 @@
           class="tw-w-full tw-bg-white tw-border-t tw-border-gray-200 tw-px-5 tw-py-4 tw-flex tw-flex-col tw-justify-end"
         >
           <div id="inputbar">
-            @include('chat.partials.chat-input-bar')
+            @include('partials.chat-input-bar')
           </div>
         </div>
       </div>
@@ -66,7 +66,6 @@
         id="right-sidebar"
         class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-overflow-y-auto tw-h-full tw-transition-all tw-duration-300"
       >
-        {{ $right_sidebar }} {{-- Truyền nội dung right-sidebar (gồm result-bar và trending-bar) vào đây --}}
     </aside>
     </main>
 </x-app-layout>
