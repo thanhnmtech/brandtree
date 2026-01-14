@@ -83,6 +83,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');
 
             });
+        Route::view('/dashboard-goc','dashboard.dashboard-goc');
+        Route::view('/chat', 'chat.chat');
     });
 
     require __DIR__ . '/auth.php';
