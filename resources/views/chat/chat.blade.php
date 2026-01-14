@@ -31,12 +31,12 @@
             <div
               class="tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap"
             >
-              {{ $title }} {{-- Truyền title vào đây --}}
+              Nhà Phân tích Thổ nhưỡng{{-- $title }} {{ Truyền title vào đây --}}
             </div>
             <div
               class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap"
             >
-              {{ $description }} {{-- Truyền description vào đây --}}
+              Đánh giá thị trường, đối thủ và cơ hội kinh doanh.{{-- $description }} {{ Truyền description vào đây --}}
             </div>
           </div>
         </div>
@@ -66,6 +66,7 @@
         id="right-sidebar"
         class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-overflow-y-auto tw-h-full tw-transition-all tw-duration-300"
       >
+      @include('chat.partials.chat-result-bar')
     </aside>
     </main>
 </x-app-layout>

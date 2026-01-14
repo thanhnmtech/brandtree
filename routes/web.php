@@ -79,7 +79,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');
 
             });
-        Route::view('/test', 'chat.chat');
+        Route::view('/chat', 'chat.chat');
         Route::view('/test2', 'user.user-management');
     });
 
