@@ -21,7 +21,7 @@
       </div>
     </div>
     <div id="button-sidebar" class="tw-flex tw-items-center">
-      <button onclick="toggleSidebar()">
+      <button onclick="toggleLeftSidebar()">
         <img
           src="./assets/img/sidebar-toggle.svg"
           class="tw-w-[20px] tw-h-[20px] tw-object-contain"

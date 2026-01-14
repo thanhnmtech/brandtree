@@ -20,6 +20,8 @@
   <div
     class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center tw-gap-3"
   >
-    <div id="trending-panel" class="tw-flex tw-flex-col tw-gap-3"></div>
+    <div id="trending-panel" class="tw-flex tw-flex-col tw-gap-3">
+      <!-- render trending card ở đây -->
+    </div>
   </div>
 </div>
