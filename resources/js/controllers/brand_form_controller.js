@@ -1,4 +1,5 @@
-import { Controller } from "@hotwired/stimulus"
+import { Application, Controller } from "@hotwired/stimulus"
+window.Stimulus = Application.start();
 
 export default class extends Controller {
     static targets = [
@@ -340,4 +341,7 @@ export default class extends Controller {
             this.isSubmitting = false
         }
     }
+
+    // ==================== Giải nghĩa field ==================== //
+
 }

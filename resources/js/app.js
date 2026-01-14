@@ -19,4 +19,4 @@ application.register("dropdown", DropdownController)
 application.register("payment-status", PaymentStatusController)
 
 // Make Stimulus available globally (optional, for debugging)
-window.Stimulus = application
+window.Stimulus = application.start();
