@@ -28,6 +28,10 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         ->middleware(['auth', 'verified'])
         ->name('dashboard');
 
+    Route::get('/app/filter', [DashboardController::class, 'filter'])
+        ->middleware(['auth', 'verified'])
+        ->name('dashboard.filter');
+
     Route::middleware('auth')->group(function () {
         // Profile routes
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

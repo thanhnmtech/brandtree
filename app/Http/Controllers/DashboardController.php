@@ -9,8 +9,37 @@ class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
+        $data = $this->getBrandsData($request);
+
+        return view('dashboard', $data);
+    }
+
+    public function filter(Request $request)
+    {
+        $data = $this->getBrandsData($request);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('partials.brand-cards', ['brands' => $data['brands']])->render(),
+                'stats' => [
+                    'seedlingCount' => $data['seedlingCount'],
+                    'growingCount' => $data['growingCount'],
+                    'completedCount' => $data['completedCount'],
+                    'totalBrands' => $data['totalBrands'],
+                    'activeBrands' => $data['activeBrands'],
+                ],
+            ]);
+        }
+
+        return view('dashboard', $data);
+    }
+
+    private function getBrandsData(Request $request): array
+    {
         $user = $request->user();
         $search = $request->input('search');
+        $status = $request->input('status');
+        $orderBy = $request->input('order_by', 'updated_at');
 
         $brandsQuery = $user->brands()->with('activeSubscription.plan');
 
@@ -23,7 +52,19 @@ class DashboardController extends Controller
             });
         }
 
-        $brands = $brandsQuery->latest()->paginate(9)->withQueryString();
+        // Status filter
+        if ($status && in_array($status, ['seedling', 'growing', 'completed'])) {
+            $brandsQuery->where('status', $status);
+        }
+
+        // Order by
+        if ($orderBy === 'created_at') {
+            $brandsQuery->latest('created_at');
+        } else {
+            $brandsQuery->latest('updated_at');
+        }
+
+        $brands = $brandsQuery->paginate(9)->withQueryString();
 
         // Filter out any null brands that might exist
         $brands->getCollection()->transform(function ($brand) {
@@ -36,6 +77,26 @@ class DashboardController extends Controller
             ->whereHas('activeSubscription')
             ->count();
 
-        return view('dashboard', compact('brands', 'search', 'totalBrands', 'activeBrands'));
+        // Count by status (single query)
+        $statusCounts = $user->brands()
+            ->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        $seedlingCount = $statusCounts['seedling'] ?? 0;
+        $growingCount = $statusCounts['growing'] ?? 0;
+        $completedCount = $statusCounts['completed'] ?? 0;
+
+        return compact(
+            'brands',
+            'search',
+            'status',
+            'orderBy',
+            'totalBrands',
+            'activeBrands',
+            'seedlingCount',
+            'growingCount',
+            'completedCount'
+        );
     }
 }

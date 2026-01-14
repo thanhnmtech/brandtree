@@ -1,8 +1,9 @@
 <x-app-layout>
     <div
-        data-controller="brand-form"
+        data-controller="brand-form brand-filter"
         data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
-        data-brand-form-modal-mode-value="{{ old('_brand_modal_mode') }}">
+        data-brand-form-modal-mode-value="{{ old('_brand_modal_mode') }}"
+        data-brand-filter-url-value="{{ route('dashboard.filter') }}">
     <main class="tw-flex tw-flex-col md:tw-rounded-[10px] md:tw-bg-[#F3F7F5] md:tw-mt-[36px] md:tw-mx-[71px] md:tw-mb-10">
     <section class="tw-flex tw-flex-col tw-pt-[13px]">
         <!-- SUMMARY GRID -->
@@ -14,7 +15,7 @@
                     <span>Thương hiệu hoạt động</span>
                     <img src="./assets/img/icon-than-gray.svg" alt="total" class="tw-w-[24px] tw-h-[24px]" />
                 </div>
-                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-black">
+                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-black" data-stat="total">
                     {{ $activeBrands }}/{{ $totalBrands }}
                 </div>
                 <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
@@ -29,8 +30,8 @@
                     <span>Cần chăm sóc</span>
                     <img src="./assets/img/icon-warning-red.svg" alt="warning" class="tw-w-[24px] tw-h-[24px]" />
                 </div>
-                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#DC282E]">
-                    {{ $totalBrands }}
+                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#DC282E]" data-stat="seedling">
+                    {{ $seedlingCount }}
                 </div>
                 <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
                     Các thương hiệu đang chờ bạn quay lại
@@ -44,8 +45,8 @@
                     <span>Đang tăng trưởng</span>
                     <img src="./assets/img/icon-o'clock-orange.svg" alt="grow" class="tw-w-[24px] tw-h-[24px]" />
                 </div>
-                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#F59F0A]">
-                    {{ $totalBrands }}
+                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#F59F0A]" data-stat="growing">
+                    {{ $growingCount }}
                 </div>
                 <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
                     Các thương hiệu đang chờ phát triển
@@ -59,8 +60,8 @@
                     <span>Đã hoàn thiện</span>
                     <img src="./assets/img/icon-success-green.svg" alt="ok" class="tw-w-[24px] tw-h-[24px]" />
                 </div>
-                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#1AA24C]">
-                    {{ $totalBrands }}
+                <div class="tw-mt-[6px] tw-text-[30px] tw-font-bold tw-text-[#1AA24C]" data-stat="completed">
+                    {{ $completedCount }}
                 </div>
                 <div class="tw-mt-[10px] tw-text-[14px] tw-text-[#829B99]">
                     Sẵn sàng để khai thác
@@ -70,10 +71,13 @@
 
         <!-- CONTROLS -->
         <div
-            class="tw-flex tw-flex-row tw-items-center tw-gap-[12px] tw-mx-[26px] tw-mt-[13px] tw-mb-0 max-[900px]:tw-flex-col max-[900px]:tw-items-stretch tw-justify-end">
+            class="tw-flex tw-flex-row tw-items-center tw-gap-[12px] tw-mx-[26px] tw-mt-[13px] tw-mb-0 max-[900px]:tw-flex-col max-[900px]:tw-items-stretch tw-justify-end" id="filter_section">
             <!-- Search -->
             <div class="tw-relative tw-w-[680px] tw-max-w-full">
                 <input
+                    data-brand-filter-target="search"
+                    data-action="input->brand-filter#search"
+                    value="{{ $search ?? '' }}"
                     class="tw-w-full tw-border-[2px] tw-border-[#E2EBE7] tw-rounded-[7px] tw-text-[14px] tw-font-normal tw-text-black tw-py-[8px] tw-pl-[36px] tw-pr-[8px] tw-transition"
                     placeholder="Tìm kiếm thương hiệu..." />
                 <img src="./assets/img/look-up-vector.svg" alt="look-up"
@@ -89,11 +93,13 @@
                     <img src="./assets/img/filter-vector.svg" alt="filter"
                         class="tw-absolute tw-left-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />
                     <select name="status"
+                        data-brand-filter-target="status"
+                        data-action="change->brand-filter#filter"
                         class="tw-w-full tw-h-full tw-rounded-[7px] tw-pl-[36px] tw-pr-[28px] tw-text-[14px] tw-text-[#1a1a1a] tw-bg-transparent tw-border-none tw-outline-none tw-appearance-none">
-                        <option>Tất cả trạng thái</option>
-                        <option>Cần chăm sóc</option>
-                        <option>Đang tăng trưởng</option>
-                        <option>Đã hoàn thiện</option>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="seedling" {{ ($status ?? '') === 'seedling' ? 'selected' : '' }}>Cần chăm sóc</option>
+                        <option value="growing" {{ ($status ?? '') === 'growing' ? 'selected' : '' }}>Đang tăng trưởng</option>
+                        <option value="completed" {{ ($status ?? '') === 'completed' ? 'selected' : '' }}>Đã hoàn thiện</option>
                     </select>
                     <img src="./assets/img/drop-down-vector.svg" alt="dropdown"
                         class="tw-absolute tw-right-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />
@@ -103,9 +109,11 @@
                 <div
                     class="tw-relative tw-h-[44px] tw-w-[190px] tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
                     <select name="order_by"
+                        data-brand-filter-target="orderBy"
+                        data-action="change->brand-filter#filter"
                         class="tw-h-[44px] tw-w-full tw-h-full tw-rounded-[7px] tw-pl-[12px] tw-pr-[12px] tw-text-[14px] tw-text-[#1a1a1a] tw-bg-transparent tw-border-none tw-outline-none tw-appearance-none">
-                        <option>Cập nhật gần nhất</option>
-                        <option>Mới nhất</option>
+                        <option value="updated_at" {{ ($orderBy ?? 'updated_at') === 'updated_at' ? 'selected' : '' }}>Cập nhật gần nhất</option>
+                        <option value="created_at" {{ ($orderBy ?? '') === 'created_at' ? 'selected' : '' }}>Mới nhất</option>
                     </select>
                     <img src="./assets/img/drop-down-vector.svg" alt="dropdown"
                         class="tw-absolute tw-right-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />
@@ -125,81 +133,14 @@
     </section>
 
     <!-- CARDS -->
-    <section class="tw-p-[26px]">
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-[20px]">
-            @foreach ($brands as $brand)
-                @if($brand)
-                <brand-card badge="NeedsAttention" avatar="E" title="Eco Garden" update="2 giờ trước" root="85"
-                    stem="20"
-                    description="Cây cần hoàn thiện phân tích SWOT."><!-- Brand card widget: matches Figma node 226:78 -->
-                    <article
-                        class="tw-h-full brand-card tw-bg-white tw-rounded-[7px] tw-border-2 tw-border-[#E2EBE7] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-relative tw-transition hover:tw-shadow-[0_8px_12px_rgba(0,0,0,0.1)] hover:tw-border-vlbcgreen">
-                        <span
-                            class="badge tw-absolute tw-top-[15px] tw-right-[15px] tw-bg-[#FAF4EB] tw-text-[#F59F0A] tw-inline-block tw-py-[6px] tw-px-[12px] tw-rounded-[20px] tw-text-[12px] tw-font-semibold"
-                            aria-hidden="true" style="background: rgb(250, 244, 235); color: rgb(245, 159, 10);">Cần chú
-                            ý</span>
+    <section class="tw-p-[26px] tw-relative">
+        <!-- Loading indicator -->
+        <div data-brand-filter-target="loading" class="tw-hidden tw-absolute tw-inset-0 tw-items-center tw-justify-center tw-bg-white/50 tw-z-10" style="display: none;">
+            <div class="tw-animate-spin tw-rounded-full tw-h-8 tw-w-8 tw-border-b-2 tw-border-[#269063]"></div>
+        </div>
 
-                        <!-- Header: avatar + title -->
-                        <div class="tw-flex tw-items-center tw-gap-[12px]">
-                             <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}" class="tw-h-20 tw-w-20 tw-object-contain tw-rounded-full tw-bg-white tw-p-2">
-                            <div class="tw-flex tw-flex-col">
-                                <div class="title tw-text-[20px] tw-font-semibold tw-text-black">
-                                    {{ $brand->name }}
-                                </div>
-                                <div class="update-time tw-text-[14px] tw-text-[#829B99]">Cập nhật:
-                                    {{ $brand->updated_at->diffForHumans() }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Progress header + small stats -->
-                        <div class="tw-flex tw-items-center tw-justify-between tw-mt-[12px] tw-gap-4">
-                            <div>
-                                <div class="tw-text-[16px] tw-font-semibold tw-text-black">
-                                    Tiến độ phát triển
-                                </div>
-                                <div class="tw-flex tw-gap-4 tw-mt-1">
-                                    <div class="root-text tw-text-[14px] tw-text-[#829B99]">Gốc
-                                        {{ $process_root = $brand->getProcessRoot() }}</div>
-                                    <div class="stem-text tw-text-[14px] tw-text-[#829B99]">Thân
-                                        {{ $process_trunk = $brand->getProcessTrunk() }}</div>
-                                </div>
-                            </div>
-
-                            <!-- Vertical progress indicators (right) -->
-                            <div class="tw-w-[110px] tw-relative tw-flex tw-flex-col tw-items-end tw-gap-3">
-                                <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
-                                    <div class="progress-root tw-h-full tw-bg-[#269063] tw-rounded-l-full"
-                                        style="width: {{ $process_root }};"></div>
-                                </div>
-                                <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
-                                    <div class="progress-stem tw-h-full tw-bg-[#269063] tw-rounded-l-full"
-                                        style="width: {{ $process_trunk }};"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Description -->
-                        <div class="tw-text-[16px] tw-font-semibold tw-text-black tw-mt-[12px]">
-                            Bước tiếp theo
-                        </div>
-                        <p class="description tw-text-[14px] tw-text-[#829B99] tw-leading-[1.5] tw-mt-1 tw-flex-grow tw-overflow-hidden tw-line-clamp-3"
-                            style="display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;">
-                            {{ $brand->getNextProcess() }}
-                        </p>
-
-                        <!-- Footer area: action button -->
-                        <div class="tw-mt-[14px]">
-                            <a href="{{ route('brands.show', $brand) }}"
-                                class="tw-w-full tw-bg-[#F3F7F5] tw-border-2 tw-border-[#E2EBE7] tw-py-[10px] tw-px-[16px] tw-rounded-[7px] tw-text-[16px] tw-font-medium tw-text-black tw-flex tw-items-center tw-justify-center tw-gap-2 hover:tw-bg-[#E8EEE9] hover:tw-border-vlbcgreen">
-                                <span>Quản lý thương hiệu</span>
-                                <img class="tw-w-[16px] tw-h-[16px]"
-                                    src="./assets/img/4048a4b29522dad1ba63995de703d70091dcb319.svg" alt="arrow" />
-                            </a>
-                        </div>
-                    </article>
-                </brand-card>
-                @endif
-            @endforeach
+        <div data-brand-filter-target="cardsContainer" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-[20px] tw-transition-opacity">
+            @include('partials.brand-cards', ['brands' => $brands])
         </div>
     </section>
 

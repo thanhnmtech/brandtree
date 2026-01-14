@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'failed' => 'Thông tin đăng nhập không khớp với hồ sơ của chúng tôi.',
+    'failed' => 'Thông tin đăng nhập không hợp lệ.',
     'password' => 'Mật khẩu không chính xác.',
     'throttle' => 'Quá nhiều lần đăng nhập. Vui lòng thử lại sau :seconds giây.',
 
@@ -33,4 +33,3 @@ return [
     'password_reset_link_sent' => 'Liên kết đặt lại mật khẩu đã được gửi đến email của bạn.',
 
 ];
-
