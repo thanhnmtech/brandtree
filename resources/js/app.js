@@ -5,6 +5,7 @@ import { Application } from "@hotwired/stimulus"
 
 // Import Stimulus controllers
 import BrandFormController from "./controllers/brand_form_controller"
+import BrandFilterController from "./controllers/brand_filter_controller"
 import MemberManagementController from "./controllers/member_management_controller"
 import DropdownController from "./controllers/dropdown_controller"
 import PaymentStatusController from "./controllers/payment_status_controller"
@@ -14,6 +15,7 @@ const application = Application.start()
 
 // Register controllers
 application.register("brand-form", BrandFormController)
+application.register("brand-filter", BrandFilterController)
 application.register("member-management", MemberManagementController)
 application.register("dropdown", DropdownController)
 application.register("payment-status", PaymentStatusController)
