@@ -82,6 +82,5 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         Route::view('/chat', 'chat.chat');
         Route::view('/dashboard-goc','dashboard.dashboard-goc');
     });
-
     require __DIR__ . '/auth.php';
 });
