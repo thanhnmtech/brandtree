@@ -7,11 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-     <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{{ asset('assets/js/tailwind-config.js') }}"></script>
     <!-- Vite Assets (Tailwind + App) -->
@@ -19,20 +17,21 @@
     @vite(['resources/js/app.js'])
 
     <link rel="stylesheet" href="{{ asset('assets/css/toastify.min.css') }}">
+    @livewireStyles
 </head>
 
 <body class="tw-font-bevietnam tw-bg-[#FFFFFF] tw-text-[#1a1a1a] tw-min-h-screen tw-overflow-x-hidden">
     @include('layouts.navigation')
-     {{ $slot }}
+    {{ $slot }}
     @include('layouts.footer')
     <!-- Form Submit Loading Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Get all forms in the page
             const forms = document.querySelectorAll('form');
 
             forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', function (e) {
                     // Find submit button in this form
                     const submitBtn = form.querySelector('button[type="submit"]');
 
@@ -108,7 +107,7 @@
                 style: {
                     background: settings.background,
                 },
-                onClick: function() {}
+                onClick: function () { }
             }).showToast();
         }
 
@@ -117,7 +116,7 @@
         window.showToast = showToast;
 
         // Show flash messages on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             @if (session('success'))
                 showToast(@json(session('success')), 'success');
             @endif
@@ -156,6 +155,7 @@
     </script>
 
     @stack('scripts')
+    @livewireScripts
 </body>
 
 </html>
