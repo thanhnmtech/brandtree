@@ -9,7 +9,7 @@ class AgentSystemSeeder extends Seeder
 {
     public function run(): void
     {
-        $commonKey = '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';
+        $commonKey = '';
 
         $agents = [
             // --- GỐC (ROOT) ---

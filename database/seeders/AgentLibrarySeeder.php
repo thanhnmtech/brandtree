@@ -10,7 +10,7 @@ class AgentLibrarySeeder extends Seeder
     public function run(): void
     {
         // Key chung cho toàn hệ thống
-        $commonKey = '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';
+        $commonKey = '';
 
         $agents = [
             [
@@ -19,7 +19,7 @@ class AgentLibrarySeeder extends Seeder
                 
                 // Các trường quan trọng bạn yêu cầu
                 'vector_id' => 'vs_68c902f1192c8191870ad584e6a1bfe7',
-                'agent_key' => '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',
+                'agent_key' => '',
                 
                 // Thông tin mô tả & hướng dẫn
                 'description' => 'SÁNG TẠO NỘI DUNG FACEBOOK (SOCIAL CONTENT CREATOR)
