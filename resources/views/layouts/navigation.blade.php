@@ -103,9 +103,9 @@
                 <a href="{{ route('profile.edit') }}" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
                     <i class="ri-settings-3-line tw-text md:tw-text-xl"></i> Cập nhật tài khoản
                 </a>
-                <a href="#" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
+                {{-- <a href="#" class="tw-flex tw-items-center tw-gap-3 hover:tw-opacity-80">
                     <i class="ri-shopping-cart-2-line tw-text md:tw-text-xl"></i>Lịch sử đơn hàng
-                </a>
+                </a> --}}
             </div>
 
             <div class="tw-h-px tw-bg-white/30 tw-my-4"></div>

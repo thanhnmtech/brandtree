@@ -97,12 +97,15 @@ class SepayWebhookController extends Controller
         // Activate subscription
         $subscription = $payment->subscription;
         if ($subscription && $subscription->status === BrandSubscription::STATUS_PENDING) {
+            // Get duration based on billing cycle (monthly = 30, yearly = 365)
+            $durationDays = $subscription->plan->getDurationDaysForCycle($subscription->billing_cycle);
+
             $subscription->update([
                 'status' => BrandSubscription::STATUS_ACTIVE,
                 'started_at' => now(),
-                'expires_at' => now()->addDays($subscription->plan->duration_days),
+                'expires_at' => now()->addDays($durationDays),
                 'credits_remaining' => $subscription->plan->credits,
-                'credits_reset_at' => now(),
+                'credits_reset_at' => now()->addMonth(),
             ]);
         }
     }

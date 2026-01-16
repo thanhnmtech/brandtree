@@ -244,7 +244,7 @@ class CreditService
                 'started_at' => now(),
                 'expires_at' => now()->addDays($plan->duration_days),
                 'credits_remaining' => $plan->credits,
-                'credits_reset_at' => now(),
+                'credits_reset_at' => now()->addMonth(),
                 'status' => BrandSubscription::STATUS_ACTIVE,
             ]);
 

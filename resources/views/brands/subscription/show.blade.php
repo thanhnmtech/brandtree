@@ -15,6 +15,9 @@
                         Gói hiện tại
                         <p class="tw-text-lg tw-font-bold tw-text-black">
                             {{ $brand->activeSubscription->plan->name }}
+                            @if($brand->activeSubscription->billing_cycle === 'yearly')
+                                <span class="tw-text-sm tw-font-normal tw-text-gray-500">(Thanh toán năm)</span>
+                            @endif
                         </p>
                     </h2>
                 </div>
@@ -54,46 +57,102 @@
         <!-- ====================== CHỌN GÓI DỊCH VỤ ====================== -->
         <section class="tw-px-8">
             <div class="tw-w-full tw-flex tw-flex-col tw-gap-6">
-                <h2 class="tw-text-xl tw-font-bold tw-flex tw-items-center tw-gap-2">
-                    <i class="ri-flashlight-line tw-text-[#1AA24C]"></i>
-                    Chọn gói dịch vụ
-                </h2>
+                <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+                    <h2 class="tw-text-xl tw-font-bold tw-flex tw-items-center tw-gap-2">
+                        <i class="ri-flashlight-line tw-text-[#1AA24C]"></i>
+                        Chọn gói dịch vụ
+                    </h2>
+
+                    <!-- Billing Toggle -->
+                    <div class="tw-inline-flex tw-items-center tw-bg-gray-100 tw-rounded-full tw-p-1">
+                        <button
+                            type="button"
+                            id="btn-monthly"
+                            onclick="setBillingCycle('monthly')"
+                            class="tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-cursor-pointer tw-bg-white tw-shadow-sm tw-text-gray-800"
+                        >
+                            Thanh toán tháng
+                        </button>
+                        @php
+                            // Tính % giảm giá trung bình từ các gói có yearly option
+                            $avgDiscount = $plans->filter(fn($p) => $p->hasYearlyDiscount())->avg('yearly_discount_percent');
+                        @endphp
+                        <button
+                            type="button"
+                            id="btn-yearly"
+                            onclick="setBillingCycle('yearly')"
+                            class="tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-text-gray-500 hover:tw-text-gray-700"
+                        >
+                            Thanh toán năm
+                            @if($avgDiscount > 0)
+                                <span class="tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-px-2 tw-py-0.5 tw-rounded-full">-{{ round($avgDiscount) }}%</span>
+                            @endif
+                        </button>
+                    </div>
+                </div>
 
                 <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-6">
-                    @foreach ($monthlyPlans as $plan)
+                    @foreach ($plans as $plan)
                         <form action="{{ route('brands.subscription.store', $brand) }}" method="POST"
                             class="tw-h-full">
                             @csrf
                             <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                            <input type="hidden" name="billing_cycle" class="billing-cycle-input" value="monthly">
                             <div
-                                class="tw-bg-white tw-shadow-sm tw-rounded-xl tw-border @if ($plan->is_popular) tw-relative tw-border-[#1AA24C] @else tw-border-[#E4ECE8] @endif tw-p-6 tw-flex tw-flex-col tw-justify-between">
-                                <span
-                                    class="tw-absolute tw-top-[-10px] tw-right-3 tw-bg-[#1AA24C] tw-text-white tw-text-[10px] tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
-                                    Phổ biến nhất
-                                </span>
+                                class="tw-bg-white tw-shadow-sm tw-rounded-xl tw-border tw-h-full @if ($plan->is_popular) tw-relative tw-border-[#1AA24C] @else tw-border-[#E4ECE8] @endif tw-p-6 tw-flex tw-flex-col tw-justify-between">
+                                @if ($plan->is_popular)
+                                    <span
+                                        class="tw-absolute tw-top-[-10px] tw-right-3 tw-bg-[#1AA24C] tw-text-white tw-text-[10px] tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                                        Phổ biến nhất
+                                    </span>
+                                @endif
                                 <div>
                                     <p class="tw-font-bold tw-text-lg">{{ $plan->name }}</p>
 
-                                    <div class="tw-mt-4 tw-flex tw-items-baseline tw-gap-4">
-                                        <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_price }}</span>
-                                        @if (!$plan->is_trial && $plan->price > 0)
-                                            <span
-                                                class="tw-text-sm tw-text-gray-500">/{{ $plan->isYearly() ?? false ? 'năm' : 'tháng' }}</span>
+                                    <!-- Monthly Price -->
+                                    <div class="price-monthly tw-mt-4">
+                                        <div class="tw-flex tw-items-baseline tw-gap-2">
+                                            <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_price }}</span>
+                                            @if (!$plan->is_trial && $plan->price > 0)
+                                                <span class="tw-text-sm tw-text-gray-500">/tháng</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Yearly Price -->
+                                    <div class="price-yearly tw-mt-4 tw-hidden">
+                                        @if ($plan->hasYearlyOption())
+                                            {{-- @if ($plan->hasYearlyDiscount())
+                                                <span class="tw-text-gray-400 tw-line-through tw-text-sm">{{ $plan->formatted_yearly_original_price }}</span>
+                                            @endif --}}
+                                            <div class="tw-flex tw-items-baseline tw-gap-2">
+                                                <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_yearly_price }}</span>
+                                                <span class="tw-text-sm tw-text-gray-500">/năm</span>
+                                            </div>
+                                            {{-- <p class="tw-text-sm tw-text-[#1AA24C] tw-mt-1">
+                                                ~ {{ $plan->formatted_monthly_from_yearly_price }}/tháng
+                                            </p> --}}
+                                        @else
+                                            <div class="tw-flex tw-items-baseline tw-gap-2">
+                                                <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_price }}</span>
+                                                @if (!$plan->is_trial && $plan->price > 0)
+                                                    <span class="tw-text-sm tw-text-gray-500">/tháng</span>
+                                                @endif
+                                            </div>
                                         @endif
                                     </div>
+
                                     <ul class="tw-mt-5 tw-space-y-2 tw-text-sm tw-text-gray-700">
-                                        <li>✔ {{ number_format($plan->credits) }} năng
-                                            lượng/{{ $plan->isYearly() ?? false ? 'năm' : 'tháng' }}</li>
+                                        <li>✔ {{ number_format($plan->credits) }} năng lượng/tháng</li>
                                         <li>✔ {{ count($plan->models_allowed) }} AI Model</li>
                                     </ul>
                                 </div>
                                 @if ($currentSubscription && $currentSubscription->plan_id === $plan->id)
-                                    <button
-                                        class="tw-w-full tw-bg-[#DCE2E0] tw-text-gray-600 tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6">
+                                    <button type="button"
+                                        class="tw-w-full tw-bg-[#DCE2E0] tw-text-gray-600 tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6 tw-cursor-default">
                                         Gói hiện tại
                                     </button>
-                                @endif
-                                @if (!$plan->is_trial)
+                                @elseif (!$plan->is_trial)
                                     <button type="submit"
                                         class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6 hover:tw-opacity-90">
                                         Đăng ký
@@ -120,4 +179,38 @@
             </div>
         </section>
     </main>
+
+    @push('scripts')
+    <script>
+        function setBillingCycle(cycle) {
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnYearly = document.getElementById('btn-yearly');
+            const priceMonthly = document.querySelectorAll('.price-monthly');
+            const priceYearly = document.querySelectorAll('.price-yearly');
+            const billingInputs = document.querySelectorAll('.billing-cycle-input');
+
+            // Update button styles
+            if (cycle === 'monthly') {
+                btnMonthly.className = 'tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-cursor-pointer tw-bg-white tw-shadow-sm tw-text-gray-800';
+                btnYearly.className = 'tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-text-gray-500 hover:tw-text-gray-700';
+            } else {
+                btnMonthly.className = 'tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-cursor-pointer tw-text-gray-500 hover:tw-text-gray-700';
+                btnYearly.className = 'tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-bg-white tw-shadow-sm tw-text-gray-800';
+            }
+
+            // Toggle price display
+            priceMonthly.forEach(el => {
+                el.classList.toggle('tw-hidden', cycle !== 'monthly');
+            });
+            priceYearly.forEach(el => {
+                el.classList.toggle('tw-hidden', cycle !== 'yearly');
+            });
+
+            // Update hidden inputs
+            billingInputs.forEach(input => {
+                input.value = cycle;
+            });
+        }
+    </script>
+    @endpush
 </x-app-layout>

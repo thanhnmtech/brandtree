@@ -13,7 +13,7 @@ class PlansSeeder extends Seeder
     public function run(): void
     {
         // ============================================
-        // SUBSCRIPTION PLANS - MONTHLY
+        // SUBSCRIPTION PLANS (Unified Monthly/Yearly)
         // ============================================
 
         Plan::create([
@@ -22,9 +22,9 @@ class PlansSeeder extends Seeder
             'type' => Plan::TYPE_SUBSCRIPTION,
             'price' => 0,
             'original_price' => null,
+            'yearly_price' => null, // Trial không có gói năm
             'credits' => 1000,
             'duration_days' => 14,
-            'billing_cycle' => Plan::BILLING_MONTHLY,
             'models_allowed' => ['GPT-4o mini'],
             'is_trial' => true,
             'is_popular' => false,
@@ -33,15 +33,15 @@ class PlansSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $basicPlan = Plan::create([
+        Plan::create([
             'name' => 'Gói Nền tảng',
             'slug' => 'nen-tang',
             'type' => Plan::TYPE_SUBSCRIPTION,
-            'price' => 990000,
+            'price' => 990000, // Giá tháng
             'original_price' => null,
-            'credits' => 5000,
+            'yearly_price' => 9900000, // Giá năm (tiết kiệm ~17%, giá gốc = 990k × 12 = 11.88tr)
+            'credits' => 5000, // Credits/tháng
             'duration_days' => 30,
-            'billing_cycle' => Plan::BILLING_MONTHLY,
             'models_allowed' => ['GPT-4o mini', 'GPT-5 mini', 'GPT-5', 'GPT-4o'],
             'is_trial' => false,
             'is_popular' => false,
@@ -50,60 +50,20 @@ class PlansSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $proPlan = Plan::create([
+        Plan::create([
             'name' => 'Gói Chuyên nghiệp',
             'slug' => 'chuyen-nghiep',
             'type' => Plan::TYPE_SUBSCRIPTION,
-            'price' => 1990000,
+            'price' => 1990000, // Giá tháng
             'original_price' => null,
-            'credits' => 12000,
+            'yearly_price' => 19900000, // Giá năm (tiết kiệm ~17%, giá gốc = 1.99tr × 12 = 23.88tr)
+            'credits' => 12000, // Credits/tháng
             'duration_days' => 30,
-            'billing_cycle' => Plan::BILLING_MONTHLY,
             'models_allowed' => ['GPT-4o mini', 'GPT-5 mini', 'GPT-5', 'GPT-4o'],
             'is_trial' => false,
             'is_popular' => true,
             'description' => '12.000 credit/tháng. Phổ biến nhất cho doanh nghiệp.',
             'sort_order' => 3,
-            'is_active' => true,
-        ]);
-
-        // ============================================
-        // SUBSCRIPTION PLANS - YEARLY (Giảm 2 tháng)
-        // ============================================
-
-        Plan::create([
-            'name' => 'Gói Nền tảng (Năm)',
-            'slug' => 'nen-tang-nam',
-            'type' => Plan::TYPE_SUBSCRIPTION,
-            'price' => 9900000, // 10 tháng thay vì 12
-            'original_price' => 11880000, // 12 tháng giá gốc
-            'credits' => 60000, // 5000 x 12
-            'duration_days' => 365,
-            'billing_cycle' => Plan::BILLING_YEARLY,
-            'parent_plan_id' => $basicPlan->id,
-            'models_allowed' => ['GPT-4o mini', 'GPT-5 mini', 'GPT-5', 'GPT-4o'],
-            'is_trial' => false,
-            'is_popular' => false,
-            'description' => 'Tiết kiệm 2 tháng khi thanh toán năm. 60.000 credit/năm.',
-            'sort_order' => 4,
-            'is_active' => true,
-        ]);
-
-        Plan::create([
-            'name' => 'Gói Chuyên nghiệp (Năm)',
-            'slug' => 'chuyen-nghiep-nam',
-            'type' => Plan::TYPE_SUBSCRIPTION,
-            'price' => 19900000, // 10 tháng thay vì 12
-            'original_price' => 23880000, // 12 tháng giá gốc
-            'credits' => 144000, // 12000 x 12
-            'duration_days' => 365,
-            'billing_cycle' => Plan::BILLING_YEARLY,
-            'parent_plan_id' => $proPlan->id,
-            'models_allowed' => ['GPT-4o mini', 'GPT-5 mini', 'GPT-5', 'GPT-4o'],
-            'is_trial' => false,
-            'is_popular' => false,
-            'description' => 'Tiết kiệm 2 tháng khi thanh toán năm. 144.000 credit/năm.',
-            'sort_order' => 5,
             'is_active' => true,
         ]);
 
@@ -117,9 +77,9 @@ class PlansSeeder extends Seeder
             'type' => Plan::TYPE_CREDIT_PACKAGE,
             'price' => 99000,
             'original_price' => null,
+            'yearly_price' => null,
             'credits' => 1000,
             'duration_days' => null,
-            'billing_cycle' => null,
             'models_allowed' => null,
             'is_trial' => false,
             'is_popular' => false,
@@ -134,9 +94,9 @@ class PlansSeeder extends Seeder
             'type' => Plan::TYPE_CREDIT_PACKAGE,
             'price' => 450000,
             'original_price' => 495000, // Giảm ~10%
+            'yearly_price' => null,
             'credits' => 5000,
             'duration_days' => null,
-            'billing_cycle' => null,
             'models_allowed' => null,
             'is_trial' => false,
             'is_popular' => true,
@@ -151,9 +111,9 @@ class PlansSeeder extends Seeder
             'type' => Plan::TYPE_CREDIT_PACKAGE,
             'price' => 800000,
             'original_price' => 990000, // Giảm ~20%
+            'yearly_price' => null,
             'credits' => 10000,
             'duration_days' => null,
-            'billing_cycle' => null,
             'models_allowed' => null,
             'is_trial' => false,
             'is_popular' => false,
@@ -168,9 +128,9 @@ class PlansSeeder extends Seeder
             'type' => Plan::TYPE_CREDIT_PACKAGE,
             'price' => 3500000,
             'original_price' => 4950000, // Giảm ~30%
+            'yearly_price' => null,
             'credits' => 50000,
             'duration_days' => null,
-            'billing_cycle' => null,
             'models_allowed' => null,
             'is_trial' => false,
             'is_popular' => false,
