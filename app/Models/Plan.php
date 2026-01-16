@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -27,10 +26,9 @@ class Plan extends Model
         'type',
         'price',
         'original_price',
+        'yearly_price',
         'credits',
         'duration_days',
-        'billing_cycle',
-        'parent_plan_id',
         'models_allowed',
         'is_trial',
         'is_popular',
@@ -42,6 +40,7 @@ class Plan extends Model
     protected $casts = [
         'price' => 'integer',
         'original_price' => 'integer',
+        'yearly_price' => 'integer',
         'credits' => 'integer',
         'duration_days' => 'integer',
         'models_allowed' => 'array',
@@ -63,21 +62,6 @@ class Plan extends Model
         return $this->hasMany(BrandSubscription::class);
     }
 
-    /**
-     * Get parent plan (for yearly plans linking to monthly)
-     */
-    public function parentPlan(): BelongsTo
-    {
-        return $this->belongsTo(Plan::class, 'parent_plan_id');
-    }
-
-    /**
-     * Get child plans (monthly plan's yearly versions)
-     */
-    public function childPlans(): HasMany
-    {
-        return $this->hasMany(Plan::class, 'parent_plan_id');
-    }
 
     // ============================================
     // SCOPES
@@ -124,27 +108,11 @@ class Plan extends Model
     }
 
     /**
-     * Scope: Only monthly plans
+     * Scope: Only plans with yearly option
      */
-    public function scopeMonthly(Builder $query): Builder
+    public function scopeWithYearlyOption(Builder $query): Builder
     {
-        return $query->where('billing_cycle', self::BILLING_MONTHLY);
-    }
-
-    /**
-     * Scope: Only yearly plans
-     */
-    public function scopeYearly(Builder $query): Builder
-    {
-        return $query->where('billing_cycle', self::BILLING_YEARLY);
-    }
-
-    /**
-     * Scope: Only root plans (not yearly versions)
-     */
-    public function scopeRoot(Builder $query): Builder
-    {
-        return $query->whereNull('parent_plan_id');
+        return $query->whereNotNull('yearly_price');
     }
 
     /**
@@ -192,7 +160,23 @@ class Plan extends Model
             return 'Vĩnh viễn';
         }
 
-        if ($this->billing_cycle === self::BILLING_YEARLY) {
+        if ($this->duration_days === 30) {
+            return '1 tháng';
+        }
+
+        return $this->duration_days . ' ngày';
+    }
+
+    /**
+     * Get formatted duration for a specific billing cycle
+     */
+    public function getFormattedDurationForCycle(string $cycle): string
+    {
+        if ($this->isCreditPackage()) {
+            return 'Vĩnh viễn';
+        }
+
+        if ($cycle === self::BILLING_YEARLY) {
             return '1 năm';
         }
 
@@ -224,19 +208,11 @@ class Plan extends Model
     }
 
     /**
-     * Check if this is a monthly plan
+     * Check if plan has yearly option
      */
-    public function isMonthly(): bool
+    public function hasYearlyOption(): bool
     {
-        return $this->billing_cycle === self::BILLING_MONTHLY;
-    }
-
-    /**
-     * Check if this is a yearly plan
-     */
-    public function isYearly(): bool
-    {
-        return $this->billing_cycle === self::BILLING_YEARLY;
+        return $this->yearly_price !== null && $this->yearly_price > 0;
     }
 
     /**
@@ -276,11 +252,126 @@ class Plan extends Model
      */
     public function getMonthlyPriceAttribute(): int
     {
-        if ($this->billing_cycle === self::BILLING_YEARLY) {
-            return (int) round($this->price / 12);
+        return $this->price;
+    }
+
+    /**
+     * Get monthly price calculated from yearly price
+     */
+    public function getMonthlyFromYearlyPriceAttribute(): int
+    {
+        if ($this->yearly_price) {
+            return (int) round($this->yearly_price / 12);
         }
 
         return $this->price;
+    }
+
+    /**
+     * Get formatted monthly price from yearly
+     */
+    public function getFormattedMonthlyFromYearlyPriceAttribute(): string
+    {
+        return number_format($this->monthly_from_yearly_price, 0, ',', '.') . 'đ';
+    }
+
+    /**
+     * Get formatted yearly price
+     */
+    public function getFormattedYearlyPriceAttribute(): ?string
+    {
+        if (!$this->yearly_price) {
+            return null;
+        }
+
+        return number_format($this->yearly_price, 0, ',', '.') . 'đ';
+    }
+
+    /**
+     * Get yearly original price (calculated: monthly × 12)
+     */
+    public function getYearlyOriginalPriceAttribute(): int
+    {
+        return $this->price * 12;
+    }
+
+    /**
+     * Get formatted yearly original price
+     */
+    public function getFormattedYearlyOriginalPriceAttribute(): string
+    {
+        return number_format($this->yearly_original_price, 0, ',', '.') . 'đ';
+    }
+
+    /**
+     * Get price for a specific billing cycle
+     */
+    public function getPriceForCycle(string $cycle): int
+    {
+        if ($cycle === self::BILLING_YEARLY && $this->yearly_price) {
+            return $this->yearly_price;
+        }
+
+        return $this->price;
+    }
+
+    /**
+     * Get original price for a specific billing cycle
+     */
+    public function getOriginalPriceForCycle(string $cycle): ?int
+    {
+        if ($cycle === self::BILLING_YEARLY) {
+            return $this->price * 12; // Giá gốc năm = giá tháng × 12
+        }
+
+        return $this->original_price;
+    }
+
+    /**
+     * Get formatted price for a specific billing cycle
+     */
+    public function getFormattedPriceForCycle(string $cycle): string
+    {
+        $price = $this->getPriceForCycle($cycle);
+
+        if ($price === 0) {
+            return 'Miễn phí';
+        }
+
+        return number_format($price, 0, ',', '.') . 'đ';
+    }
+
+    /**
+     * Get duration days for a specific billing cycle
+     */
+    public function getDurationDaysForCycle(string $cycle): int
+    {
+        if ($cycle === self::BILLING_YEARLY) {
+            return 365;
+        }
+
+        return $this->duration_days;
+    }
+
+    /**
+     * Check if yearly option has discount (yearly_price < monthly × 12)
+     */
+    public function hasYearlyDiscount(): bool
+    {
+        return $this->yearly_price && $this->yearly_price < ($this->price * 12);
+    }
+
+    /**
+     * Get yearly discount percentage
+     */
+    public function getYearlyDiscountPercentAttribute(): int
+    {
+        if (!$this->hasYearlyDiscount()) {
+            return 0;
+        }
+
+        $yearlyOriginal = $this->price * 12;
+        return (int) round((1 - $this->yearly_price / $yearlyOriginal) * 100);
     }
 
     /**
@@ -292,15 +383,15 @@ class Plan extends Model
     }
 
     /**
-     * Get billing cycle label
+     * Get billing cycle label for a specific cycle
      */
-    public function getBillingCycleLabelAttribute(): string
+    public function getBillingCycleLabel(string $cycle = 'monthly'): string
     {
         if ($this->isCreditPackage()) {
             return 'Một lần';
         }
 
-        return match ($this->billing_cycle) {
+        return match ($cycle) {
             self::BILLING_YEARLY => '/năm',
             default => '/tháng',
         };

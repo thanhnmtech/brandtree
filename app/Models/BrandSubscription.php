@@ -12,6 +12,7 @@ class BrandSubscription extends Model
     protected $fillable = [
         'brand_id',
         'plan_id',
+        'billing_cycle',
         'started_at',
         'expires_at',
         'credits_remaining',
@@ -33,6 +34,12 @@ class BrandSubscription extends Model
     const STATUS_EXPIRED = 'expired';
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_PENDING = 'pending';
+
+    /**
+     * Billing cycle constants
+     */
+    const BILLING_MONTHLY = 'monthly';
+    const BILLING_YEARLY = 'yearly';
 
     /**
      * Get the brand
@@ -123,17 +130,19 @@ class BrandSubscription extends Model
 
     /**
      * Reset credits based on plan
+     * Sets next reset date to 1 month from now
      */
     public function resetCredits(): void
     {
         $this->update([
             'credits_remaining' => $this->plan->credits,
-            'credits_reset_at' => now(),
+            'credits_reset_at' => now()->addMonth(),
         ]);
     }
 
     /**
      * Check if credits should be reset (monthly)
+     * credits_reset_at is the next reset date
      */
     public function shouldResetCredits(): bool
     {
@@ -141,7 +150,7 @@ class BrandSubscription extends Model
             return false;
         }
 
-        return $this->credits_reset_at->addMonth()->isPast();
+        return $this->credits_reset_at->isPast();
     }
 
     /**
@@ -168,5 +177,29 @@ class BrandSubscription extends Model
 
         $used = $total - $this->credits_remaining;
         return round(($used / $total) * 100, 1);
+    }
+
+    /**
+     * Check if subscription is yearly billing
+     */
+    public function isYearlyBilling(): bool
+    {
+        return $this->billing_cycle === self::BILLING_YEARLY;
+    }
+
+    /**
+     * Check if subscription is monthly billing
+     */
+    public function isMonthlyBilling(): bool
+    {
+        return $this->billing_cycle === self::BILLING_MONTHLY;
+    }
+
+    /**
+     * Get billing cycle label
+     */
+    public function getBillingCycleLabelAttribute(): string
+    {
+        return $this->isYearlyBilling() ? 'Năm' : 'Tháng';
     }
 }

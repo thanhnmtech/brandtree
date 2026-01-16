@@ -23,10 +23,19 @@
             <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-p-6">
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4">Thông tin đơn hàng</h3>
 
+                @php
+                    $billingCycle = $subscription->billing_cycle ?? 'monthly';
+                    $isYearly = $billingCycle === 'yearly';
+                    $price = $subscription->plan->getPriceForCycle($billingCycle);
+                    $duration = $isYearly ? '1 năm' : $subscription->plan->formatted_duration;
+                @endphp
+
                 <div class="tw-border tw-border-gray-200 tw-rounded-xl tw-p-4 tw-mb-4">
                     <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
                         <span class="tw-font-medium tw-text-gray-800">{{ $subscription->plan->name }}</span>
-                        {{-- <span class="tw-px-2 tw-py-1 tw-bg-yellow-100 tw-text-yellow-700 tw-rounded tw-text-xs">Chờ thanh toán</span> --}}
+                        <span class="tw-px-2 tw-py-1 tw-bg-blue-100 tw-text-blue-700 tw-rounded tw-text-xs">
+                            {{ $isYearly ? 'Thanh toán năm' : 'Thanh toán tháng' }}
+                        </span>
                     </div>
                     <div class="tw-space-y-2 tw-text-sm tw-text-gray-600">
                         <div class="tw-flex tw-justify-between">
@@ -35,15 +44,21 @@
                         </div>
                         <div class="tw-flex tw-justify-between">
                             <span>Thời hạn</span>
-                            <span>{{ $subscription->plan->formatted_duration }}</span>
+                            <span>{{ $duration }}</span>
                         </div>
+                        @if($isYearly && $subscription->plan->hasYearlyDiscount())
+                        {{-- <div class="tw-flex tw-justify-between tw-text-green-600">
+                            <span>Tiết kiệm</span>
+                            <span>{{ number_format($subscription->plan->yearly_original_price - $subscription->plan->yearly_price) }}đ ({{ $subscription->plan->yearly_discount_percent }}%)</span>
+                        </div> --}}
+                        @endif
                     </div>
                 </div>
 
                 <div class="tw-border-t tw-border-gray-200 tw-pt-4">
                     <div class="tw-flex tw-justify-between tw-items-center tw-text-lg tw-font-bold">
                         <span class="tw-text-gray-800">Tổng cộng</span>
-                        <span class="tw-text-[#16a249]">{{ $subscription->plan->formatted_price }}</span>
+                        <span class="tw-text-[#16a249]">{{ number_format($price) }}đ</span>
                     </div>
                 </div>
             </div>

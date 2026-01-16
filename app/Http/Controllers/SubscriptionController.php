@@ -19,25 +19,16 @@ class SubscriptionController extends Controller
         $this->authorize('view', $brand);
 
         $subscription = $brand->activeSubscription;
-        $plans = Plan::active()->orderBy('sort_order')->get();
 
-        // Monthly subscription plans
-        $monthlyPlans = Plan::active()
+        // Get all subscription plans (unified monthly/yearly)
+        $plans = Plan::active()
             ->subscriptions()
-            ->monthly()
             ->orderBy('sort_order')
             ->get();
 
-        // Yearly subscription plans
-        $yearlyPlans = Plan::active()
-            ->subscriptions()
-            ->yearly()
-            ->orderBy('sort_order')
-            ->get();
+        $currentSubscription = $brand->activeSubscription;
 
-         $currentSubscription = $brand->activeSubscription;
-
-        return view('brands.subscription.show', compact('brand', 'subscription', 'plans', 'monthlyPlans', 'yearlyPlans', 'currentSubscription'));
+        return view('brands.subscription.show', compact('brand', 'subscription', 'plans', 'currentSubscription'));
     }
 
     /**
@@ -47,15 +38,13 @@ class SubscriptionController extends Controller
     {
         $this->authorize('update', $brand);
 
-        $monthlyPlans = Plan::active()->subscriptions()->monthly()->orderBy('sort_order')->get();
-        $yearlyPlans = Plan::active()->subscriptions()->yearly()->orderBy('sort_order')->get();
+        $plans = Plan::active()->subscriptions()->orderBy('sort_order')->get();
         $creditPackages = Plan::active()->creditPackages()->orderBy('sort_order')->get();
         $currentSubscription = $brand->activeSubscription;
 
         return view('brands.subscription.create', compact(
             'brand',
-            'monthlyPlans',
-            'yearlyPlans',
+            'plans',
             'creditPackages',
             'currentSubscription'
         ));
@@ -70,9 +59,11 @@ class SubscriptionController extends Controller
 
         $validated = $request->validate([
             'plan_id' => 'required|exists:plans,id',
+            'billing_cycle' => 'required|in:monthly,yearly',
         ]);
 
         $plan = Plan::findOrFail($validated['plan_id']);
+        $billingCycle = $validated['billing_cycle'];
 
         // Check if plan is trial and brand already had trial
         if ($plan->is_trial) {
@@ -85,8 +76,12 @@ class SubscriptionController extends Controller
             }
         }
 
+        // Get price and duration based on billing cycle
+        $price = $plan->getPriceForCycle($billingCycle);
+        $durationDays = $plan->getDurationDaysForCycle($billingCycle);
+
         // If plan is free/trial, activate immediately
-        if ($plan->price === 0) {
+        if ($price === 0) {
             // Expire current subscription if exists
             if ($brand->activeSubscription) {
                 $brand->activeSubscription->update(['status' => BrandSubscription::STATUS_EXPIRED]);
@@ -95,10 +90,11 @@ class SubscriptionController extends Controller
             BrandSubscription::create([
                 'brand_id' => $brand->id,
                 'plan_id' => $plan->id,
+                'billing_cycle' => $billingCycle,
                 'started_at' => now(),
-                'expires_at' => now()->addDays($plan->duration_days),
+                'expires_at' => now()->addDays($durationDays),
                 'credits_remaining' => $plan->credits,
-                'credits_reset_at' => now(),
+                'credits_reset_at' => now()->addMonth(),
                 'status' => BrandSubscription::STATUS_ACTIVE,
             ]);
 
@@ -110,8 +106,9 @@ class SubscriptionController extends Controller
         $subscription = BrandSubscription::create([
             'brand_id' => $brand->id,
             'plan_id' => $plan->id,
+            'billing_cycle' => $billingCycle,
             'started_at' => now(), // Will be updated to actual start time after payment
-            'expires_at' => now()->addDays($plan->duration_days),
+            'expires_at' => now()->addDays($durationDays),
             'credits_remaining' => 0,
             'credits_reset_at' => now(),
             'status' => BrandSubscription::STATUS_PENDING,

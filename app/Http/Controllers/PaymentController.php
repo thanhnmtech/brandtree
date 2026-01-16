@@ -69,11 +69,13 @@ class PaymentController extends Controller
             return redirect()->route('brands.payments.show', [$brand, $existingPayment]);
         }
 
-        // Create payment record
+        // Create payment record with price based on billing cycle
+        $amount = $subscription->plan->getPriceForCycle($subscription->billing_cycle);
+
         $payment = Payment::create([
             'brand_id' => $brand->id,
             'subscription_id' => $subscription->id,
-            'amount' => $subscription->plan->price,
+            'amount' => $amount,
             'payment_method' => Payment::METHOD_BANK_TRANSFER,
             'status' => Payment::STATUS_PENDING,
         ]);

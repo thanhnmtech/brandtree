@@ -155,17 +155,32 @@ class SepayService
         $content = $data['transaction_content'] ?? $data['content'] ?? '';
         $amount = $data['amount_in'] ?? $data['transferAmount'] ?? 0;
 
+        Log::info('Sepay processWebhook: Parsing', [
+            'content' => $content,
+            'amount' => $amount,
+        ]);
+
         // Extract payment code from content (format: BT0001000001)
         // BT = Brand Tree, 0001 = brand_id, 000001 = payment_id
         if (preg_match('/BT(\d{4})(\d{6})/', strtoupper($content), $matches)) {
             $brandId = (int) $matches[1];
             $paymentId = (int) $matches[2];
 
+            Log::info('Sepay processWebhook: Regex matched', [
+                'brandId' => $brandId,
+                'paymentId' => $paymentId,
+            ]);
+
             $payment = Payment::where('id', $paymentId)
                 ->where('brand_id', $brandId)
                 ->where('status', Payment::STATUS_PENDING)
                 ->with('subscription.plan')
                 ->first();
+
+            Log::info('Sepay processWebhook: Payment query result', [
+                'found' => $payment ? true : false,
+                'payment_amount' => $payment?->amount,
+            ]);
 
             if ($payment && $amount >= $payment->amount) {
                 return $payment;
