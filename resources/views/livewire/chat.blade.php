@@ -2,6 +2,7 @@
         convId: @entangle('convId'),
         agentType: @entangle('agentType'),
         agentId: @entangle('agentId'),
+        brandId: @entangle('brandId'),
         messages: @entangle('messages')
     })">
 
@@ -66,8 +67,11 @@
                     <img src="{{ asset('assets/img/logo-nenTangDuLieu.svg') }}"
                         class="tw-w-8 tw-h-8 tw-object-contain tw-rounded-full tw-bg-white tw-border tw-border-gray-100 tw-p-1" />
                 </div>
-                <div class="tw-bg-gray-100 tw-px-4 tw-py-2 tw-rounded-full">
-                    <span class="tw-animate-pulse">...</span>
+                <div class="tw-flex tw-items-center tw-bg-gray-100 tw-px-4 tw-py-2 tw-rounded-full">
+                     <svg class="tw-animate-spin tw-h-5 tw-w-5 tw-text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </div>
             </div>
 
@@ -81,13 +85,13 @@
             <div class="tw-flex tw-items-end tw-gap-3 tw-flex-nowrap">
                 <button type="newchat"
                     class="tw-w-12 tw-h-12 tw-bg-vlbcgreen tw-text-white tw-rounded-md tw-flex tw-items-center tw-justify-center"
-                    @click="window.location.href='/chat/root/1/new'">
+                    @click="window.location.href='/chat/' + brandId + '/root/1/new'">
                     <img src="{{ asset('assets/img/icon-plus-white.svg') }}"
                         class="tw-w-[20px] tw-h-[20px] tw-object-contain" />
                 </button>
 
                 <!-- Input Textarea bound to x-model userInput -->
-                <textarea x-model="userInput" @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()" rows="1"
+                <textarea x-ref="userInput" x-model="userInput" @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()" rows="1"
                     class="tw-flex-1 tw-min-h-12 tw-resize-none tw-overflow-y-auto tw-border tw-border-gray-200 tw-rounded-md tw-px-3 tw-py-2 tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#16a34a]/40"
                     placeholder="Ask anything..." :disabled="isStreaming"></textarea>
 
@@ -123,6 +127,7 @@
             convId: params.convId,
             agentType: params.agentType,
             agentId: params.agentId,
+            brandId: params.brandId,
             messages: params.messages,
 
             // Setup
@@ -175,7 +180,8 @@
                             message: messageContent,
                             agentType: this.agentType,
                             agentId: this.agentId,
-                            convId: this.convId
+                            convId: this.convId,
+                            brandId: this.brandId
                         })
                     });
 
@@ -245,6 +251,7 @@
 
                     // Stream finished. 
                     this.isStreaming = false;
+                    this.$nextTick(() => this.$refs.userInput.focus());
 
                     // 3. Save Assistant Message to DB
                     if (dbChatId && fullContent) {

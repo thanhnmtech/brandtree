@@ -21,7 +21,7 @@
         id="chat-area"
         class="tw-flex-1 md:tw-flex-1 tw-bg-white tw-border tw-border-gray-200 tw-flex tw-flex-col tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300"
       >
-         <livewire:chat :agentType="$agentType" :agentId="$agentId" :convId="$convId" />
+         <livewire:chat :agentType="$agentType" :agentId="$agentId" :convId="$convId" :brandId="$brand->id" />
       </div>
 
       <!-- RESULT PANEL -->

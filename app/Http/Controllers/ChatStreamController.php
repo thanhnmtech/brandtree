@@ -8,6 +8,8 @@ use App\Models\Message;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\Auth;
+
 class ChatStreamController extends Controller
 {
     private $instruction = "Bạn là chuyên gia thương hiệu";
@@ -20,15 +22,17 @@ class ChatStreamController extends Controller
         $userInput = $request->input('message');
         $agentType = $request->input('agentType');
         $agentId = $request->input('agentId');
+        $brandId = $request->input('brandId');
+        $userId = $request->user() ? $request->user()->id : null;
 
         // 1. Create Conversation if new
         if (!$convId || $convId === 'new') {
-            $chat = $this->createConversation($agentType, $agentId, $userInput);
+            $chat = $this->createConversation($agentType, $agentId, $userInput, $brandId, $userId);
             $convId = $chat->id;
         } else {
-            $chat = Chat::find($convId);
+            $chat = Chat::where('id', $convId)->where('brand_id', $brandId)->first();
             if (!$chat) {
-                $chat = $this->createConversation($agentType, $agentId, $userInput);
+                $chat = $this->createConversation($agentType, $agentId, $userInput, $brandId, $userId);
                 $convId = $chat->id;
             }
         }
@@ -112,7 +116,7 @@ class ChatStreamController extends Controller
         return response()->json(['status' => 'error'], 400);
     }
 
-    private function createConversation($agentType, $agentId, $firstMessage)
+    private function createConversation($agentType, $agentId, $firstMessage, $brandId, $userId)
     {
         $apiKey = env('OPENAI_API_KEY');
 
@@ -128,17 +132,15 @@ class ChatStreamController extends Controller
 
         if (!$openAiConvId) {
             Log::error('OpenAI Conversation creation failed', $response->json());
-            // For safety/dev, we might proceed or throw. 
-            // Let's assume it failed and we can't really chat without it if using Responses API.
-            // But for now, let's just log.
         }
 
         return Chat::create([
-            'user_id' => 1,
-            'brand_id' => null,
+            'user_id' => $userId,
+            'brand_id' => $brandId,
             'agent_id' => (int) $agentId,
             'title' => 'Phiên làm việc ' . date('Y/m/d H:i:s'),
             'conversation_id' => $openAiConvId
         ]);
     }
 }
+

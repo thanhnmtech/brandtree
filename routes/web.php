@@ -21,9 +21,15 @@ Route::post('/api/ladipage/store', [LadipageController::class, 'store'])->name('
 // Sepay webhook (outside localization, no CSRF)
 Route::post('/webhook/sepay', [SepayWebhookController::class, 'handle'])->name('webhook.sepay');
 
+
 // Chat API Routes
 Route::post('/api/chat_stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('api.chat.stream');
 Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController::class, 'saveMessage'])->name('api.chat.save');
+
+// Chat Route (Standalone, No Localization Prefix)
+Route::get('/chat/{brand:id}/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
+    return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId'));
+})->middleware(['auth', 'brand.access'])->name('chat');
 
 Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -87,10 +93,9 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');
 
             });
+
         Route::view('/dashboard-goc', 'dashboard.dashboard-goc');
-        Route::get('/chat/{agentType?}/{agentId?}/{convId?}', function ($agentType = null, $agentId = null, $convId = null) {
-            return view('chat.chat', compact('agentType', 'agentId', 'convId'));
-        })->name('chat');
+
     });
 
     require __DIR__ . '/auth.php';

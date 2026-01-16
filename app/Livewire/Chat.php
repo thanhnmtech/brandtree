@@ -12,6 +12,7 @@ class Chat extends Component
     public $agentType;
     public $agentId;
     public $convId;
+    public $brandId;
     public $messages = [];
     public $newMessage = '';
 
@@ -20,11 +21,12 @@ class Chat extends Component
     public $description = 'Hỗ trợ tra cứu và phân tích dữ liệu.';
     public $isNew = false;
 
-    public function mount($agentType = null, $agentId = null, $convId = null)
+    public function mount($agentType = null, $agentId = null, $convId = null, $brandId = null)
     {
         $this->agentType = $agentType;
         $this->agentId = $agentId;
         $this->convId = $convId;
+        $this->brandId = $brandId;
 
         if ($convId && $convId !== 'new') {
             $this->loadMessages();
@@ -39,13 +41,21 @@ class Chat extends Component
 
     public function loadMessages()
     {
-        $chat = ChatModel::find($this->convId);
+        $chat = ChatModel::where('id', $this->convId)
+            ->where('brand_id', $this->brandId)
+            ->first();
+
         if ($chat) {
-            $this->messages = $chat->messages()->orderBy('created_at', 'asc')->get()->toArray();
+            $this->messages = $chat->messages()
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->toArray();
             $this->title = $chat->title ?? $this->title;
         } else {
-            // Handle invalid ID case: reset to new?
-            // For now, assume it might just be empty list
+            // Chat not found or doesn't belong to brand
+            $this->convId = 'new';
+            $this->isNew = true;
+            $this->messages = [];
         }
     }
 
