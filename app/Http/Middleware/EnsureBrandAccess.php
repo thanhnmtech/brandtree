@@ -21,9 +21,9 @@ class EnsureBrandAccess
 
         // If brand is not already resolved (string slug or ID), resolve it
         if (!$brand instanceof Brand) {
-           $brand = Brand::with(['members', 'activeSubscription.plan'])
-            ->where('slug', $brand)
-            ->first() ?? Brand::find($brand);
+            $brand = Brand::with(['members', 'activeSubscription.plan'])
+                ->where('slug', $brand)
+                ->first() ?? Brand::find($brand);
         }
 
         if (!$brand) {
@@ -34,7 +34,7 @@ class EnsureBrandAccess
 
         // Check if user is owner or a member of the brand
         $hasAccess = $brand->created_by === $user->id ||
-                     $brand->members()->where('user_id', $user->id)->exists();
+            $brand->members()->where('user_id', $user->id)->exists();
 
         if (!$hasAccess) {
             abort(403, __('messages.brand.no_access'));
