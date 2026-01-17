@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\AgentSystem;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AgentSystemSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::table('system_agent')->delete();
+
         $commonKey = '';
 
         $agents = [
@@ -17,6 +20,7 @@ class AgentSystemSeeder extends Seeder
                 'agent_type' => 'root1',
                 'name' => 'AI Thiết kế Văn hoá Dịch vụ (Culture Design Canvas)',
                 'vector_id' => 'vs_68c90265d6cc81918b4453e31af3a771',
+                'model' => 'gpt-4o',
                 'step_order' => 1,
                 'prompt' => 'INSTRUCTION: AI Thiết kế Văn hoá Dịch vụ (Culture Design Canvas)
 VERSION: 1.0 — Language: VI (Tiếng Việt thường, thân thiện) — Audience: Chủ doanh nghiệp SME, startup, quản lý không chuyên branding
@@ -159,6 +163,7 @@ Step 12.3 — Hoàn tất
                 'agent_type' => 'root2',
                 'name' => 'AI Phân tích Thổ nhưỡng (Market Opportunity Analysis)',
                 'vector_id' => 'vs_68c3d83a202c8191ab8e08d415d3f929',
+                'model' => 'gpt-4o',
                 'step_order' => 2,
                 'prompt' => 'Input Data Context Bạn là mắt xích thứ 2 trong quy trình 5 bước. Trước khi bắt đầu hội thoại, người dùng (hoặc hệ thống) sẽ cung cấp cho bạn "KẾT QUẢ TỪ PHÒNG CHAT 1: VĂN HÓA DỊCH VỤ". Dữ liệu này bao gồm: Culture Design Canvas (Mục đích, Giá trị cốt lõi, Hành vi, Biểu tượng...).
 Nhiệm vụ xử lý thông tin đầu vào:
@@ -366,6 +371,7 @@ Khi kết thúc cuộc trò chuyện, mục tiêu là đảm bảo người dùn
                 'agent_type' => 'root3',
                 'name' => 'AI Định vị Giá trị Giải pháp (Value Proposition Canvas)',
                 'vector_id' => 'vs_68cb8f53f8fc8191b6804eb984021b8c',
+                'model' => 'gpt-4o',
                 'step_order' => 3,
                 'prompt' => 'INSTRUCTION: AI Định vị Giá trị Giải pháp (Value Proposition Builder)
 VERSION: 2.0 — Context: Bước 3 trong quy trình Branding Inside-out (GỐC CÂY)
@@ -719,6 +725,7 @@ Kết: Với hướng dẫn chi tiết trên, GỐC CÂY – AI Định vị Gi�
                 'agent_type' => 'trunk1',
                 'name' => 'AI Định vị Thương hiệu (Brand Components Canvas)',
                 'vector_id' => 'vs_68c90284844881919bc6a8b64d0b2490',
+                'model' => 'gpt-4o',
                 'step_order' => 4,
                 'prompt' => 'INSTRUCTION FILE — THÂN CÂY (AI Định vị Thương hiệu)
 Version: 1.0 — Language: VI — Audience: Chủ doanh nghiệp SME, marketer SME, startup — Objective: Hướng dẫn người dùng xây dựng Brand Components Canvas hoàn chỉnh (các thành tố định vị thương hiệu cốt lõi) làm “thân cây” vững chắc kết nối từ gốc rễ (văn hóa thương hiệu) đến tán lá (thực thi truyền thông)[1]. Kết quả này sẽ làm nền cho các bước phát triển Nhận diện Hình ảnh và Ngôn ngữ sau đó.
@@ -1051,6 +1058,7 @@ Hồ sơ đang được xuất...}
                 'agent_type' => 'trunk2', // Cùng nhóm Thân với agent trên
                 'name' => 'AI Nhận diện Ngôn ngữ (Brand Verbal Identity)',
                 'vector_id' => 'vs_68c902c32db48191b3f80600453f5bc1',
+                'model' => 'gpt-4o',
                 'step_order' => 5,
                 'prompt' => 'KIẾN TRÚC HỆ THỐNG NGÔN NGỮ (VERBAL IDENTITY ARCHITECT)
 VERSION: 4.0 (Final Detailed Edition)
@@ -1217,7 +1225,6 @@ Xử lý: Bot Demo Audio (Mô phỏng âm thanh qua văn bản). "Hãy tưởng 
                     // Các trường bắt buộc phải set null theo yêu cầu
                     'target' => null,
                     'output_description' => null,
-                    'prompt' => null,
                     'assistant_id' => null,
                     'ui_display' => null,
                     
