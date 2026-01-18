@@ -1,11 +1,11 @@
-<div class="tw-flex tw-flex-col">
+<div class="tw-flex tw-flex-col tw-h-full">
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
     <div id="logo-sidebar">
       <img src="{{ asset('assets/img/logo-sidebar.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
     </div>
     <div id="content-sidebar" class="tw-flex-1 tw-min-w-0">
       <div class="tw-font-bold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-        VLBC Brand Garden
+        {{ $brand->name }}
       </div>
       <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
         Brand Tree System
@@ -60,37 +60,121 @@
     </ul>
   </nav>
 
-  <div id="chatHistorySection" class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-gap-3">
-    <button onclick="toggleMenu('chatHistoryMenu', 'chatArrow')"
-      class="tw-w-full tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-3 tw-text-left tw-bg-transparent tw-border-none">
-      <div>
-        <img src="{{ asset('assets/img/icon-chatHistory.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
-      </div>
+  <!-- Chat History Section with Alpine.js -->
+  <div id="chatHistorySection" class="tw-flex tw-flex-col tw-gap-3 tw-overflow-hidden tw-flex-1" x-data="chatHistorySidebar({
+         brandId: '{{ $brand->id }}',
+         brandSlug: '{{ $brand->slug }}',
+         agentId: '{{ $agentId }}',
+         agentType: '{{ $agentType }}'
+       })">
 
-      <div class="tw-flex-1 tw-min-w-0">
-        <div class="tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-          Lịch sử chat
+    <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
+      <button onclick="toggleMenu('chatHistoryMenu', 'chatArrow')"
+        class="tw-w-full tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-3 tw-text-left tw-bg-transparent tw-border-none tw-shrink-0">
+        <div>
+          <img src="{{ asset('assets/img/icon-chatHistory.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
         </div>
-      </div>
 
-      <div class="tw-flex tw-items-center">
-        <img id="chatArrow" src="{{ asset('assets/img/dropdown-button-black.svg') }}"
-          class="tw-w-[12px] tw-h-[7px] tw-object-contain tw-rotate-[-90deg] tw-transition tw-duration-500" />
-      </div>
-    </button>
+        <div class="tw-flex-1 tw-min-w-0">
+          <div class="tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+            Lịch sử chat
+          </div>
+        </div>
 
-    <ul id="chatHistoryMenu" class="tw-hidden tw-w-full tw-space-y-2 tw-text-sm">
-      <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Nhận diện ngôn ngữ</span>
-      </li>
-    </ul>
+        <div class="tw-flex tw-items-center">
+          <img id="chatArrow" src="{{ asset('assets/img/dropdown-button-black.svg') }}"
+            class="tw-w-[12px] tw-h-[7px] tw-object-contain tw-transition tw-duration-500" />
+        </div>
+      </button>
 
-    <!-- Debug section for URL parameters -->
-    <div class="tw-px-3 tw-py-2 tw-mt-2 tw-text-xs tw-text-gray-600 tw-bg-gray-50 tw-rounded-md">
-      <div class="tw-font-bold tw-mb-1">Tham số url là:</div>
-      <div>Type: {{ $agentType ?? 'N/A' }}</div>
-      <div>Id: {{ $agentId ?? 'N/A' }}</div>
-      <div>Conv ID: {{ $convId ?? 'N/A' }}</div>
+      <ul id="chatHistoryMenu" class="tw-w-full tw-space-y-2 tw-text-sm tw-mt-2 tw-flex-1 tw-overflow-y-auto tw-min-h-0"
+        @scroll="handleScroll">
+
+        <template x-for="chat in chats" :key="chat.id">
+          <li
+            class="tw-px-3 tw-py-2 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
+            <a :href="getChatLink(chat)" class="tw-block tw-w-full">
+              <span class="tw-font-semibold tw-text-gray-500 hover:tw-text-gray-800 tw-transition-colors"
+                x-text="chat.title"></span>
+              <div class="tw-text-xs tw-text-gray-400" x-text="formatDate(chat.created_at)"></div>
+            </a>
+          </li>
+        </template>
+
+        <li x-show="loading" class="tw-px-3 tw-py-2 tw-text-center tw-text-gray-400">
+          <span class="tw-animate-pulse">Đang tải...</span>
+        </li>
+
+        <li x-show="!loading && chats.length === 0" class="tw-px-3 tw-py-2 tw-text-center tw-text-gray-400">
+          Chưa có lịch sử chat
+        </li>
+      </ul>
     </div>
   </div>
 </div>
+
+<script>
+  function chatHistorySidebar(config) {
+    return {
+      chats: [],
+      page: 1,
+      hasMore: true,
+      loading: false,
+      brandId: config.brandId,
+      brandSlug: config.brandSlug,
+      agentId: config.agentId,
+      agentType: config.agentType,
+
+      init() {
+        this.fetchChats();
+      },
+
+      async fetchChats() {
+        if (this.loading || !this.hasMore) return;
+
+        this.loading = true;
+
+        try {
+          const response = await fetch(`/api/chat/history?brandId=${this.brandId}&agentId=${this.agentId}&agentType=${this.agentType}&page=${this.page}`);
+          const json = await response.json();
+
+          if (json.data && json.data.length > 0) {
+            this.chats = [...this.chats, ...json.data];
+            this.page++;
+
+            if (!json.next_page_url) {
+              this.hasMore = false;
+            }
+          } else {
+            this.hasMore = false;
+          }
+        } catch (error) {
+          console.error('Error fetching chat history:', error);
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      handleScroll(e) {
+        const el = e.target;
+        // Check if scrolled near bottom (within 50px)
+        if (el.scrollHeight - el.scrollTop - el.clientHeight < 50) {
+          this.fetchChats();
+        }
+      },
+
+      getChatLink(chat) {
+        // Link format: /brands/{slug}/chat/{agentType}/{agentId}/{convId}
+        // Determine convId. If chat.conversation_id exists use it? No, route uses ID or 'new'.
+        // Actually the route is: /brands/{brand}/chat/{agentType?}/{agentId?}/{convId?}
+        // So convId should be the ID of the chat record in our usage context (Chat::find($convId)).
+        return `/brands/${this.brandSlug}/chat/${this.agentType}/${this.agentId}/${chat.id}`;
+      },
+
+      formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+    }
+  }
+</script>

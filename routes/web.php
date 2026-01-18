@@ -25,11 +25,48 @@ Route::post('/webhook/sepay', [SepayWebhookController::class, 'handle'])->name('
 // Chat API Routes
 Route::post('/api/chat_stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('api.chat.stream');
 Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController::class, 'saveMessage'])->name('api.chat.save');
+Route::get('/api/chat/history', [App\Http\Controllers\ChatStreamController::class, 'history'])->name('api.chat.history');
 
 // Chat Route (Standalone, No Localization Prefix)
-Route::get('/chat/{brand:id}/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
+Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
+
+    // Override agentId for System Agents
+    $systemTypes = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+    if ($agentType && in_array($agentType, $systemTypes)) {
+        $systemAgent = \App\Models\AgentSystem::where('agent_type', $agentType)
+            ->latest()
+            ->first();
+        if ($systemAgent) {
+            $agentId = $systemAgent->id;
+        }
+    }
+
     return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId'));
 })->middleware(['auth', 'brand.access'])->name('chat');
+
+Route::post('/brands/{brand:slug}/chat/save-data', [\App\Http\Controllers\BrandDataController::class, 'store'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.chat.save');
+
+Route::post('/brands/{brand:slug}/update-section', [\App\Http\Controllers\BrandDataController::class, 'updateSection'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.update_section');
+
+Route::post('/brands/{brand:slug}/agents', [\App\Http\Controllers\BrandAgentController::class, 'store'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.agents.store');
+
+// TEMPORARY: Run migrations via link (For agent_type column)
+Route::get('/run-pending-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return "Migrations run successfully (Check DB): " . \Illuminate\Support\Facades\Artisan::output();
+});
+
+
+
+
+
+
 
 Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');

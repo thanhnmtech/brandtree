@@ -27,6 +27,8 @@ class Brand extends Model
 
     protected $casts = [
         'founded_year' => 'integer',
+        'root_data' => 'array',
+        'trunk_data' => 'array',
     ];
 
     /**

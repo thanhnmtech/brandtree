@@ -42,4 +42,48 @@
       <!-- render result card ở đây -->
     </div>
   </div>
+
+  @php
+    $nextUrl = '#';
+    $brandSlug = request()->route('brand')->slug ?? request()->segment(2); // Fallback if route binding isn't directly available in view check
+
+    // Ensure we have a brand object or slug to work with
+    if (isset($brand) && is_object($brand)) {
+      $brandSlug = $brand->slug;
+    }
+
+    switch ($agentType ?? '') {
+      case 'root1':
+        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root2', 'agentId' => 2, 'convId' => 'new']);
+        break;
+      case 'root2':
+        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root3', 'agentId' => 3, 'convId' => 'new']);
+        break;
+      case 'root3':
+        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk1', 'agentId' => 4, 'convId' => 'new']);
+        break;
+      case 'trunk1':
+        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk2', 'agentId' => 5, 'convId' => 'new']);
+        break;
+      case 'trunk2':
+        $nextUrl = route('brands.canopy.show', ['brand' => $brandSlug]);
+        break;
+      default:
+        $nextUrl = '#'; // Or hide the button
+        break;
+    }
+  @endphp
+
+  @if($nextUrl !== '#')
+    <div class="tw-p-4 tw-mt-auto">
+      <a href="{{ $nextUrl }}"
+        class="tw-flex tw-items-center tw-justify-center tw-w-full tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white tw-bg-[#16a34a] tw-rounded-lg hover:tw-bg-[#15803d] tw-transition-colors">
+        <span>Bước tiếp theo</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="tw-w-4 tw-h-4 tw-ml-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
+    </div>
+  @endif
 </div>
