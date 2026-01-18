@@ -21,7 +21,6 @@ Route::post('/api/ladipage/store', [LadipageController::class, 'store'])->name('
 // Sepay webhook (outside localization, no CSRF)
 Route::post('/webhook/sepay', [SepayWebhookController::class, 'handle'])->name('webhook.sepay');
 
-
 // Chat API Routes
 Route::post('/api/chat_stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('api.chat.stream');
 Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController::class, 'saveMessage'])->name('api.chat.save');
