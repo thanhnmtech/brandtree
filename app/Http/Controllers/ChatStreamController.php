@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Chat;
 use App\Models\Message;
+use App\Models\AgentSystem;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -12,9 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatStreamController extends Controller
 {
-    private $instruction = "Bạn là chuyên gia thương hiệu";
-    private $vector_store_id = "vs_696926c7e2d88191a163d14f71289579";
-    private $model = "gpt-4o";
 
     public function stream(Request $request)
     {
@@ -24,6 +22,21 @@ class ChatStreamController extends Controller
         $agentId = $request->input('agentId');
         $brandId = $request->input('brandId');
         $userId = $request->user() ? $request->user()->id : null;
+
+        // Logic: Ưu tiên tìm theo ID trước, nếu không có thì tìm theo Type
+        $agentConfig = null;
+
+        if ($agentId) {
+            $agentConfig = AgentSystem::find($agentId);
+        } 
+        
+        if (!$agentConfig && $agentType) {
+            $agentConfig = AgentSystem::where('agent_type', $agentType)->first();
+        }
+        // Thiết lập giá trị mặc định nếu không tìm thấy trong DB (Fallback)
+        $prompt = $agentConfig ? $agentConfig->prompt : "Bạn là trợ lý ảo.";
+        $vectorStoreId = $agentConfig ? $agentConfig->vector_id : "vs_68c90265d6cc81918b4453e31af3a771"; 
+        $aiModel = $agentConfig?->model ?? "gpt-4o";
 
         // 1. Create Conversation if new
         if (!$convId || $convId === 'new') {
@@ -47,17 +60,17 @@ class ChatStreamController extends Controller
         ]);
 
         // 2. Stream Response
-        return response()->stream(function () use ($conversationId, $userInput, $chat) {
+        return response()->stream(function () use ($conversationId, $userInput, $chat, $prompt, $vectorStoreId, $aiModel) {
             $apiKey = env('OPENAI_API_KEY');
             $url = 'https://api.openai.com/v1/responses';
 
             $data = [
-                'model' => $this->model,
-                'instructions' => $this->instruction,
+                'model' => $aiModel,
+                'instructions' => $prompt,
                 'tools' => [
                     [
                         'type' => 'file_search',
-                        'vector_store_ids' => [$this->vector_store_id],
+                        'vector_store_ids' => [$vectorStoreId],
                         'max_num_results' => 20
                     ]
                 ],
