@@ -70,12 +70,12 @@ class BrandDataController extends Controller
         }
 
         // 4. Update JSON data
-        // Laravel attribute casting handles JSON array automatically if casted, 
+        // Laravel attribute casting handles JSON array automatically if casted,
         // BUT 'root_data' and 'trunk_data' might not be casted in model yet.
         // Let's decode manually to be safe or check Model first.
         // Assuming they are stored as JSON strings in DB.
 
-        $currentData = json_decode($brand->$targetColumn, true) ?? [];
+        $currentData = $brand->$targetColumn;
 
         // Ensure structure exists
         if ($targetColumn === 'root_data') {
@@ -91,7 +91,7 @@ class BrandDataController extends Controller
         $currentData[$jsonKey] = $refinedContent;
 
         // Save back
-        $brand->$targetColumn = json_encode($currentData, JSON_UNESCAPED_UNICODE);
+        $brand->$targetColumn =$currentData;
         $brand->save();
 
         return response()->json([
