@@ -1,9 +1,7 @@
 import './bootstrap';
 
-// Import Alpine.js
-import Alpine from 'alpinejs'
-window.Alpine = Alpine
-Alpine.start()
+// Alpine.js is bundled with Livewire v3+, no need to import separately
+// Livewire automatically manages Alpine initialization
 
 // Import Stimulus
 import { Application } from "@hotwired/stimulus"
