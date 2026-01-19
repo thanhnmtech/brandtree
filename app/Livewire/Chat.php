@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Chat as ChatModel;
 use App\Models\Message;
+use App\Models\AgentSystem;
 use Illuminate\Support\Facades\Log;
 
 class Chat extends Component
@@ -27,6 +28,14 @@ class Chat extends Component
         $this->agentId = $agentId;
         $this->convId = $convId;
         $this->brandId = $brandId;
+
+        // Fetch Agent Name
+        if ($this->agentId) {
+            $agent = AgentSystem::find($this->agentId);
+            if ($agent) {
+                $this->title = $agent->name;
+            }
+        }
 
         if ($convId && $convId !== 'new') {
             $this->loadMessages();

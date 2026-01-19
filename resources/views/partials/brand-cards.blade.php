@@ -19,7 +19,9 @@
              <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}" class="tw-h-20 tw-w-20 tw-object-contain tw-rounded-full tw-bg-white tw-p-2">
             <div class="tw-flex tw-flex-col">
                 <div class="title tw-text-[20px] tw-font-semibold tw-text-black">
-                    {{ $brand->name }}
+                    <a href="{{ route('brands.show', $brand) }}" class="hover:tw-text-vlbcgreen tw-transition-colors">
+                        {{ $brand->name }}
+                    </a>
                 </div>
                 <div class="update-time tw-text-[14px] tw-text-[#829B99]">Cập nhật:
                     {{ $brand->updated_at->diffForHumans() }}</div>
