@@ -75,7 +75,7 @@ class BrandDataController extends Controller
         // Let's decode manually to be safe or check Model first.
         // Assuming they are stored as JSON strings in DB.
 
-        $currentData = $brand->$targetColumn;
+        $currentData = $brand->$targetColumn??[];
 
         // Ensure structure exists
         if ($targetColumn === 'root_data') {
