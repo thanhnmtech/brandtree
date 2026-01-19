@@ -34,7 +34,7 @@
                                 <div class="tw-text-xs tw-text-gray-500">User</div> <!-- Or name if avail -->
                                 <div
                                     class="tw-bg-[#45C974] tw-text-white tw-px-4 tw-py-3 tw-rounded-2xl tw-rounded-tr-none">
-                                    <p x-text="msg.content" class="tw-whitespace-pre-wrap"></p>
+                                    <div x-html="formatMessage(msg.content)"></div>
                                 </div>
                             </div>
                         </div>
@@ -52,7 +52,8 @@
                                 <div
                                     class="tw-bg-white tw-text-gray-800 tw-border tw-border-gray-200 tw-px-4 tw-py-3 tw-rounded-2xl tw-rounded-tl-none">
                                     <!-- Use html for markdown support later, but text for now -->
-                                    <p x-text="msg.content" class="tw-whitespace-pre-wrap"></p>
+                                    <!-- Use html for markdown support later, but text for now -->
+                                    <div x-html="formatMessage(msg.content)"></div>
                                 </div>
                             </div>
                         </div>
@@ -147,9 +148,9 @@
 
             <!-- Body -->
             <div class="tw-flex-1 tw-p-6 tw-overflow-y-auto">
-                <textarea x-model="editingContent"
-                    class="tw-w-full tw-h-[60vh] tw-p-4 tw-border tw-border-gray-200 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-[#16a34a] focus:tw-border-transparent tw-resize-none tw-font-mono tw-text-sm"
-                    placeholder="Nội dung phân tích..."></textarea>
+                <textarea x-model="editingContent" spellcheck="false"
+                    class="tw-w-full tw-h-[60vh] tw-p-4 tw-border tw-border-gray-200 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-[#16a34a] focus:tw-border-transparent tw-resize-none tw-text-sm"
+                    style="font-family: inherit;" placeholder="Nội dung phân tích..."></textarea>
             </div>
 
             <!-- Footer -->
@@ -238,7 +239,6 @@
                 this.$watch('messages', () => {
                     this.$nextTick(() => this.scrollToBottom());
                 });
-                
                 // Check conditions on load mostly useful if history loaded
                 this.checkConfirmationCondition();
             },
@@ -246,6 +246,35 @@
             scrollToBottom() {
                 const container = document.getElementById('chat-messages-container');
                 if (container) container.scrollTop = container.scrollHeight;
+            },
+
+            formatMessage(content) {
+                if (!content) return '';
+
+                // 1. Escape HTML
+                let safeContent = content
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+
+                // 2. Header: ### Text
+                // Matches ### at start or after newline, captures content until end of line
+                safeContent = safeContent.replace(/(^|\n)###\s+(.*?)(\n|$)/g, function (match, p1, p2, p3) {
+                    return p1 + '<div style="font-size: 1.5em; font-weight: bold; margin-top: 0.5em; margin-bottom: 0.25em;">' + p2 + '</div>' + p3;
+                });
+
+                // 3. Bold: **text**
+                safeContent = safeContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+                // 3.5 Regular Italic: *text* (must come after bold)
+                safeContent = safeContent.replace(/\*(.*?)\*/g, '<i>$1</i>');
+
+                // 4. Newlines to <br>
+                safeContent = safeContent.replace(/\n/g, '<br>');
+
+                return safeContent;
             },
 
             // Logic to check verification keywords

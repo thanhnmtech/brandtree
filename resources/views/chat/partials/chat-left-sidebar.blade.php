@@ -69,6 +69,23 @@
        })">
 
     <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
+      <a href="/brands/{{ $brand->slug }}/chat/{{ $agentType }}/{{ $agentId }}/new"
+        class="tw-w-full tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-3 tw-text-left tw-bg-transparent hover:tw-bg-gray-50 tw-rounded-md tw-shrink-0 tw-mb-2">
+        <div class="tw-flex tw-items-center tw-justify-center tw-w-[38px] tw-h-[38px]">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="tw-text-gray-600">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </div>
+
+        <div class="tw-flex-1 tw-min-w-0">
+          <div class="tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+            Đoạn chat mới
+          </div>
+        </div>
+      </a>
+
       <button onclick="toggleMenu('chatHistoryMenu', 'chatArrow')"
         class="tw-w-full tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-3 tw-text-left tw-bg-transparent tw-border-none tw-shrink-0">
         <div>
