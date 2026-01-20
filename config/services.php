@@ -42,8 +42,8 @@ return [
     ],
 
     'sepay' => [
-        'api_key' => env('SEPAY_API_KEY'),
-        'merchant_id' => env('SEPAY_MERCHANT_ID'),
+        'api_key' => env('SEPAY_API_KEY',''),
+        'merchant_id' => env('SEPAY_MERCHANT_ID',''),
         'bank_account_number' => env('SEPAY_BANK_ACCOUNT_NUMBER'),
         'bank_name' => env('SEPAY_BANK_NAME', 'MB Bank'),
         'bank_account_name' => env('SEPAY_BANK_ACCOUNT_NAME'),
