@@ -109,12 +109,11 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('subscription', [SubscriptionController::class, 'show'])->name('brands.subscription.show');
                 Route::get('subscription/upgrade', [SubscriptionController::class, 'create'])->name('brands.subscription.create');
                 Route::post('subscription', [SubscriptionController::class, 'store'])->name('brands.subscription.store');
+                Route::post('subscription/renew', [SubscriptionController::class, 'renew'])->name('brands.subscription.renew');
                 Route::delete('subscription', [SubscriptionController::class, 'destroy'])->name('brands.subscription.destroy');
 
                 // Payment routes
                 Route::get('payments', [PaymentController::class, 'index'])->name('brands.payments.index');
-                Route::get('payments/create', [PaymentController::class, 'create'])->name('brands.payments.create');
-                Route::post('payments', [PaymentController::class, 'store'])->name('brands.payments.store');
                 Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('brands.payments.show');
                 Route::post('payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
                 Route::get('payments/{payment}/status', [PaymentController::class, 'checkStatusAjax'])->name('brands.payments.status');

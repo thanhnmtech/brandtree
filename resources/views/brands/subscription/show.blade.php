@@ -7,16 +7,21 @@
             ]" />
             <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">Gói dịch vụ</h1>
         </div>
+
         <!-- ====================== GÓI DỊCH VỤ HIỆN TẠI ====================== -->
+        @if ($currentSubscription)
         <section class="tw-px-8">
             <div class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-sm tw-p-6">
                 <div class="tw-flex tw-items-start tw-justify-between">
                     <h2 class="tw-text-sm tw-font-semibold tw-text-gray-500">
                         Gói hiện tại
                         <p class="tw-text-lg tw-font-bold tw-text-black">
-                            {{ $brand->activeSubscription->plan->name }}
-                            @if($brand->activeSubscription->billing_cycle === 'yearly')
+                            {{ $currentSubscription->plan->name }}
+                            @if($currentSubscription->billing_cycle === 'yearly')
                                 <span class="tw-text-sm tw-font-normal tw-text-gray-500">(Thanh toán năm)</span>
+                            @endif
+                            @if($currentSubscription->status !== 'active')
+                                <span class="tw-text-sm tw-font-normal tw-text-red-500">(Hết hạn)</span>
                             @endif
                         </p>
                     </h2>
@@ -33,26 +38,40 @@
 
                         <div class="tw-mt-1">
                             <span class="tw-text-vlbcgreen tw-font-semibold tw-text-2xl">
-                                {{ $brand->credits_remaining }}</span>
-                            <span class="tw-text-gray-500">/ {{ $brand->total_credits }}</span>
+                                {{ $currentSubscription->credits_remaining }}</span>
+                            <span class="tw-text-gray-500">/ {{ $currentSubscription->plan->credits }}</span>
                         </div>
+                    </div>
+
+                    <!-- NGÀY LÀM MỚI -->
+                    <div class="tw-text-center">
+                        <p class="tw-text-sm tw-text-gray-500">Ngày làm mới năng lượng</p>
+                        <p class="tw-text-2xl tw-font-bold tw-mt-1">
+                            {{ $currentSubscription->credits_reset_at?->format('d/m/Y') ?? '-' }}</p>
                     </div>
 
                     <!-- NGÀY HẾT HẠN -->
                     <div class="tw-text-center">
-                        <p class="tw-text-sm tw-text-gray-500">Ngày làm mới năng lượng</p>
-                        <p class="tw-text-2xl tw-font-bold tw-mt-1">
-                            {{ $brand->activeSubscription->credits_reset_at->format('d/m/Y') }}</p>
-                    </div>
+                        <p class="tw-text-sm tw-text-gray-500">Ngày hết hạn</p>
+                        <p class="tw-text-2xl tw-font-bold tw-mt-1 {{ $currentSubscription->expires_at->isPast() ? 'tw-text-red-500' : '' }}">
+                            {{ $currentSubscription->expires_at->format('d/m/Y') }}</p>
 
-                    <div class="tw-text-center">
-                        <p class="tw-text-sm tw-text-gray-500">Ngày gia hạn</p>
-                        <p class="tw-text-2xl tw-font-bold tw-mt-1">
-                            {{ $brand->activeSubscription->expires_at->format('d/m/Y') }}</p>
+                        {{-- Chỉ hiện nút Gia hạn nếu không phải gói trial và gói có giá > 0 --}}
+                        @if (!$currentSubscription->plan->is_trial && $currentSubscription->plan->price > 0)
+                            <form action="{{ route('brands.subscription.renew', $brand) }}" method="POST" class="tw-mt-2">
+                                @csrf
+                                <button type="submit"
+                                    class="tw-text-sm tw-text-[#1AA24C] hover:tw-text-[#158f3f] tw-font-medium tw-flex tw-items-center tw-gap-1 tw-mx-auto">
+                                    <i class="ri-refresh-line"></i>
+                                    Gia hạn ngay
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
         </section>
+        @endif
 
         <!-- ====================== CHỌN GÓI DỊCH VỤ ====================== -->
         <section class="tw-px-8">
@@ -93,13 +112,22 @@
 
                 <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-6">
                     @foreach ($plans as $plan)
+                        @php
+                            $isCurrentPlan = $currentSubscription && $currentSubscription->plan_id === $plan->id && $currentSubscription->status === 'active';
+                        @endphp
                         <form action="{{ route('brands.subscription.store', $brand) }}" method="POST"
                             class="tw-h-full">
                             @csrf
                             <input type="hidden" name="plan_id" value="{{ $plan->id }}">
                             <input type="hidden" name="billing_cycle" class="billing-cycle-input" value="monthly">
                             <div
-                                class="tw-bg-white tw-shadow-sm tw-rounded-xl tw-border tw-h-full @if ($plan->is_popular) tw-relative tw-border-[#1AA24C] @else tw-border-[#E4ECE8] @endif tw-p-6 tw-flex tw-flex-col tw-justify-between">
+                                class="tw-bg-white tw-shadow-sm tw-rounded-xl tw-h-full tw-relative tw-p-6 tw-flex tw-flex-col tw-justify-between @if ($isCurrentPlan) tw-border-2 tw-border-blue-500 @elseif ($plan->is_popular) tw-border tw-border-[#1AA24C] @else tw-border tw-border-[#E4ECE8] @endif">
+                                @if ($isCurrentPlan)
+                                    <span
+                                        class="tw-absolute tw-top-[-10px] tw-left-3 tw-bg-blue-500 tw-text-white tw-text-[10px] tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                                        Gói hiện tại
+                                    </span>
+                                @endif
                                 @if ($plan->is_popular)
                                     <span
                                         class="tw-absolute tw-top-[-10px] tw-right-3 tw-bg-[#1AA24C] tw-text-white tw-text-[10px] tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
@@ -122,16 +150,10 @@
                                     <!-- Yearly Price -->
                                     <div class="price-yearly tw-mt-4 tw-hidden">
                                         @if ($plan->hasYearlyOption())
-                                            {{-- @if ($plan->hasYearlyDiscount())
-                                                <span class="tw-text-gray-400 tw-line-through tw-text-sm">{{ $plan->formatted_yearly_original_price }}</span>
-                                            @endif --}}
                                             <div class="tw-flex tw-items-baseline tw-gap-2">
                                                 <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_yearly_price }}</span>
                                                 <span class="tw-text-sm tw-text-gray-500">/năm</span>
                                             </div>
-                                            {{-- <p class="tw-text-sm tw-text-[#1AA24C] tw-mt-1">
-                                                ~ {{ $plan->formatted_monthly_from_yearly_price }}/tháng
-                                            </p> --}}
                                         @else
                                             <div class="tw-flex tw-items-baseline tw-gap-2">
                                                 <span class="tw-text-3xl tw-font-bold">{{ $plan->formatted_price }}</span>
@@ -147,11 +169,35 @@
                                         <li>✔ {{ count($plan->models_allowed) }} AI Model</li>
                                     </ul>
                                 </div>
-                                @if ($currentSubscription && $currentSubscription->plan_id === $plan->id)
-                                    <button type="button"
-                                        class="tw-w-full tw-bg-[#DCE2E0] tw-text-gray-600 tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6 tw-cursor-default">
-                                        Gói hiện tại
-                                    </button>
+
+                                {{-- Button logic --}}
+                                @php
+                                    $isCurrentPlan = $currentSubscription && $currentSubscription->plan_id === $plan->id;
+                                    $isCurrentMonthly = $isCurrentPlan && $currentSubscription->billing_cycle === 'monthly';
+                                @endphp
+
+                                @if ($isCurrentPlan)
+                                    <div class="tw-mt-6 tw-space-y-2">
+                                        {{-- Gói hiện tại (monthly) --}}
+                                        {{-- <button type="button"
+                                            class="btn-current-monthly tw-w-full tw-bg-[#DCE2E0] tw-text-gray-600 tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-cursor-default {{ $isCurrentMonthly ? '' : 'tw-hidden' }}">
+                                            Gói hiện tại
+                                        </button> --}}
+
+                                        {{-- Nếu đang gói tháng, hiện nút đăng ký gói năm --}}
+                                        @if ($isCurrentMonthly && $plan->hasYearlyOption())
+                                            <button type="submit"
+                                                class="btn-upgrade-yearly tw-hidden tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg hover:tw-opacity-90">
+                                                Đăng ký gói năm
+                                            </button>
+                                        @endif
+
+                                        {{-- Gói hiện tại (yearly) --}}
+                                        {{-- <button type="button"
+                                            class="btn-current-yearly tw-w-full tw-bg-[#DCE2E0] tw-text-gray-600 tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-cursor-default {{ $isCurrentMonthly ? 'tw-hidden' : '' }}">
+                                            Gói hiện tại
+                                        </button> --}}
+                                    </div>
                                 @elseif (!$plan->is_trial)
                                     <button type="submit"
                                         class="tw-w-full tw-bg-[#1AA24C] tw-text-white tw-font-medium tw-text-sm tw-py-2 tw-rounded-lg tw-mt-6 hover:tw-opacity-90">
@@ -189,6 +235,11 @@
             const priceYearly = document.querySelectorAll('.price-yearly');
             const billingInputs = document.querySelectorAll('.billing-cycle-input');
 
+            // Buttons for current plan toggle
+            const btnCurrentMonthly = document.querySelectorAll('.btn-current-monthly');
+            const btnCurrentYearly = document.querySelectorAll('.btn-current-yearly');
+            const btnUpgradeYearly = document.querySelectorAll('.btn-upgrade-yearly');
+
             // Update button styles
             if (cycle === 'monthly') {
                 btnMonthly.className = 'tw-px-5 tw-py-2 tw-rounded-full tw-text-sm tw-font-medium tw-transition tw-cursor-pointer tw-bg-white tw-shadow-sm tw-text-gray-800';
@@ -203,6 +254,17 @@
                 el.classList.toggle('tw-hidden', cycle !== 'monthly');
             });
             priceYearly.forEach(el => {
+                el.classList.toggle('tw-hidden', cycle !== 'yearly');
+            });
+
+            // Toggle current plan buttons
+            btnCurrentMonthly.forEach(el => {
+                el.classList.toggle('tw-hidden', cycle !== 'monthly');
+            });
+            btnCurrentYearly.forEach(el => {
+                el.classList.toggle('tw-hidden', cycle !== 'yearly');
+            });
+            btnUpgradeYearly.forEach(el => {
                 el.classList.toggle('tw-hidden', cycle !== 'yearly');
             });
 

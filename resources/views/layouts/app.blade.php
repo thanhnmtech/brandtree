@@ -37,7 +37,7 @@
 
                     if (submitBtn && !submitBtn.disabled) {
                         // Store original text
-                        const originalText = submitBtn.innerHTML;
+                        submitBtn.dataset.originalHtml = submitBtn.innerHTML;
 
                         // Disable button
                         submitBtn.disabled = true;
@@ -61,7 +61,7 @@
                         setTimeout(() => {
                             if (!form.checkValidity()) {
                                 submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalText;
+                                submitBtn.innerHTML = submitBtn.dataset.originalHtml;
                                 submitBtn.style.opacity = '1';
                                 submitBtn.style.cursor = 'pointer';
                             }
@@ -69,6 +69,21 @@
                     }
                 });
             });
+        });
+
+        // Reset loading state when navigating back via browser back/forward button (bfcache)
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                // Page was restored from bfcache
+                document.querySelectorAll('button[type="submit"]').forEach(btn => {
+                    if (btn.disabled && btn.dataset.originalHtml) {
+                        btn.disabled = false;
+                        btn.innerHTML = btn.dataset.originalHtml;
+                        btn.style.opacity = '1';
+                        btn.style.cursor = 'pointer';
+                    }
+                });
+            }
         });
     </script>
 

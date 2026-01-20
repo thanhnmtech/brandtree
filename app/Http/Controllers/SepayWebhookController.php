@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BrandSubscription;
 use App\Models\Payment;
+use App\Services\PlanService;
 use App\Services\SepayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Log;
 class SepayWebhookController extends Controller
 {
     public function __construct(
-        protected SepayService $sepayService
+        protected SepayService $sepayService,
+        protected PlanService $planService
     ) {}
 
     /**
@@ -42,14 +43,15 @@ class SepayWebhookController extends Controller
             $payment = $this->sepayService->processWebhook($data);
 
             if ($payment) {
-                // Activate payment and subscription
+                // Activate payment and create subscription
                 $sepayReference = $data['reference_number'] ?? $data['id'] ?? null;
-                $this->activatePayment($payment, $sepayReference);
+                $subscription = $this->activatePayment($payment, $sepayReference);
 
                 Log::info('Sepay payment activated successfully', [
                     'payment_id' => $payment->id,
                     'brand_id' => $payment->brand_id,
                     'amount' => $payment->amount,
+                    'subscription_id' => $subscription?->id,
                     'sepay_reference' => $sepayReference,
                 ]);
 
@@ -83,30 +85,16 @@ class SepayWebhookController extends Controller
     }
 
     /**
-     * Activate payment and subscription.
+     * Activate payment and create subscription.
      */
-    protected function activatePayment(Payment $payment, ?string $sepayReference = null): void
+    protected function activatePayment(Payment $payment, ?string $sepayReference = null)
     {
-        // Update payment
-        $payment->update([
-            'status' => Payment::STATUS_COMPLETED,
-            'sepay_reference' => $sepayReference,
-            'paid_at' => now(),
-        ]);
-
-        // Activate subscription
-        $subscription = $payment->subscription;
-        if ($subscription && $subscription->status === BrandSubscription::STATUS_PENDING) {
-            // Get duration based on billing cycle (monthly = 30, yearly = 365)
-            $durationDays = $subscription->plan->getDurationDaysForCycle($subscription->billing_cycle);
-
-            $subscription->update([
-                'status' => BrandSubscription::STATUS_ACTIVE,
-                'started_at' => now(),
-                'expires_at' => now()->addDays($durationDays),
-                'credits_remaining' => $subscription->plan->credits,
-                'credits_reset_at' => now()->addMonth(),
-            ]);
+        // Update sepay reference
+        if ($sepayReference) {
+            $payment->update(['sepay_reference' => $sepayReference]);
         }
+
+        // Use PlanService to activate payment and create subscription
+        return $this->planService->activatePayment($payment);
     }
 }

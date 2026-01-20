@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
-use App\Models\BrandSubscription;
 use App\Models\Payment;
 use App\Services\SepayService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class PaymentController extends Controller
@@ -16,77 +14,6 @@ class PaymentController extends Controller
     public function __construct(
         protected SepayService $sepayService
     ) {}
-
-    /**
-     * Show payment form for a subscription.
-     */
-    public function create(Request $request, Brand $brand): View|RedirectResponse
-    {
-        $this->authorize('update', $brand);
-
-        $subscriptionId = $request->query('subscription');
-        $subscription = BrandSubscription::where('id', $subscriptionId)
-            ->where('brand_id', $brand->id)
-            ->where('status', BrandSubscription::STATUS_PENDING)
-            ->with('plan')
-            ->first();
-
-        if (!$subscription) {
-            return redirect()->route('brands.subscription.show', $brand)
-                ->withErrors(['subscription' => __('messages.subscription.not_found')]);
-        }
-
-        return view('brands.payments.create', compact('brand', 'subscription'));
-    }
-
-    /**
-     * Process payment - Create payment and show bank transfer info.
-     */
-    public function store(Request $request, Brand $brand): RedirectResponse
-    {
-        $this->authorize('update', $brand);
-
-        $validated = $request->validate([
-            'subscription_id' => 'required|exists:brand_subscriptions,id',
-        ]);
-
-        $subscription = BrandSubscription::where('id', $validated['subscription_id'])
-            ->where('brand_id', $brand->id)
-            ->where('status', BrandSubscription::STATUS_PENDING)
-            ->with('plan')
-            ->first();
-
-        if (!$subscription) {
-            return back()->withErrors(['subscription' => __('messages.subscription.not_found')]);
-        }
-
-        // Check if there's already a pending payment
-        $existingPayment = Payment::where('subscription_id', $subscription->id)
-            ->where('status', Payment::STATUS_PENDING)
-            ->first();
-
-        if ($existingPayment) {
-            return redirect()->route('brands.payments.show', [$brand, $existingPayment]);
-        }
-
-        // Create payment record with price based on billing cycle
-        $amount = $subscription->plan->getPriceForCycle($subscription->billing_cycle);
-
-        $payment = Payment::create([
-            'brand_id' => $brand->id,
-            'subscription_id' => $subscription->id,
-            'amount' => $amount,
-            'payment_method' => Payment::METHOD_BANK_TRANSFER,
-            'status' => Payment::STATUS_PENDING,
-        ]);
-
-        // Generate payment code
-        $paymentCode = $this->sepayService->generatePaymentCode($payment);
-        $payment->update(['transaction_id' => $paymentCode]);
-
-        return redirect()->route('brands.payments.show', [$brand, $payment])
-            ->with('info', __('messages.payment.transfer_info'));
-    }
 
     /**
      * Show payment status/details with bank transfer info.
@@ -99,7 +26,13 @@ class PaymentController extends Controller
             abort(404);
         }
 
-        $payment->load('subscription.plan');
+        $payment->load('plan');
+
+        // Generate payment code if not exists
+        if ($payment->isPending() && !$payment->transaction_id) {
+            $paymentCode = $this->sepayService->generatePaymentCode($payment);
+            $payment->update(['transaction_id' => $paymentCode]);
+        }
 
         // Get bank transfer info for pending payments
         $bankInfo = null;
@@ -118,7 +51,7 @@ class PaymentController extends Controller
         $this->authorize('view', $brand);
 
         $payments = Payment::where('brand_id', $brand->id)
-            ->with('subscription.plan')
+            ->with(['plan', 'subscription.plan'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -161,7 +94,7 @@ class PaymentController extends Controller
         }
 
         // Reload payment from database to get latest status
-        $payment = $payment->fresh(['subscription.plan']);
+        $payment = $payment->fresh(['plan', 'subscription.plan']);
 
         if (!$payment->isPending()) {
             return response()->json([
@@ -178,5 +111,4 @@ class PaymentController extends Controller
             'message' => 'Đang chờ thanh toán'
         ]);
     }
-
 }

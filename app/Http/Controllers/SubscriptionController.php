@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
-use App\Models\BrandSubscription;
 use App\Models\Plan;
+use App\Services\PlanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(
+        protected PlanService $planService
+    ) {}
+
     /**
      * Show subscription details for a brand.
      */
@@ -18,17 +22,16 @@ class SubscriptionController extends Controller
     {
         $this->authorize('view', $brand);
 
-        $subscription = $brand->activeSubscription;
+        // Get active subscription or latest subscription (for expired case)
+        $currentSubscription = $brand->activeSubscription
+            ?? $brand->subscriptions()->latest('started_at')->first();
 
-        // Get all subscription plans (unified monthly/yearly)
         $plans = Plan::active()
             ->subscriptions()
             ->orderBy('sort_order')
             ->get();
 
-        $currentSubscription = $brand->activeSubscription;
-
-        return view('brands.subscription.show', compact('brand', 'subscription', 'plans', 'currentSubscription'));
+        return view('brands.subscription.show', compact('brand', 'currentSubscription', 'plans'));
     }
 
     /**
@@ -51,7 +54,7 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Subscribe to a plan (creates pending subscription).
+     * Subscribe to a plan.
      */
     public function store(Request $request, Brand $brand): RedirectResponse
     {
@@ -66,56 +69,51 @@ class SubscriptionController extends Controller
         $billingCycle = $validated['billing_cycle'];
 
         // Check if plan is trial and brand already had trial
-        if ($plan->is_trial) {
-            $hadTrial = $brand->subscriptions()->whereHas('plan', function ($q) {
-                $q->where('is_trial', true);
-            })->exists();
-
-            if ($hadTrial) {
-                return back()->withErrors(['plan_id' => __('messages.subscription.trial_used')]);
-            }
+        if ($plan->is_trial && !$this->planService->canUseTrial($brand)) {
+            return back()->withErrors(['plan_id' => __('messages.subscription.trial_used')]);
         }
 
-        // Get price and duration based on billing cycle
-        $price = $plan->getPriceForCycle($billingCycle);
-        $durationDays = $plan->getDurationDaysForCycle($billingCycle);
+        $price = $this->planService->getPlanPrice($plan, $billingCycle);
 
         // If plan is free/trial, activate immediately
         if ($price === 0) {
-            // Expire current subscription if exists
-            if ($brand->activeSubscription) {
-                $brand->activeSubscription->update(['status' => BrandSubscription::STATUS_EXPIRED]);
-            }
-
-            BrandSubscription::create([
-                'brand_id' => $brand->id,
-                'plan_id' => $plan->id,
-                'billing_cycle' => $billingCycle,
-                'started_at' => now(),
-                'expires_at' => now()->addDays($durationDays),
-                'credits_remaining' => $plan->credits,
-                'credits_reset_at' => now()->addMonth(),
-                'status' => BrandSubscription::STATUS_ACTIVE,
-            ]);
+            $this->planService->activateFreeSubscription($brand, $plan, $billingCycle);
 
             return redirect()->route('brands.subscription.show', $brand)
                 ->with('success', __('messages.subscription.activated', ['plan' => $plan->name]));
         }
 
-        // For paid plans, create pending subscription and redirect to payment
-        $subscription = BrandSubscription::create([
-            'brand_id' => $brand->id,
-            'plan_id' => $plan->id,
-            'billing_cycle' => $billingCycle,
-            'started_at' => now(), // Will be updated to actual start time after payment
-            'expires_at' => now()->addDays($durationDays),
-            'credits_remaining' => 0,
-            'credits_reset_at' => now(),
-            'status' => BrandSubscription::STATUS_PENDING,
-        ]);
+        // For paid plans, create pending payment and redirect to payment page
+        $payment = $this->planService->createPaymentForNewSubscription($brand, $plan, $billingCycle);
 
-        // Redirect to payment page
-        return redirect()->route('brands.payments.create', [$brand, 'subscription' => $subscription->id]);
+        return redirect()->route('brands.payments.show', [$brand, $payment]);
+    }
+
+    /**
+     * Renew current subscription with the same plan.
+     */
+    public function renew(Brand $brand): RedirectResponse
+    {
+        $this->authorize('update', $brand);
+
+        $subscription = $brand->activeSubscription;
+
+        if (!$subscription) {
+            return back()->withErrors(['subscription' => __('messages.subscription.no_active')]);
+        }
+
+        $billingCycle = $subscription->billing_cycle ?? 'monthly';
+        $price = $this->planService->getPlanPrice($subscription->plan, $billingCycle);
+
+        // If plan is free, cannot renew (should upgrade instead)
+        if ($price === 0) {
+            return back()->with('error', 'Gói miễn phí không thể gia hạn. Vui lòng nâng cấp gói.');
+        }
+
+        // Create pending payment for renewal
+        $payment = $this->planService->createPaymentForRenewal($brand);
+
+        return redirect()->route('brands.payments.show', [$brand, $payment]);
     }
 
     /**
@@ -131,7 +129,7 @@ class SubscriptionController extends Controller
             return back()->withErrors(['subscription' => __('messages.subscription.no_active')]);
         }
 
-        $subscription->update(['status' => BrandSubscription::STATUS_CANCELLED]);
+        $this->planService->cancelSubscription($subscription);
 
         return redirect()->route('brands.subscription.show', $brand)
             ->with('success', __('messages.subscription.cancelled'));
