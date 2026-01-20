@@ -100,7 +100,7 @@ class PaymentController extends Controller
             return response()->json([
                 'status' => $payment->status,
                 'completed' => true,
-                'message' => 'Thanh toán đã được xử lý',
+                // 'message' => 'Thanh toán đã được xử lý',
                 'redirect' => route('brands.subscription.show', $brand)
             ]);
         }
