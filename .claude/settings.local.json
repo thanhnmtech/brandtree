@@ -5,7 +5,8 @@
       "Bash(bash -c:*)",
       "Bash(source ~/.nvm/nvm.sh)",
       "Bash(nvm use:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(php artisan tinker:*)"
     ]
   }
 }

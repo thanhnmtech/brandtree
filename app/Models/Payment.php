@@ -11,6 +11,9 @@ class Payment extends Model
     protected $fillable = [
         'brand_id',
         'subscription_id',
+        'plan_id',
+        'billing_cycle',
+        'payment_type',
         'amount',
         'payment_method',
         'transaction_id',
@@ -19,6 +22,12 @@ class Payment extends Model
         'paid_at',
         'metadata',
     ];
+
+    /**
+     * Payment type constants
+     */
+    const TYPE_NEW = 'new';
+    const TYPE_RENEWAL = 'renewal';
 
     protected $casts = [
         'amount' => 'integer',
@@ -54,6 +63,22 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(BrandSubscription::class, 'subscription_id');
+    }
+
+    /**
+     * Get the plan
+     */
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * Check if this is a renewal payment
+     */
+    public function isRenewal(): bool
+    {
+        return $this->payment_type === self::TYPE_RENEWAL;
     }
 
     /**

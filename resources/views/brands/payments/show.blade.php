@@ -55,7 +55,7 @@
                         <div>
                             <h2 class="tw-text-xl tw-font-bold tw-text-gray-900">Thanh toán đơn hàng</h2>
                             <div class="tw-flex tw-flex-wrap tw-gap-3 tw-text-sm tw-mt-1">
-                                <span><span class="tw-text-gray-500">Gói:</span> <strong>{{ $payment->subscription->plan->name }}</strong></span>
+                                <span><span class="tw-text-gray-500">Gói:</span> <strong>{{ $payment->plan->name ?? $payment->subscription?->plan?->name }}</strong></span>
                                 <span><span class="tw-text-gray-500">Mã:</span> <strong class="tw-font-mono">{{ $payment->transaction_id }}</strong></span>
                             </div>
                         </div>
