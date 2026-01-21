@@ -68,7 +68,8 @@
         @endif
 
         <div class="tw-hidden md:tw-flex tw-items-center tw-justify-end tw-gap-[14px]">
-            {{-- <a class="tw-text-[14px] tw-text-[#e63946] tw-font-semibold tw-cursor-pointer">Upgrade plan</a> --}}
+                             <x-language-switcher />
+
             <!-- Avatar (ONLY ONE) — CLICK TO OPEN POPUP -->
             <button onclick="toggleAccountPopup()">
                 <img id="accountBtn" src="{{ asset('assets/img/default-avatar.svg') }}"

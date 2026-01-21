@@ -81,75 +81,9 @@
         </div>
     </div>
 
-    <!-- Form Submit Loading Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get all forms in the page
-            const forms = document.querySelectorAll('form');
-
-            forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    // Find submit button in this form
-                    const submitBtn = form.querySelector('button[type="submit"]');
-
-                    if (submitBtn && !submitBtn.disabled) {
-                        // Store original text
-                        const originalText = submitBtn.innerHTML;
-
-                        // Disable button
-                        submitBtn.disabled = true;
-
-                        // Add loading state
-                        submitBtn.innerHTML = `
-                            <span class="tw-flex tw-items-center tw-justify-center tw-gap-2">
-                                <svg class="tw-animate-spin tw-h-5 tw-w-5 tw-text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Đang xử lý...</span>
-                            </span>
-                        `;
-
-                        // Change button style to indicate loading
-                        submitBtn.style.opacity = '0.7';
-                        submitBtn.style.cursor = 'not-allowed';
-
-                        // If form validation fails, re-enable button
-                        setTimeout(() => {
-                            if (!form.checkValidity()) {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalText;
-                                submitBtn.style.opacity = '1';
-                                submitBtn.style.cursor = 'pointer';
-                            }
-                        }, 100);
-                    }
-                });
-            });
-        });
-    </script>
-
     <!-- Toastify JS (Local) -->
     <script src="{{ asset('assets/js/toastify.min.js') }}"></script>
     <script>
-        function showToast(message, type = 'success') {
-            const config = {
-                success: { background: 'linear-gradient(to right, #00b09b, #96c93d)', icon: '✓' },
-                error: { background: 'linear-gradient(to right, #ff5f6d, #ffc371)', icon: '✕' },
-                warning: { background: 'linear-gradient(to right, #f093fb, #f5576c)', icon: '⚠' },
-                info: { background: 'linear-gradient(to right, #4facfe, #00f2fe)', icon: 'ℹ' }
-            };
-            const settings = config[type] || config.info;
-            Toastify({
-                text: settings.icon + '  ' + message,
-                duration: 4000,
-                gravity: 'top',
-                position: 'right',
-                stopOnFocus: true,
-                style: { background: settings.background }
-            }).showToast();
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             @if(session('success'))
                 showToast(@json(session('success')), 'success');
