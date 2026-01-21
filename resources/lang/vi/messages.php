@@ -89,4 +89,31 @@ return [
         'deleted' => 'Trang Ladipage đã được xóa thành công!',
     ],
 
+    // Dashboard Messages
+    'dashboard' => [
+        'active_brands' => 'Thương hiệu hoạt động',
+        'total_brands_desc' => 'Tổng số thương hiệu bạn đang quản lý',
+        'need_care' => 'Cần chăm sóc',
+        'need_care_desc' => 'Các thương hiệu đang chờ bạn quay lại',
+        'growing' => 'Đang tăng trưởng',
+        'growing_desc' => 'Các thương hiệu đang chờ phát triển',
+        'completed' => 'Đã hoàn thiện',
+        'completed_desc' => 'Sẵn sàng để khai thác',
+        'search_placeholder' => 'Tìm kiếm thương hiệu...',
+        'all_status' => 'Tất cả trạng thái',
+        'status_seedling' => 'Cần chăm sóc',
+        'status_growing' => 'Đang tăng trưởng',
+        'status_completed' => 'Đã hoàn thiện',
+        'sort_updated' => 'Cập nhật gần nhất',
+        'sort_newest' => 'Mới nhất',
+        'add_brand' => 'Thêm thương hiệu',
+        'no_brands_found' => 'Không tìm thấy thương hiệu nào',
+        'progress' => 'Tiến độ phát triển',
+        'root' => 'Gốc',
+        'trunk' => 'Thân',
+        'next_step' => 'Bước tiếp theo',
+        'manage_brand' => 'Quản lý thương hiệu',
+        'updated_at' => 'Cập nhật',
+    ],
+
 ];

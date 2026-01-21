@@ -7,7 +7,7 @@
                 class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-white tw-filter tw-drop-shadow-[0_0_15px_rgba(0,0,0,0.1)] tw-flex tw-items-center tw-justify-center"
             >
                 <img
-                    src="./assets/img/icon-star-green.svg"
+                    src="{{ asset('assets/img/icon-star-green.svg') }}"
                     alt="ok"
                     class="tw-w-[20px] tw-h-[20px]"
                 />

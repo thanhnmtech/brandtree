@@ -4,7 +4,7 @@
   >
     <div>
       <img
-        src="./assets/img/logo-trendingbar.svg"
+        src="{{ asset('assets/img/logo-trendingbar.svg') }}"
         class="tw-w-[38px] tw-h-[38px] tw-object-contain"
       />
     </div>
