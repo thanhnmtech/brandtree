@@ -328,10 +328,78 @@ class Brand extends Model
         return $this->hasActiveSubscription();
     }
 
+    // ============================================
+    // ROOT HELPERS
+    // ============================================
+
+    const ROOT_STEPS = [
+        'root_1' => [
+            'label'       => 'Thiết kế Văn hoá Dịch vụ',
+            'label_short' => 'G1',
+            'description' => 'Xây dựng nền tảng văn hóa doanh nghiệp và các nguyên tắc dịch vụ cốt lõi.',
+        ],
+        'root_2' => [
+            'label'       => 'Phân tích Thổ nhưỡng',
+            'label_short' => 'G2',
+            'description' => 'Đánh giá thị trường, đối thủ và xác định cơ hội kinh doanh tiềm năng.',
+        ],
+        'root_3' => [
+            'label'       => 'Định vị Giá trị Giải pháp',
+            'label_short' => 'G3',
+            'description' => 'Kết nối sâu sắc nhu cầu của khách hàng với giá trị cốt lõi của sản phẩm.',
+        ],
+    ];
+
+    /**
+     * Get root timeline steps with status
+     */
+    public function getRootTimelineAttribute()
+    {
+        $steps = [];
+        // Đảm bảo root_data là array (nếu lưu JSON trong DB thì cần cast trong model)
+        $data = $this->root_data ?? []; 
+        $isPreviousCompleted = true; 
+
+        foreach (self::ROOT_STEPS as $key => $config) {
+            // Kiểm tra xem bước này đã có data chưa
+            $hasData = isset($data[$key]) && !empty($data[$key]);
+
+            if ($hasData) {
+                $status = 'completed';
+                // Bước này xong thì bước sau mới được check tiếp
+                $isPreviousCompleted = true; 
+            } elseif ($isPreviousCompleted) {
+                $status = 'ready'; // Sẵn sàng để làm
+                // Bước này chưa xong, khoá bước sau lại
+                $isPreviousCompleted = false; 
+            } else {
+                $status = 'locked';
+            }
+
+            $steps[] = [
+                'key'         => $key,
+                'status'      => $status,
+                'is_current'  => ($status === 'ready'),
+                'data'        => $hasData ? $data[$key] : null,
+                
+                // --- BỔ SUNG CÁC TRƯỜNG CÒN THIẾU ---
+                'label'       => $config['label'],
+                'label_short' => $config['label_short'], // Cho biến $step ở Blade
+                'description' => $config['description'], // Cho biến $description ở Blade
+            ];
+        }
+
+        return $steps;
+    }
+
     public function getProcessRoot()
     {
         return rand(10, 100) . '%';
     }
+
+    // ============================================
+    // TRUNK HELPERS
+    // ============================================
 
     public function getProcessTrunk()
     {
