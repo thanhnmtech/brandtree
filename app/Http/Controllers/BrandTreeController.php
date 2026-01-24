@@ -19,6 +19,7 @@ class BrandTreeController extends Controller
 
     public function canopy(Brand $brand): View
     {
-        return view('brands.trees.canopy', compact('brand'));
+        $agents = \App\Models\BrandAgent::where('brand_id', $brand->id)->latest()->get();
+        return view('brands.trees.canopy', compact('brand', 'agents'));
     }
 }

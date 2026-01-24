@@ -4,10 +4,10 @@
         class="tw-h-full brand-card tw-bg-white tw-rounded-[7px] tw-border-2 tw-border-[#E2EBE7] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-relative tw-transition hover:tw-shadow-[0_8px_12px_rgba(0,0,0,0.1)] hover:tw-border-vlbcgreen">
         @php
             $statusConfig = match($brand->status) {
-                'seedling' => ['label' => 'Cần chăm sóc', 'bg' => '#FDEAEA', 'color' => '#DC282E'],
-                'growing' => ['label' => 'Đang tăng trưởng', 'bg' => '#FAF4EB', 'color' => '#F59F0A'],
-                'completed' => ['label' => 'Đã hoàn thiện', 'bg' => '#E8F5ED', 'color' => '#1AA24C'],
-                default => ['label' => 'Chưa xác định', 'bg' => '#F3F7F5', 'color' => '#829B99'],
+                'seedling' => ['label' => __('messages.dashboard.status_seedling'), 'bg' => '#FDEAEA', 'color' => '#DC282E'],
+                'growing' => ['label' => __('messages.dashboard.status_growing'), 'bg' => '#FAF4EB', 'color' => '#F59F0A'],
+                'completed' => ['label' => __('messages.dashboard.status_completed'), 'bg' => '#E8F5ED', 'color' => '#1AA24C'],
+                default => ['label' => __('messages.dashboard.status_undefined', [], 'vi') ?? 'Chưa xác định', 'bg' => '#F3F7F5', 'color' => '#829B99'],
             };
         @endphp
         <span
@@ -19,9 +19,11 @@
              <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}" class="tw-h-20 tw-w-20 tw-object-contain tw-rounded-full tw-bg-white tw-p-2">
             <div class="tw-flex tw-flex-col">
                 <div class="title tw-text-[20px] tw-font-semibold tw-text-black">
-                    {{ $brand->name }}
+                    <a href="{{ route('brands.show', $brand) }}" class="hover:tw-text-vlbcgreen tw-transition-colors">
+                        {{ $brand->name }}
+                    </a>
                 </div>
-                <div class="update-time tw-text-[14px] tw-text-[#829B99]">Cập nhật:
+                <div class="update-time tw-text-[14px] tw-text-[#829B99]">{{ __('messages.dashboard.updated_at') }}:
                     {{ $brand->updated_at->diffForHumans() }}</div>
             </div>
         </div>
@@ -30,12 +32,12 @@
         <div class="tw-flex tw-items-center tw-justify-between tw-mt-[12px] tw-gap-4">
             <div>
                 <div class="tw-text-[16px] tw-font-semibold tw-text-black">
-                    Tiến độ phát triển
+                    {{ __('messages.dashboard.progress') }}
                 </div>
                 <div class="tw-flex tw-gap-4 tw-mt-1">
-                    <div class="root-text tw-text-[14px] tw-text-[#829B99]">Gốc
+                    <div class="root-text tw-text-[14px] tw-text-[#829B99]">{{ __('messages.dashboard.root') }}
                         {{ $process_root = $brand->getProcessRoot() }}</div>
-                    <div class="stem-text tw-text-[14px] tw-text-[#829B99]">Thân
+                    <div class="stem-text tw-text-[14px] tw-text-[#829B99]">{{ __('messages.dashboard.trunk') }}
                         {{ $process_trunk = $brand->getProcessTrunk() }}</div>
                 </div>
             </div>
@@ -55,7 +57,7 @@
 
         <!-- Description -->
         <div class="tw-text-[16px] tw-font-semibold tw-text-black tw-mt-[12px]">
-            Bước tiếp theo
+            {{ __('messages.dashboard.next_step') }}
         </div>
         <p class="description tw-text-[14px] tw-text-[#829B99] tw-leading-[1.5] tw-mt-1 tw-flex-grow tw-overflow-hidden tw-line-clamp-3"
             style="display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;">
@@ -66,9 +68,9 @@
         <div class="tw-mt-[14px]">
             <a href="{{ route('brands.show', $brand) }}"
                 class="tw-w-full tw-bg-[#F3F7F5] tw-border-2 tw-border-[#E2EBE7] tw-py-[10px] tw-px-[16px] tw-rounded-[7px] tw-text-[16px] tw-font-medium tw-text-black tw-flex tw-items-center tw-justify-center tw-gap-2 hover:tw-bg-[#E8EEE9] hover:tw-border-vlbcgreen">
-                <span>Quản lý thương hiệu</span>
+                <span>{{ __('messages.dashboard.manage_brand') }}</span>
                 <img class="tw-w-[16px] tw-h-[16px]"
-                    src="./assets/img/4048a4b29522dad1ba63995de703d70091dcb319.svg" alt="arrow" />
+                    src="{{ asset('assets/img/4048a4b29522dad1ba63995de703d70091dcb319.svg') }}" alt="arrow" />
             </a>
         </div>
     </article>
@@ -77,6 +79,6 @@
 
 @if($brands->isEmpty())
 <div class="tw-col-span-full tw-text-center tw-py-10">
-    <div class="tw-text-[#829B99] tw-text-lg">Không tìm thấy thương hiệu nào</div>
+    <div class="tw-text-[#829B99] tw-text-lg">{{ __('messages.dashboard.no_brands_found') }}</div>
 </div>
 @endif

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Be Vietnam Pro Font Family - Local */
-@font-face {
+/* @font-face {
     font-family: 'Be Vietnam Pro';
     font-style: normal;
     font-weight: 400;
@@ -33,7 +33,7 @@
     font-weight: 700;
     font-display: swap;
     src: url('/fonts/be-vietnam-pro/BeVietnamPro-Bold.ttf') format('truetype');
-}
+} */
 
 /* Toastify custom styles */
 .toastify {

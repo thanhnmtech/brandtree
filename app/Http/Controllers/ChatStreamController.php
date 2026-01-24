@@ -24,19 +24,94 @@ class ChatStreamController extends Controller
         $userId = $request->user() ? $request->user()->id : null;
 
         // Logic: Ưu tiên tìm theo ID trước, nếu không có thì tìm theo Type
-        $agentConfig = null;
+        // Default values
+        $prompt = "Bạn là trợ lý ảo.";
+        $vectorStoreId = "";
+        $aiModel = "gpt-4o";
 
-        if ($agentId) {
-            $agentConfig = AgentSystem::find($agentId);
-        } 
-        
-        if (!$agentConfig && $agentType) {
-            $agentConfig = AgentSystem::where('agent_type', $agentType)->first();
+        if ($agentType === 'canopy') {
+            // Handle Custom Brand Agent
+            if ($agentId) {
+                $brandAgent = \App\Models\BrandAgent::find($agentId);
+                if ($brandAgent) {
+                    $prompt = $brandAgent->instruction ?? $prompt;
+                    $vectorStoreId = $brandAgent->vector_id ?? "";
+
+                    if ($brandAgent->is_include && $brandId) {
+                        $brand = \App\Models\Brand::find($brandId);
+                        if ($brand) {
+                            $prompt .= "\n\nHãy nhớ toàn bộ thông tin về thương hiệu bên dưới để tạo câu trả lời phù hợp:\n";
+
+                            $rootData = $brand->root_data ?? [];
+                            $trunkData = $brand->trunk_data ?? [];
+
+                            if (is_array($rootData)) {
+                                foreach ($rootData as $val) {
+                                    if (is_string($val) && !empty($val))
+                                        $prompt .= $val . "\n\n";
+                                }
+                            }
+                            if (is_array($trunkData)) {
+                                foreach ($trunkData as $val) {
+                                    if (is_string($val) && !empty($val))
+                                        $prompt .= $val . "\n\n";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // Handle System Agent (Original Logic)
+            $agentConfig = null;
+
+            if ($agentId) {
+                $agentConfig = AgentSystem::find($agentId);
+            }
+
+            if (!$agentConfig && $agentType) {
+                $agentConfig = AgentSystem::where('agent_type', $agentType)->first();
+            }
+
+            if ($agentConfig) {
+                $prompt = $agentConfig->prompt ?? $prompt;
+                $vectorStoreId = $agentConfig->vector_id ?? $vectorStoreId;
+                $aiModel = $agentConfig->model ?? $aiModel;
+            }
         }
-        // Thiết lập giá trị mặc định nếu không tìm thấy trong DB (Fallback)
-        $prompt = $agentConfig ? $agentConfig->prompt : "Bạn là trợ lý ảo.";
-        $vectorStoreId = $agentConfig ? $agentConfig->vector_id : "vs_68c90265d6cc81918b4453e31af3a771"; 
-        $aiModel = $agentConfig?->model ?? "gpt-4o";
+
+        // Logic accumulated context from previous steps
+        $sequence = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+        $currentIndex = array_search($agentType, $sequence);
+
+        if ($brandId && $currentIndex !== false && $currentIndex > 0) {
+            $brand = \App\Models\Brand::find($brandId);
+            if ($brand) {
+                $rootData = $brand->root_data ?? [];
+                $trunkData = $brand->trunk_data ?? [];
+                $contextParts = [];
+
+                // Iterate through all previous steps
+                for ($i = 0; $i < $currentIndex; $i++) {
+                    $prevType = $sequence[$i];
+                    $val = null;
+
+                    if (str_starts_with($prevType, 'root')) {
+                        $val = $rootData[$prevType] ?? null;
+                    } elseif (str_starts_with($prevType, 'trunk')) {
+                        $val = $trunkData[$prevType] ?? null;
+                    }
+
+                    if (!empty($val)) {
+                        $contextParts[] = "$prevType: $val";
+                    }
+                }
+
+                if (!empty($contextParts)) {
+                    $prompt .= "\n\nHãy ghi nhớ các thông tin thương hiệu đã xác nhận bên dưới để tạo câu trả lời tiếp theo phù hợp:\n" . implode("\n", $contextParts);
+                }
+            }
+        }
 
         // 1. Create Conversation if new
         if (!$convId || $convId === 'new') {
@@ -67,17 +142,20 @@ class ChatStreamController extends Controller
             $data = [
                 'model' => $aiModel,
                 'instructions' => $prompt,
-                'tools' => [
+                'input' => $userInput,
+                'conversation' => $conversationId,
+                'stream' => true,
+            ];
+
+            if ($vectorStoreId) {
+                $data['tools'] = [
                     [
                         'type' => 'file_search',
                         'vector_store_ids' => [$vectorStoreId],
                         'max_num_results' => 20
                     ]
-                ],
-                'input' => $userInput,
-                'conversation' => $conversationId,
-                'stream' => true,
-            ];
+                ];
+            }
 
             // Send initial JSON with conversation details
             echo json_encode(['db_chat_id' => $chat->id, 'event' => 'metadata', 'conv_id' => $chat->id]) . "\n\n";
@@ -136,7 +214,7 @@ class ChatStreamController extends Controller
         $response = Http::withToken($apiKey)->post('https://api.openai.com/v1/conversations', [
             'metadata' => [
                 'agentType' => $agentType,
-                'agentId' => $agentId,
+                'agentId' => (string) $agentId,
                 'topic' => substr($firstMessage, 0, 50)
             ]
         ]);
@@ -151,9 +229,35 @@ class ChatStreamController extends Controller
             'user_id' => $userId,
             'brand_id' => $brandId,
             'agent_id' => (int) $agentId,
+            'agent_type' => $agentType,
             'title' => 'Phiên làm việc ' . date('Y/m/d H:i:s'),
             'conversation_id' => $openAiConvId
         ]);
+    }
+
+    public function history(Request $request)
+    {
+        $brandId = $request->input('brandId');
+        $agentId = $request->input('agentId');
+        $agentType = $request->input('agentType');
+        $userId = $request->user()->id;
+
+        if (!$brandId || !$agentId) {
+            return response()->json(['data' => []]);
+        }
+
+        $query = Chat::where('brand_id', $brandId)
+            ->where('agent_id', $agentId)
+            ->where('user_id', $userId);
+
+        if ($agentType) {
+            $query->where('agent_type', $agentType);
+        }
+
+        $chats = $query->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return response()->json($chats);
     }
 }
 

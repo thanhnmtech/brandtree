@@ -27,6 +27,8 @@ class Brand extends Model
 
     protected $casts = [
         'founded_year' => 'integer',
+        'root_data' => 'array',
+        'trunk_data' => 'array',
     ];
 
     /**
@@ -218,26 +220,20 @@ class Brand extends Model
      * Use credits and log usage
      * User defaults to authenticated user
      */
-    public function useCredits(
-        int $amount,
-        string $actionType,
-        ?string $modelUsed = null,
-        ?string $description = null,
-        ?User $user = null
-    ): bool {
-        $user = $user ?? auth()->user();
+    public function useCredits(int $amount): bool
+    {
+        $user = auth()->user();
 
         if (!$user) {
             return false;
         }
+        $actionType = 'chat';
 
         return app(CreditService::class)->useCredits(
             $this,
             $user,
             $amount,
             $actionType,
-            $modelUsed,
-            $description
         );
     }
 

@@ -24,11 +24,48 @@ Route::post('/webhook/sepay', [SepayWebhookController::class, 'handle'])->name('
 // Chat API Routes
 Route::post('/api/chat_stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('api.chat.stream');
 Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController::class, 'saveMessage'])->name('api.chat.save');
+Route::get('/api/chat/history', [App\Http\Controllers\ChatStreamController::class, 'history'])->name('api.chat.history');
 
 // Chat Route (Standalone, No Localization Prefix)
-Route::get('/chat/{brand:id}/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
+Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
+
+    // Override agentId for System Agents
+    $systemTypes = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+    if ($agentType && in_array($agentType, $systemTypes)) {
+        $systemAgent = \App\Models\AgentSystem::where('agent_type', $agentType)
+            ->latest()
+            ->first();
+        if ($systemAgent) {
+            $agentId = $systemAgent->id;
+        }
+    }
+
     return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId'));
 })->middleware(['auth', 'brand.access'])->name('chat');
+
+Route::post('/brands/{brand:slug}/chat/save-data', [\App\Http\Controllers\BrandDataController::class, 'store'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.chat.save');
+
+Route::post('/brands/{brand:slug}/update-section', [\App\Http\Controllers\BrandDataController::class, 'updateSection'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.update_section');
+
+Route::post('/brands/{brand:slug}/agents', [\App\Http\Controllers\BrandAgentController::class, 'store'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.agents.store');
+
+// TEMPORARY: Run migrations via link (For agent_type column)
+Route::get('/run-pending-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return "Migrations run successfully (Check DB): " . \Illuminate\Support\Facades\Artisan::output();
+});
+
+
+
+
+
+
 
 Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -71,12 +108,11 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('subscription', [SubscriptionController::class, 'show'])->name('brands.subscription.show');
                 Route::get('subscription/upgrade', [SubscriptionController::class, 'create'])->name('brands.subscription.create');
                 Route::post('subscription', [SubscriptionController::class, 'store'])->name('brands.subscription.store');
+                Route::post('subscription/renew', [SubscriptionController::class, 'renew'])->name('brands.subscription.renew');
                 Route::delete('subscription', [SubscriptionController::class, 'destroy'])->name('brands.subscription.destroy');
 
                 // Payment routes
                 Route::get('payments', [PaymentController::class, 'index'])->name('brands.payments.index');
-                Route::get('payments/create', [PaymentController::class, 'create'])->name('brands.payments.create');
-                Route::post('payments', [PaymentController::class, 'store'])->name('brands.payments.store');
                 Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('brands.payments.show');
                 Route::post('payments/{payment}/check', [PaymentController::class, 'checkStatus'])->name('brands.payments.check');
                 Route::get('payments/{payment}/status', [PaymentController::class, 'checkStatusAjax'])->name('brands.payments.status');

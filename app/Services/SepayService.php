@@ -174,7 +174,7 @@ class SepayService
             $payment = Payment::where('id', $paymentId)
                 ->where('brand_id', $brandId)
                 ->where('status', Payment::STATUS_PENDING)
-                ->with('subscription.plan')
+                ->with('plan')
                 ->first();
 
             Log::info('Sepay processWebhook: Payment query result', [
