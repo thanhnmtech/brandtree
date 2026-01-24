@@ -114,12 +114,58 @@
                         Kết quả phân tích sẽ hiển thị ở bên phải
                     </span>
                 </div>
-                <button @click="openSaveModal()" id="btn-confirm-analysis"
+                {{-- <button @click="openSaveModal()" id="btn-confirm-analysis"
                     class="tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all tw-duration-200"
                     :class="isConfirmationActive ? 'tw-bg-[#16a34a] tw-text-white tw-cursor-pointer' : 'tw-bg-gray-200 tw-text-gray-400 tw-cursor-not-allowed'"
-                    :disabled="!isConfirmationActive">
+                    :disabled="!isConfirmationActive"
+                    :title="!isConfirmationActive ? 'Yêu cầu AI thêm từ \'xác nhận\' và \'lưu thông tin\' vào câu trả lời để lưu lại!' : ''">
                     Xác nhận phân tích
-                </button>
+                </button> --}}
+                <div class="tw-relative tw-inline-block">
+                    <button @click="openSaveModal()" id="btn-confirm-analysis"
+                        class="tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all tw-duration-200"
+                        :class="isConfirmationActive ? 'tw-bg-[#16a34a] tw-text-white tw-cursor-pointer' : 'tw-bg-gray-200 tw-text-gray-400 tw-cursor-not-allowed'"
+                        :disabled="!isConfirmationActive"
+                        @mouseenter="!isConfirmationActive && (showTooltip = true)"
+                        @mouseleave="showTooltip = false">
+                        Xác nhận phân tích
+                    </button>
+                    
+                    <!-- Custom Tooltip -->
+                    <div x-show="showTooltip && !isConfirmationActive"
+                        x-transition:enter="tw-transition tw-ease-out tw-duration-200"
+                        x-transition:enter-start="tw-opacity-0 tw-scale-95"
+                        x-transition:enter-end="tw-opacity-100 tw-scale-100"
+                        x-transition:leave="tw-transition tw-ease-in tw-duration-150"
+                        x-transition:leave-start="tw-opacity-100 tw-scale-100"
+                        x-transition:leave-end="tw-opacity-0 tw-scale-95"
+                        style="display: none;"
+                        class="tw-absolute tw-bottom-full tw-right-0 tw-mb-3 tw-w-72 tw-bg-gradient-to-r tw-from-gray-800 tw-to-gray-900 tw-text-white tw-rounded-lg tw-px-4 tw-py-3 tw-shadow-2xl tw-z-50 tw-border tw-border-gray-700">
+                        
+                        <!-- Icon + Content -->
+                        <div class="tw-flex tw-items-start tw-gap-2">
+                            <div class="tw-flex-shrink-0 tw-mt-0.5">
+                                <svg class="tw-w-5 tw-h-5 tw-text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="tw-text-sm tw-leading-relaxed">
+                                <div class="tw-font-semibold tw-mb-1 tw-text-yellow-400">Cách kích hoạt nút này:</div>
+                                <div class="tw-text-gray-200">
+                                    Yêu cầu AI thêm cụm từ 
+                                    <span class="tw-inline-block tw-bg-green-500/20 tw-text-green-300 tw-px-2 tw-py-0.5 tw-rounded tw-font-semibold tw-mx-0.5">"xác nhận"</span>
+                                    và
+                                    <span class="tw-inline-block tw-bg-green-500/20 tw-text-green-300 tw-px-2 tw-py-0.5 tw-rounded tw-font-semibold tw-mx-0.5">"lưu thông tin"</span>
+                                    vào câu trả lời
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <div class="tw-absolute tw-top-full tw-right-8 tw-w-0 tw-h-0" 
+                            style="border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid #1f2937;"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -222,6 +268,7 @@
             showSuccessModal: false,
             editingContent: '',
             isSaving: false,
+            showTooltip: false,
 
             // Setup
             init() {
@@ -301,6 +348,39 @@
                 }
             },
 
+            // encoding
+            ensureUTF8(text) {
+                if (!text || typeof text !== 'string') {
+                    return '';
+                }
+                if (typeof text.normalize === 'function') {
+                    try {
+                        text = text.normalize('NFC');
+                    } catch (e) {
+                        console.warn('Unicode normalization failed:', e);
+                    }
+                }
+                text = text
+                    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+                    // Soft Hyphen
+                    .replace(/\u00AD/g, '');
+                text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+                text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                text = text
+                    .replace(/[\u201C\u201D]/g, '"')  // " " → "
+                    .replace(/[\u2018\u2019]/g, "'")  // ' ' → '
+                    .replace(/[\u2013\u2014]/g, '-'); // – — → -
+                if (text.charCodeAt(0) === 0xFEFF) {
+                    text = text.substring(1);
+                }
+                text = text.trim();
+                if (this.debugMode) {
+                    this.validateUTF8(text);
+                }
+                
+                return text;
+            },
+
             async saveAnalysis() {
                 this.isSaving = true;
 
@@ -326,6 +406,8 @@
                     if (result.status === 'success') {
                         this.showSaveModal = false;
                         this.showSuccessModal = true;
+
+                        window.dispatchEvent(new Event('data-saved'));
                     } else {
                         alert('Lỗi: ' + result.message);
                     }
@@ -500,6 +582,99 @@
                     this.messages[assistantMsgIndex].content += '\n[Lỗi kết nối hoặc xử lý]';
                 }
             }
+        }
+    }
+
+    // Alpine component for Result Bar - UI -- 25-01-2026
+    function resultBarComponent(config) {
+        return {
+            brandId: config.brandId,
+            agentType: config.agentType,
+            savedData: null,
+            loading: false,
+
+            init() {
+                this.fetchSavedData();
+                window.addEventListener('data-saved', () => {
+                    this.fetchSavedData();
+                });
+            },
+
+            async fetchSavedData() {
+                if (!this.brandId || !this.agentType) return;
+                
+                this.loading = true;
+                
+                try {
+                    const brandSlug = window.location.pathname.split('/')[2];
+                    const response = await fetch(`/brands/${brandSlug}/chat/get-data?agentType=${this.agentType}`);
+                    const result = await response.json();
+                    
+                    if (result.status === 'success' && result.data) {
+                        // Data đã được chuẩn hóa từ backend
+                        this.savedData = result.data;
+                    } else {
+                        this.savedData = null;
+                    }
+                } catch (error) {
+                    console.error('Error fetching saved data:', error);
+                    this.savedData = null;
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            formatContent(content) {
+                if (!content) return '';
+                
+                let formatted = content
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+                
+                return formatted;
+            },
+
+            // async editData() {
+            //     // Populate modal với raw_content
+            //     const editContent = this.savedData.raw_content || this.savedData.body;
+                
+            //     // Trigger edit modal (có thể dispatch event cho chat component)
+            //     window.dispatchEvent(new CustomEvent('edit-data', { 
+            //         detail: { 
+            //             content: editContent,
+            //             agentType: this.agentType 
+            //         } 
+            //     }));
+            // },
+
+            // async deleteData() {
+            //     if (!confirm('Bạn có chắc muốn xóa dữ liệu này?')) return;
+                
+            //     try {
+            //         const brandSlug = window.location.pathname.split('/')[2];
+            //         const response = await fetch(`/brands/${brandSlug}/chat/delete-data`, {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //                 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+            //             },
+            //             body: JSON.stringify({
+            //                 agentType: this.agentType
+            //             })
+            //         });
+                    
+            //         const result = await response.json();
+            //         if (result.status === 'success') {
+            //             this.savedData = null;
+            //         }
+            //     } catch (error) {
+            //         console.error('Delete error:', error);
+            //     }
+            // }
         }
     }
 </script>

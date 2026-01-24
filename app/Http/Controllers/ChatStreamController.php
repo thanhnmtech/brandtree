@@ -259,5 +259,52 @@ class ChatStreamController extends Controller
 
         return response()->json($chats);
     }
+
+
+    // chat output -- 25-01-2026
+    public function saveData(Request $request, $brand)
+    {
+        $agentType = $request->input('agentType');
+        $content = $request->input('content');
+        
+        $brandModel = Brand::where('slug', $brand)->firstOrFail();
+        
+        // Chuẩn hóa data theo format card
+        $cardData = [
+            'title' => $this->getStepTitle($agentType),
+            'meta' => 'Cập nhật lần cuối: ' . now()->format('d/m/Y H:i'),
+            'body' => $content,
+            'raw_content' => $content, // Giữ raw để edit sau nếu cần
+            'created_at' => now()->toISOString(),
+            'updated_at' => now()->toISOString()
+        ];
+        
+        // Lưu vào field tương ứng trên db
+        if (str_starts_with($agentType, 'root')) {
+            $rootData = $brandModel->root_data ?? [];
+            $rootData[$agentType] = $cardData;
+            $brandModel->root_data = $rootData;
+        } elseif (str_starts_with($agentType, 'trunk')) {
+            $trunkData = $brandModel->trunk_data ?? [];
+            $trunkData[$agentType] = $cardData;
+            $brandModel->trunk_data = $trunkData;
+        }
+        
+        $brandModel->save();
+        
+        return response()->json(['status' => 'success']);
+    }
+
+    private function getStepTitle($agentType)
+    {
+        $titles = [
+            'root1' => 'Phân tích thổ nhưỡng',
+            'root2' => 'Định vị Giá trị Giải pháp',
+            'root3' => 'Thiết kế Văn hóa Dịch vụ',
+            'trunk1' => 'Định vị thương hiệu',
+            'trunk2' => 'Chiến lược truyền thông'
+        ];
+        return $titles[$agentType] ?? 'Kết quả phân tích';
+    }
 }
 
