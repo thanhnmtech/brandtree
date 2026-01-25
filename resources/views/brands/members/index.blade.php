@@ -125,7 +125,7 @@
         class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-z-[9999]"
         style="display: none;"
         data-action="click->member-management#closeInvite">
-        <div class="tw-bg-white tw-rounded-2xl tw-w-[420px] tw-max-w-[90%] tw-max-h-[85dvh] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300 tw-mx-auto tw-my-[7.5vh]"
+        <div class="tw-bg-white tw-rounded-2xl tw-w-[500px] tw-max-w-[100%] tw-max-h-[90dvh] tw-overflow-y-hidden tw-p-6 tw-relative tw-border tw-border-gray-300 tw-mx-auto tw-my-[7.5vh]"
             data-action="click->member-management#stopPropagation">
             <button data-action="click->member-management#closeInvite" type="button"
                 class="tw-absolute tw-top-4 tw-right-4 tw-text-gray-400 hover:tw-text-black">

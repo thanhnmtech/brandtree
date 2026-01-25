@@ -33,8 +33,8 @@
             'root1': 'Văn Hóa Dịch Vụ',
             'root2': 'Thổ Nhưỡng',
             'root3': 'Giá Trị Giải Pháp',
-            'trunk1': 'Trunk 1',
-            'trunk2': 'Trunk 2'
+            'trunk1': 'Định Vị Thương Hiệu',
+            'trunk2': 'Nhận Diện Ngôn Ngữ'
         };
         return labels[agentType] || 'Không xác định';
     },
@@ -141,7 +141,7 @@
     <div id="result-panel" class="tw-flex tw-flex-col tw-gap-3">
       <!-- Output Item -->
       <button @click="openInfo(getLevelLabel(getAgentTypeFromUrl()), getAgentTypeFromUrl())"
-          x-show="['root1', 'root2', 'root3'].includes(getAgentTypeFromUrl())"
+          x-show="['root1', 'root2', 'root3','trunk1', 'trunk2'].includes(getAgentTypeFromUrl())"
           class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-transition tw-group">
           <div class="tw-flex tw-items-center tw-justify-between">
               <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]" x-text="'Output của ' + getLevelLabel(getAgentTypeFromUrl())"></span>

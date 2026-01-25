@@ -31,6 +31,7 @@ export default class extends Controller {
 
     openInvite() {
         this.inviteModalTarget.classList.remove('tw-hidden')
+        document.body.classList.add('tw-overflow-hidden')
         this.inviteModalTarget.style.display = 'flex'
         this.inviteModalTarget.style.alignItems = 'center'
         this.inviteModalTarget.style.justifyContent = 'center'
@@ -85,6 +86,7 @@ export default class extends Controller {
 
     closeInvite() {
         this.inviteModalTarget.classList.add('tw-hidden')
+        document.body.classList.remove('tw-overflow-hidden')
         this.inviteModalTarget.style.display = 'none'
         this.formErrors = {}
     }

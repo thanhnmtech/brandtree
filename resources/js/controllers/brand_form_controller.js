@@ -46,6 +46,7 @@ export default class extends Controller {
 
     openAdd() {
         this.addModalTarget.classList.remove('tw-hidden')
+        document.body.classList.add('tw-overflow-hidden')
         this.addModalTarget.style.display = 'flex'
         this.addModalTarget.style.alignItems = 'center'
         this.addModalTarget.style.justifyContent = 'center'
@@ -79,6 +80,7 @@ export default class extends Controller {
 
     closeAdd() {
         this.addModalTarget.classList.add('tw-hidden')
+        document.body.classList.add('tw-overflow-hidden')
         this.addModalTarget.style.display = 'none'
         this.resetForm()
     }
