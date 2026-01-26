@@ -70,7 +70,7 @@ class BrandController extends Controller
                 'started_at' => now(),
                 'expires_at' => now()->addDays($trialPlan->duration_days),
                 'credits_remaining' => $trialPlan->credits,
-                'credits_reset_at' => now(),
+                'credits_reset_at' => now()->addMonth(),
                 'status' => 'active',
             ]);
         }
