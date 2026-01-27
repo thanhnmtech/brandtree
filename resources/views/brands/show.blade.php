@@ -26,38 +26,38 @@
                                         <button data-action="click->brand-form#openEdit click->dropdown#close" type="button"
                                             class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
                                             <i class="ri-edit-line tw-text-lg tw-text-gray-500"></i>
-                                            <span class="tw-text-sm tw-font-medium">Cập nhật thương hiệu</span>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.update_brand') }}</span>
                                         </button>
 
                                         <a href="{{ route('brands.subscription.show', $brand) }}"
                                             class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
                                             <i class="ri-flashlight-line tw-text-lg tw-text-gray-500"></i>
-                                            <span class="tw-text-sm tw-font-medium">Quản lý gói</span>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.manage_plan') }}</span>
                                         </a>
 
                                         <a href="{{ route('brands.members.index', $brand) }}"
                                             class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
                                             <i class="ri-group-line tw-text-lg tw-text-gray-500"></i>
-                                            <span class="tw-text-sm tw-font-medium">Quản lý thành viên</span>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.manage_members') }}</span>
                                         </a>
 
                                         <a href="{{ route('brands.payments.index', $brand) }}"
                                             class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
                                             <i class="ri-bank-card-line tw-text-lg tw-text-gray-500"></i>
-                                            <span class="tw-text-sm tw-font-medium">Lịch sử thanh toán</span>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.payment_history') }}</span>
                                         </a>
 
                                         <a href="{{ route('brands.credits.stats', $brand) }}"
                                             class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition tw-border-t tw-border-gray-100">
                                             <i class="ri-bar-chart-box-line tw-text-lg tw-text-gray-500"></i>
-                                            <span class="tw-text-sm tw-font-medium">Thống kê năng lượng</span>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.energy_stats') }}</span>
                                         </a>
 
                                         <button data-action="click->brand-form#openDelete click->dropdown#close"
                                             type="button"
                                             class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-red-600 hover:tw-bg-red-50 tw-transition tw-border-t tw-border-gray-100">
                                             <i class="ri-delete-bin-line tw-text-lg"></i>
-                                            <span class="tw-text-sm tw-font-medium">Xóa thương hiệu</span>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.delete_brand') }}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -68,7 +68,7 @@
 
                     </div>
                     <p class="tw-text-md tw-text-gray-500 tw-mt-1">
-                        Năm thành lập: {{ $brand->founded_year }}
+                        {{ __('messages.brand_show.founded_year') }}: {{ $brand->founded_year }}
                     </p>
                     <p class="tw-text-md tw-text-gray-500 tw-mt-1">
                         {{ $brand->description }}
@@ -90,7 +90,7 @@
                         <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
                             <div class="tw-text-center">
                                 <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">53%</p>
-                                <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Hoàn thành</p>
+                                <p class="tw-text-sm tw-text-gray-500 tw-mt-1">{{ __('messages.brand_show.completed') }}</p>
                             </div>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                             <i class="ri-building-2-line tw-text-[#3A8F6E] tw-text-3xl"></i>
                         </div>
                         <div>
-                            <p class="tw-text tw-text-gray-500 tw-font-medium">Ngành nghề</p>
+                            <p class="tw-text tw-text-gray-500 tw-font-medium">{{ __('messages.brand_show.industry') }}</p>
                             <p class="tw-text-lg tw-text-gray-800 tw-font-semibold tw-mt-1">
                                 {{ $brand->industry }}
                             </p>
@@ -125,7 +125,7 @@
                         </div>
                         <div>
                             <p class="tw-text tw-text-gray-500 tw-font-medium">
-                                Thị trường mục tiêu
+                                {{ __('messages.brand_show.target_market') }}
                             </p>
                             <p class="tw-text-lg tw-text-gray-800 tw-font-semibold tw-mt-1">
                                 {{ $brand->target_market }}
@@ -140,7 +140,7 @@
                         </div>
                         <div>
                             <p class="tw-text tw-text-gray-500 tw-font-medium">
-                                Năng lượng
+                                {{ __('messages.brand_show.energy') }}
                             </p>
                             <p class="tw-text-lg tw-text-gray-800 tw-font-semibold tw-mt-1">
                                 {{ $brand->credits_remaining }} / {{ $brand->total_credits }}
@@ -157,7 +157,7 @@
                         </div>
                         <div>
                             <p class="tw-text tw-text-gray-500 tw-font-medium">
-                                Thành viên
+                                {{ __('messages.brand_show.members') }}
                             </p>
                             <p class="tw-text-lg tw-text-gray-800 tw-font-semibold tw-mt-1">
                                 {{ $brand->members->count() }}
@@ -178,10 +178,10 @@
                     <div class="tw-text-center tw-mb-8">
                         <h2
                             class="tw-text-2xl tw-font-bold tw-bg-[linear-gradient(90deg,#33B45E_0%,#ABB354_100%)] tw-bg-clip-text tw-text-transparent">
-                            Hành Trình Thương Hiệu
+                            {{ __('messages.brand_show.brand_journey') }}
                         </h2>
                         <p class="tw-text-gray-600 tw-text-sm tw-mt-1">
-                            Theo dõi tiến độ phát triển thương hiệu
+                            {{ __('messages.brand_show.track_progress') }}
                         </p>
                     </div>
 
@@ -199,15 +199,15 @@
 
                                 <p
                                     class="tw-bg-[#F2F8F4] tw-text-[#1AA24C] tw-text-xs tw-font-bold tw-px-3 tw-py-1 tw-rounded-full">
-                                    Giai đoạn 1
+                                    {{ __('messages.brand_show.stage_1') }}
                                 </p>
 
-                                <h3 class="tw-text-lg tw-font-semibold">Gốc Cây</h3>
-                                <p class="tw-text-gray-500 tw-text-sm">Nền tảng Thương Hiệu</p>
+                                <h3 class="tw-text-lg tw-font-semibold">{{ __('messages.brand_show.root') }}</h3>
+                                <p class="tw-text-gray-500 tw-text-sm">{{ __('messages.brand_show.brand_foundation') }}</p>
 
                                 <div class="tw-mt-4 tw-w-full">
                                     <div class="tw-text-xs tw-font-medium tw-text-gray-700 tw-mb-1">
-                                        Tiến độ
+                                        {{ __('messages.brand_show.progress') }}
                                     </div>
                                     <div class="tw-w-full tw-h-2 tw-bg-[#E8EDEB] tw-rounded-full tw-overflow-hidden">
                                         <div class="tw-h-full tw-bg-[#1AA24C]" style="width: 100%"></div>
@@ -221,7 +221,7 @@
                                 <div class="tw-mt-5">
                                     <span
                                         class="tw-text-xs tw-font-semibold tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-px-3 tw-py-1 tw-rounded-full">
-                                        ✔ Hoàn thành
+                                        ✔ {{ __('messages.brand_show.stage_completed') }}
                                     </span>
                                 </div>
                             </div>
@@ -240,15 +240,15 @@
 
                                 <p
                                     class="tw-bg-[#F0F5F2] tw-text-[#489A6D] tw-text-xs tw-font-bold tw-px-3 tw-py-1 tw-rounded-full">
-                                    Giai đoạn 2
+                                    {{ __('messages.brand_show.stage_2') }}
                                 </p>
 
-                                <h3 class="tw-text-lg tw-font-semibold">Thân Cây</h3>
-                                <p class="tw-text-gray-500 tw-text-sm">Bản sắc Thương Hiệu</p>
+                                <h3 class="tw-text-lg tw-font-semibold">{{ __('messages.brand_show.trunk') }}</h3>
+                                <p class="tw-text-gray-500 tw-text-sm">{{ __('messages.brand_show.brand_identity') }}</p>
 
                                 <div class="tw-mt-4 tw-w-full">
                                     <div class="tw-text-xs tw-font-medium tw-text-gray-700 tw-mb-1">
-                                        Tiến độ
+                                        {{ __('messages.brand_show.progress') }}
                                     </div>
                                     <div class="tw-w-full tw-h-2 tw-bg-[#E8EDEB] tw-rounded-full tw-overflow-hidden">
                                         <div class="tw-h-full tw-bg-[#1AA24C]" style="width: 60%"></div>
@@ -262,7 +262,7 @@
                                 <div class="tw-mt-5">
                                     <span
                                         class="tw-text-xs tw-font-semibold tw-bg-[#E9F3EF] tw-text-[#489A6D] tw-px-3 tw-py-1 tw-rounded-full">
-                                        ⏳ Đang thực hiện
+                                        ⏳ {{ __('messages.brand_show.in_progress') }}
                                     </span>
                                 </div>
                             </div>
@@ -279,18 +279,18 @@
 
                                 <p
                                     class="tw-bg-[#F3F5F4] tw-text-[#A0B5AA] tw-text-xs tw-font-bold tw-px-3 tw-py-1 tw-rounded-full">
-                                    Giai đoạn 3
+                                    {{ __('messages.brand_show.stage_3') }}
                                 </p>
 
                                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-500">
-                                    Tán Cây
+                                    {{ __('messages.brand_show.canopy') }}
                                 </h3>
-                                <p class="tw-text-gray-400 tw-text-sm">Phát triển & Lan tỏa</p>
+                                <p class="tw-text-gray-400 tw-text-sm">{{ __('messages.brand_show.growth_spread') }}</p>
 
                                 <div class="tw-mt-5">
                                     <span
                                         class="tw-text-xs tw-font-semibold tw-bg-[#EDEFEF] tw-text-[#A0B5AA] tw-px-3 tw-py-1 tw-rounded-full">
-                                        Chưa mở khóa
+                                        {{ __('messages.brand_show.not_unlocked') }}
                                     </span>
                                 </div>
                             </div>
@@ -308,10 +308,10 @@
                         <div>
                             <h2 class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-gap-2">
                                 <i class="ri-bar-chart-line tw-text-[#1AA24C] tw-text-2xl"></i>
-                                Tổng Quan Thương Hiệu
+                                {{ __('messages.brand_show.brand_overview') }}
                             </h2>
                             <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
-                                Phân tích hiệu suất và tiến độ xây dựng thương hiệu.
+                                {{ __('messages.brand_show.brand_overview_desc') }}
                             </p>
                         </div>
 
@@ -320,7 +320,7 @@
                                 <span class="tw-flex tw-items-center tw-gap-1">
                                     <img src="{{ asset('assets/img/icon-dinhvi-green.svg') }}" alt="ok"
                                         class="tw-w-[14px] tw-h-[14px]" />
-                                    Định vị
+                                    {{ __('messages.brand_show.positioning') }}
                                 </span>
                                 <span class="tw-text-[#1AA24C] tw-font-semibold">100%</span>
                             </div>
@@ -333,7 +333,7 @@
                             <div class="tw-flex tw-justify-between tw-text-sm tw-text-gray-700">
                                 <span class="tw-flex tw-items-center tw-gap-1">
                                     <i class="ri-brush-fill tw-text-[#F59F0A]"></i>
-                                    Bản sắc
+                                    {{ __('messages.brand_show.identity') }}
                                 </span>
                                 <span class="tw-text-[#F59F0A] tw-font-semibold">60%</span>
                             </div>
@@ -345,14 +345,14 @@
                         <div
                             class="tw-w-full tw-bg-[linear-gradient(90deg,#E7F2E7_0%,#F8F1E0_100%)] tw-border tw-border-[#E0EAE6] tw-rounded-lg tw-py-5 tw-px-10 tw-w-[260px] tw-shadow-sm tw-flex tw-items-center tw-justify-between">
                             <div>
-                                <p class="tw-text-gray-500 tw-text-md">Điểm tổng thể</p>
+                                <p class="tw-text-gray-500 tw-text-md">{{ __('messages.brand_show.overall_score') }}</p>
                                 <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">
                                     53 <span class="tw-text-gray-400 tw-text-xl">/100</span>
                                 </p>
                             </div>
                             <span
                                 class="tw-inline-block tw-mt-2 tw-text-sm tw-font-semibold tw-bg-vlbcgreen tw-text-white tw-px-3 tw-py-1 tw-rounded-full">
-                                Đang phát triển
+                                {{ __('messages.brand_show.developing') }}
                             </span>
                         </div>
                     </div>
@@ -373,7 +373,7 @@
                             <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
                                 <div class="tw-text-center">
                                     <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">53%</p>
-                                    <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Hoàn thiện</p>
+                                    <p class="tw-text-sm tw-text-gray-500 tw-mt-1">{{ __('messages.brand_show.completion') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -383,7 +383,7 @@
             <!-- =================== KẾT QUẢ CHIẾN LƯỢC =================== -->
             <section class="tw-px-8 tw-space-y-6">
                 <h2 class="tw-text-2xl tw-font-bold tw-text-gray-800">
-                    Kết Quả Chiến Lược
+                    {{ __('messages.brand_show.strategy_results') }}
                 </h2>
 
                 <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-5">
@@ -398,31 +398,31 @@
 
                             <div class="tw-flex-1">
                                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
-                                    Nền Tảng Chân Thực
+                                    {{ __('messages.brand_show.authentic_foundation') }}
                                 </h3>
                                 <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
-                                    Giá trị cốt lõi đã được xác định
+                                    {{ __('messages.brand_show.core_values_defined') }}
                                 </p>
 
                                 <div class="tw-flex tw-gap-2 tw-flex-wrap tw-mt-3">
                                     <span
                                         class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                                        Chất lượng
+                                        {{ __('messages.brand_show.quality') }}
                                     </span>
                                     <span
                                         class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                                        Tận tâm
+                                        {{ __('messages.brand_show.dedication') }}
                                     </span>
                                     <span
                                         class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                                        Đổi mới
+                                        {{ __('messages.brand_show.innovation') }}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CARD 2 — Locked (Thân Cây chưa xong) -->
+                    <!-- CARD 2 — Locked -->
                     <div
                         class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E4ECE8] tw-shadow-sm tw-p-6 tw-opacity-70">
                         <div class="tw-flex tw-items-start tw-gap-3">
@@ -433,16 +433,16 @@
 
                             <div class="tw-flex-1">
                                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-500">
-                                    Bản Sắc Nhất Quán
+                                    {{ __('messages.brand_show.consistent_identity') }}
                                 </h3>
                                 <p class="tw-text-sm tw-text-gray-400 tw-mt-1">
-                                    Chưa hoàn thành giai đoạn Thân Cây
+                                    {{ __('messages.brand_show.trunk_not_completed') }}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CARD 3 — Locked (Tán Cây chưa bắt đầu) -->
+                    <!-- CARD 3 — Locked -->
                     <div
                         class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E4ECE8] tw-shadow-sm tw-p-6 tw-opacity-60">
                         <div class="tw-flex tw-items-start tw-gap-3">
@@ -453,10 +453,10 @@
 
                             <div class="tw-flex-1">
                                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-500">
-                                    Sức Khỏe Thương Hiệu
+                                    {{ __('messages.brand_show.brand_health') }}
                                 </h3>
                                 <p class="tw-text-sm tw-text-gray-400 tw-mt-1">
-                                    Chưa bắt đầu giai đoạn Tán Cây
+                                    {{ __('messages.brand_show.canopy_not_started') }}
                                 </p>
                             </div>
                         </div>
@@ -477,10 +477,10 @@
 
                         <div>
                             <h2 class="tw-text-2xl tw-font-bold tw-text-gray-800">
-                                Bước Tiếp Theo
+                                {{ __('messages.brand_show.next_step') }}
                             </h2>
                             <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
-                                Tuyệt vời! Giờ là lúc tạo bản sắc độc đáo.
+                                {{ __('messages.brand_show.next_step_desc') }}
                             </p>
                         </div>
                     </div>
@@ -488,15 +488,14 @@
                     <!-- Description Box -->
                     <div
                         class="tw-bg-white tw-border tw-border-[#E0EAE6] tw-rounded-lg tw-p-4 tw-mt-4 tw-text-gray-700 tw-text-sm">
-                        Hãy tiếp tục hoàn thiện Bản sắc Thương hiệu của bạn. Tạo tuyên bố
-                        định vị độc đáo và thiết kế hệ thống nhận diện thị giác nhất quán.
+                        {{ __('messages.brand_show.next_step_detail') }}
                     </div>
 
                     <!-- Action Button -->
                     <div class="tw-mt-5">
                         <button
                             class="tw-w-full tw-bg-gradient-to-r tw-from-[#34B26A] tw-to-[#78D29E] tw-text-white tw-font-medium tw-text-base tw-py-1 tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-gap-4 tw-shadow-sm hover:tw-scale-[1.01] tw-transition">
-                            Bắt đầu ngay
+                            {{ __('messages.brand_show.start_now') }}
                             <i class="ri-arrow-right-line tw-text-lg"></i>
                         </button>
                     </div>
@@ -504,8 +503,7 @@
                     <!-- Hint -->
                     <div class="tw-text-xs tw-text-gray-500 tw-flex tw-items-center tw-justify-center tw-gap-1 tw-mt-4">
                         <i class="ri-sparkling-2-line tw-text-[#F4C56A]"></i>
-                        Mẹo: Bạn có thể yêu cầu AI hỗ trợ bất kỳ lúc nào trong quá trình xây
-                        dựng thương hiệu
+                        {{ __('messages.brand_show.tip') }}
                     </div>
                 </div>
             </section>

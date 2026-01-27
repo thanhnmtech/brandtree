@@ -3,9 +3,9 @@
 @php
     $isEdit = $mode === 'edit' && $brand;
     $modalState = $isEdit ? 'editBrandModal' : 'addBrandModal';
-    $title = $isEdit ? 'Cập nhật thương hiệu' : 'Thêm thương hiệu mới';
+    $title = $isEdit ? __('messages.brand_form.edit_title') : __('messages.brand_form.add_title');
     $icon = $isEdit ? 'ri-edit-line' : 'ri-add-circle-line';
-    $submitText = $isEdit ? 'Cập nhật' : 'Thêm ngay';
+    $submitText = $isEdit ? __('messages.brand_form.submit_update') : __('messages.brand_form.submit_add');
     $submitIcon = $isEdit ? 'ri-save-line' : '';
     $action = $isEdit ? route('brands.update', $brand) : route('brands.store');
 @endphp
@@ -39,64 +39,64 @@
 
             <!-- Tên thương hiệu -->
             <div>
-                <label for="brand_name" class="tw-text-sm tw-font-medium">Tên thương hiệu <span class="tw-text-red-500">*</span></label>
+                <label for="brand_name" class="tw-text-sm tw-font-medium">{{ __('messages.brand_form.brand_name') }} <span class="tw-text-red-500">*</span></label>
                 <input type="text" id="brand_name" name="name" required
                     value="{{ old('name', $brand->name ?? '') }}" data-brand-form-target="brandNameInput"
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('name') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                    placeholder="Nhập tên thương hiệu">
+                    placeholder="{{ __('messages.brand_form.brand_name_placeholder') }}">
             </div>
 
             <!-- Ngành nghề -->
             <div>
                 <label for="brand_industry" class="tw-text-sm tw-font-medium">
-                    Ngành nghề
+                    {{ __('messages.brand_form.industry') }}
                     @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
                 </label>
                 <input type="text" id="brand_industry" name="industry" {{ !$isEdit ? 'required' : '' }}
                     value="{{ old('industry', $brand->industry ?? '') }}"
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('industry') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                    placeholder="Nhập ngành nghề">
+                    placeholder="{{ __('messages.brand_form.industry_placeholder') }}">
             </div>
 
             <!-- Thị trường mục tiêu -->
             <div>
                 <label for="brand_target_market" class="tw-text-sm tw-font-medium">
-                    Thị trường mục tiêu
+                    {{ __('messages.brand_form.target_market') }}
                     @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
                 </label>
                 <input type="text" id="brand_target_market" name="target_market" {{ !$isEdit ? 'required' : '' }}
                     value="{{ old('target_market', $brand->target_market ?? '') }}"
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('target_market') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                    placeholder="Nhập thị trường mục tiêu">
+                    placeholder="{{ __('messages.brand_form.target_market_placeholder') }}">
             </div>
 
             <!-- Năm thành lập -->
             <div>
                 <label for="brand_founded_year" class="tw-text-sm tw-font-medium">
-                    Năm thành lập
+                    {{ __('messages.brand_form.founded_year') }}
                     @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
                 </label>
                 <input type="number" id="brand_founded_year" name="founded_year" {{ !$isEdit ? 'required' : '' }}
                     min="1901" max="{{ date('Y') }}" value="{{ old('founded_year', $brand->founded_year ?? '') }}"
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('founded_year') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                    placeholder="Nhập năm thành lập">
+                    placeholder="{{ __('messages.brand_form.founded_year_placeholder') }}">
             </div>
 
             <!-- Mô tả -->
             <div>
                 <label for="brand_description" class="tw-text-sm tw-font-medium">
-                    Mô tả
+                    {{ __('messages.brand_form.description') }}
                     @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
                 </label>
                 <textarea id="brand_description" name="description" {{ !$isEdit ? 'required' : '' }} rows="3"
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none tw-resize-none {{ $errors->has('description') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                    placeholder="Nhập mô tả">{{ old('description', $brand->description ?? '') }}</textarea>
+                    placeholder="{{ __('messages.brand_form.description_placeholder') }}">{{ old('description', $brand->description ?? '') }}</textarea>
             </div>
 
             <!-- Logo -->
             <div>
                 <label class="tw-text-sm tw-font-medium">
-                    Logo thương hiệu
+                    {{ __('messages.brand_form.logo') }}
                     @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
                 </label>
                 <div class="tw-mt-1">
@@ -115,8 +115,8 @@
                         <!-- Placeholder khi chưa chọn file -->
                         <div data-logo-placeholder class="{{ ($isEdit && $brand && $brand->logo_path) ? 'tw-hidden' : '' }} tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-full">
                             <i class="ri-upload-cloud-2-line tw-text-3xl tw-text-gray-400 tw-mb-2"></i>
-                            <p class="tw-text-sm tw-text-gray-500">Nhấn để chọn hoặc kéo thả</p>
-                            <p class="tw-text-xs tw-text-gray-400">PNG, JPG, GIF (tối đa 2MB)</p>
+                            <p class="tw-text-sm tw-text-gray-500">{{ __('messages.brand_form.logo_upload_text') }}</p>
+                            <p class="tw-text-xs tw-text-gray-400">{{ __('messages.brand_form.logo_upload_hint') }}</p>
                         </div>
                     </div>
                 </div>
