@@ -1,4 +1,5 @@
 <x-app-layout>
+  <main class="tw-mt-[36px]">
   <section class="tw-bg-[#e5e5df] tw-py-10 tw-px-6 tw-border-b tw-border-gray-200">
     <div class="tw-max-w-5xl tw-mx-auto tw-text-center">
       <p class="tw-text-xs tw-font-medium tw-text-gray-600 tw-uppercase">
@@ -17,7 +18,7 @@
   </section>
 
   <!-- MAIN CONTENT GRID -->
-  <main class="tw-max-w-7xl tw-mx-auto tw-px-6 tw-pt-10 tw-flex tw-flex-col tw-gap-10">
+  <div class="tw-mx-auto tw-px-8 tw-pt-10 tw-flex tw-flex-col tw-gap-10">
     <!-- ===== HEADER BLOCK ===== -->
     <div
       class="tw-w-full tw-bg-[#faf9f6] tw-rounded-xl tw-border tw-border-gray-200 tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between">
@@ -51,8 +52,8 @@
     <!-- ===== MAIN CONTENT AREA ===== -->
     <div class="tw-w-full tw-flex tw-gap-10">
       <!-- LEFT COLUMN -->
-      <div class="tw-flex-1 tw-space-y-6 tw-pt-2">
-        @include('dashboard.partials.steps')
+      <div class="tw-flex-1 tw-space-y-6">
+        @include('brands.trees.partials.root_steps')
       </div>
 
       <!-- RIGHT COLUMN -->
@@ -61,43 +62,57 @@
         <div class="tw-bg-white tw-rounded-xl tw-border tw-border-gray-200 tw-shadow-sm tw-p-6 tw-space-y-5">
           <div class="tw-flex tw-items-start tw-justify-between">
             <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 leading-tight">
-              Tiến Độ Giai Đoạn<br />Thân Cây
+              Tiến Độ Giai Đoạn<br />Gốc Cây
             </h3>
 
-            <div class="tw-text-right">
-              <p class="tw-text-vlbcgreen tw-font-semibold tw-text-lg">
-                0/2 bước
-              </p>
-              <p class="tw-text-gray-500 tw-text-sm tw--mt-1">hoàn thành</p>
-            </div>
+              <div class="tw-flex-col tw-text-right">
+                <p class="tw-text-[#829B99] tw-font-semibold tw-text-md">
+                  0/3 bước
+                </p>
+                <p
+                  class="tw-text-[#829B99] tw-font-semibold tw-text-md tw--mt-1"
+                >
+                  hoàn thành
+                </p>
+              </div>
           </div>
 
           <div class="tw-w-full tw-h-3 tw-rounded-full tw-bg-gray-200"></div>
 
           <div class="tw-flex tw-items-center tw-justify-between tw-text-sm tw-text-gray-600">
-            <span>Bắt Đầu</span>
-            <span>0%</span>
-            <span>Hoàn Thành</span>
+            <span class="tw-flex-1 tw-text-left">Bắt Đầu</span>
+            <span class="tw-flex-1 tw-text-center">0%</span>
+            <span class="tw-flex-1 tw-text-right">Hoàn Thành</span>
           </div>
 
           <div class="tw-flex tw-items-start tw-justify-between tw-pt-1">
-            <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
+            <div class="tw-flex tw-flex-1 tw-flex-col tw-items-center tw-gap-1">
               <div
-                class="tw-h-12 tw-w-12 tw-rounded-full tw-bg-[#567A63] tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold">
-                T1
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#567A63] tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold">
+                G1
               </div>
-              <p class="tw-text-sm tw-text-gray-600 tw-text-center leading-tight">
-                Nhà Chiến<br />Lược
+              <p class="tw-text-xs tw-text-gray-600 tw-text-center leading-tight">
+                Thiết kế Văn hoá Dịch vụ
               </p>
             </div>
 
-            <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
+            <div class="tw-flex tw-flex-1 tw-flex-col tw-items-center tw-gap-1">
               <div
-                class="tw-h-12 tw-w-12 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold">
-                T2
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold">
+                G2
               </div>
-              <p class="tw-text-sm tw-text-gray-600 tw-text-center leading-tight">
-                Nhà Sáng Tạo<br />Ngôn Ngữ
+              <p class="tw-text-xs tw-text-gray-600 tw-text-center leading-tight">
+                Phân tích Thổ nhưỡng
+              </p>
+            </div>
+
+            <div class="tw-flex tw-flex-1 tw-flex-col tw-items-center tw-gap-1">
+              <div
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold">
+                G3
+              </div>
+              <p class="tw-text-xs tw-text-gray-600 tw-text-center leading-tight">
+                Định vị Giá trị Giải pháp
               </p>
             </div>
           </div>
@@ -128,8 +143,7 @@
           </div>
 
           <p class="tw-text-sm tw-text-gray-700 tw-mt-3 tw-leading-relaxed">
-            Tuyệt vời! Hãy tiếp tục với G1: Khám phá Văn hoá & Giá trị Cốt
-            lõi.
+            Tuyệt vời! Hãy tiếp tục với G1: Thiết kế Văn hoá Dịch vụ
           </p>
 
           <p class="tw-text-sm tw-text-vlbcgreen tw-mt-4 tw-font-medium">
@@ -147,5 +161,6 @@
         <div id="root_foundation_card"></div>
       </aside>
     </div>
+  </div>
   </main>
 </x-app-layout>

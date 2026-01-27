@@ -66,14 +66,15 @@ export default class extends Controller {
     getStyleConfig(state) {
         const presets = {
             locked: {
-                card: "tw-bg-beige tw-border tw-border-gray-200",
+                card: "tw-bg-[#F5F3EF] tw-border tw-border-gray-200",
                 icon: "ri-lock-line tw-text-[#7B7773]",
                 stepText: "tw-text-[#7B7773]",
                 badge: "tw-bg-[#e7e5df] tw-text-gray-600",
                 badgeLabel: "Đã khóa",
                 title: "tw-text-[#7B7773]",
                 description: "tw-text-[#7B7773]",
-                aiFeature: "tw-bg-[#F7F6F4] tw-border-[#E0EAE6] tw-text-[#7B7773]",
+                aiFeature:
+                    "tw-bg-[#F7F6F4] tw-border-[#E0EAE6] tw-text-[#7B7773]",
             },
             ready: {
                 // Áp dụng cho cả 'ready' và 'active'
