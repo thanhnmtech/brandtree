@@ -1,4 +1,5 @@
 <x-app-layout>
+  <main class="tw-mt-[36px]">
   <section class="tw-bg-[#e5e5df] tw-py-10 tw-px-6 tw-border-b tw-border-gray-200">
     <div class="tw-max-w-5xl tw-mx-auto tw-text-center">
       <p class="tw-text-xs tw-font-medium tw-text-gray-600 tw-uppercase">
@@ -17,7 +18,7 @@
   </section>
 
   <!-- MAIN CONTENT GRID -->
-  <main class="tw-max-w-7xl tw-mx-auto tw-px-6 tw-pt-10 tw-flex tw-flex-col tw-gap-10">
+  <div class="tw-mx-auto tw-px-8 tw-pt-10 tw-flex tw-flex-col tw-gap-10">
     <!-- ===== HEADER BLOCK ===== -->
     <div
       class="tw-w-full tw-bg-[#faf9f6] tw-rounded-xl tw-border tw-border-gray-200 tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between">
@@ -51,116 +52,8 @@
     <!-- ===== MAIN CONTENT AREA ===== -->
     <div class="tw-w-full tw-flex tw-gap-10">
       <!-- LEFT COLUMN -->
-      <div class="tw-flex-1 tw-space-y-6 tw-pt-2">
-        <div id="step_card_1">
-          <div
-            class="tw-bg-gradient-to-r tw-from-vlbcGreen1 tw-to-vlbcGreen2 tw-rounded-xl tw-p-7 tw-text-white tw-shadow-lg tw-max-w-4xl tw-mx-auto tw-space-y-4">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-gap-4">
-              <!-- ICON CLOCK -->
-              <div class="tw-h-12 tw-w-12 tw-rounded-full tw-bg-white tw-flex tw-items-center tw-justify-center">
-                <i class="ri-time-line tw-text-2xl tw-text-vlbcGreen1"></i>
-              </div>
-
-              <div class="tw-flex tw-flex-col">
-                <div class="tw-flex tw-items-center tw-gap-3">
-                  <span class="tw-text-sm tw-font-semibold">BƯỚC T1</span>
-
-                  <!-- READY BADGE -->
-                  <span
-                    class="tw-bg-vlbcReady tw-text-gray-900 tw-px-3 tw-py-1 tw-text-xs tw-rounded-md tw-font-medium">
-                    Sẵn Sàng
-                  </span>
-                </div>
-
-                <h3 class="tw-text-2xl tw-font-semibold tw-mt-1">
-                  Định Vị Thương Hiệu
-                </h3>
-              </div>
-            </div>
-
-            <!-- Content -->
-            <p class="tw-text-sm tw-text-white/90 tw-leading-relaxed">
-              Hoàn thiện Bản đồ Giá trị Giải pháp: phác hoạ chân dung khách hàng (nỗi
-              đau, lợi ích ưu tiên), đồng bộ giải pháp với nhu cầu thực tế, đúc kết
-              thông điệp truyền thông và tagline cô đọng để thương hiệu khẳng định giá
-              trị ngay.
-            </p>
-
-            <!-- AI BOX -->
-            <div class="tw-bg-white/20 tw-border tw-border-white/30 tw-rounded-lg tw-p-4 tw-text-sm tw-text-white/90">
-              <strong>Chức năng AI:</strong> AI Định vị Giá trị giải pháp
-            </div>
-
-            <!-- Buttons -->
-            <div class="tw-flex tw-gap-4 tw-mt-2">
-              <!-- Start Analysis -->
-              <a href="{{ route('chat', ['brand' => $brand, 'agentType' => 'root1', 'agentId' => 1, 'convId' => 'new']) }}"
-                class="tw-flex tw-items-center tw-gap-2 tw-bg-white tw-text-green-700 tw-font-medium tw-text-sm tw-px-5 tw-py-2.5 tw-rounded-lg hover:tw-bg-gray-100">
-                <i class="ri-play-circle-line tw-text-lg"></i>
-                Bắt Đầu Phân Tích
-              </a>
-
-              <!-- View Result -->
-              <button
-                class="tw-flex tw-items-center tw-gap-2 tw-bg-white/20 tw-text-white tw-font-medium tw-text-sm tw-px-5 tw-py-2.5 tw-rounded-lg tw-border tw-border-white/40 hover:tw-bg-white/10">
-                <i class="ri-bar-chart-line tw-text-lg"></i>
-                Kết Quả Phân Tích
-              </button>
-            </div>
-          </div>
-        </div>
-        <div id="step_card_2">
-          <div
-            class="tw-bg-beige tw-rounded-xl tw-p-8 tw-border tw-border-gray-200 tw-shadow-sm tw-max-w-4xl tw-mx-auto">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-gap-4">
-              <!-- Icon circle -->
-              <div
-                class="tw-h-12 tw-w-12 tw-rounded-full tw-bg-white tw-border tw-border-gray-300 tw-flex tw-items-center tw-justify-center">
-                <!-- ICON KHÓA -->
-                <i class="ri-lock-line tw-text-2xl tw-text-gray-500"></i>
-              </div>
-
-              <div>
-                <div class="tw-flex tw-items-center tw-gap-3">
-                  <span class="tw-text-sm tw-font-semibold tw-text-gray-700">BƯỚC T2</span>
-
-                  <!-- Badge -->
-                  <span class="tw-bg-gray-300 tw-text-gray-700 tw-text-xs tw-font-medium tw-px-3 tw-py-1 tw-rounded-md">
-                    Đã khóa
-                  </span>
-                </div>
-
-                <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mt-1">
-                  Nhận Diện Ngôn Ngữ
-                </h3>
-              </div>
-            </div>
-
-            <!-- Description -->
-            <p class="tw-text-sm tw-text-gray-700 tw-mt-6 tw-leading-relaxed">
-              Xác định tính cách thương hiệu, thiết lập giọng điệu nhất quán với các
-              đặc tính cốt lõi...
-            </p>
-
-            <!-- AI Feature -->
-            <div
-              class="tw-mt-6 tw-bg-white tw-border tw-border-gray-200 tw-text-gray-700 tw-rounded-lg tw-py-3 tw-px-4 tw-text-sm">
-              <strong>Chức năng AI:</strong> AI Nhận Diện Ngôn Ngữ
-            </div>
-
-            <!-- Locked Button (left, có icon) -->
-            <button
-              class="tw-mt-6 tw-inline-flex tw-items-center tw-gap-2 tw-bg-[#e7e5df] tw-text-gray-600 tw-text-sm tw-font-medium tw-px-4 tw-py-2 tw-rounded-lg tw-border tw-border-gray-300">
-              <i class="ri-lock-line tw-text-base"></i>
-              Chưa khả dụng
-            </button>
-          </div>
-        </div>
-        <div id="step_card_3">
-
-        </div>
+      <div class="tw-flex-1 tw-space-y-6">
+        @include('brands.trees.partials.root_steps')
       </div>
 
       <!-- RIGHT COLUMN -->
@@ -169,43 +62,57 @@
         <div class="tw-bg-white tw-rounded-xl tw-border tw-border-gray-200 tw-shadow-sm tw-p-6 tw-space-y-5">
           <div class="tw-flex tw-items-start tw-justify-between">
             <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 leading-tight">
-              Tiến Độ Giai Đoạn<br />Thân Cây
+              Tiến Độ Giai Đoạn<br />Gốc Cây
             </h3>
 
-            <div class="tw-text-right">
-              <p class="tw-text-vlbcgreen tw-font-semibold tw-text-lg">
-                0/2 bước
-              </p>
-              <p class="tw-text-gray-500 tw-text-sm tw--mt-1">hoàn thành</p>
-            </div>
+              <div class="tw-flex-col tw-text-right">
+                <p class="tw-text-[#829B99] tw-font-semibold tw-text-md">
+                  0/3 bước
+                </p>
+                <p
+                  class="tw-text-[#829B99] tw-font-semibold tw-text-md tw--mt-1"
+                >
+                  hoàn thành
+                </p>
+              </div>
           </div>
 
           <div class="tw-w-full tw-h-3 tw-rounded-full tw-bg-gray-200"></div>
 
           <div class="tw-flex tw-items-center tw-justify-between tw-text-sm tw-text-gray-600">
-            <span>Bắt Đầu</span>
-            <span>0%</span>
-            <span>Hoàn Thành</span>
+            <span class="tw-flex-1 tw-text-left">Bắt Đầu</span>
+            <span class="tw-flex-1 tw-text-center">0%</span>
+            <span class="tw-flex-1 tw-text-right">Hoàn Thành</span>
           </div>
 
           <div class="tw-flex tw-items-start tw-justify-between tw-pt-1">
-            <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
+            <div class="tw-flex tw-flex-1 tw-flex-col tw-items-center tw-gap-1">
               <div
-                class="tw-h-12 tw-w-12 tw-rounded-full tw-bg-[#567A63] tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold">
-                T1
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#567A63] tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold">
+                G1
               </div>
-              <p class="tw-text-sm tw-text-gray-600 tw-text-center leading-tight">
-                Nhà Chiến<br />Lược
+              <p class="tw-text-xs tw-text-gray-600 tw-text-center leading-tight">
+                Thiết kế Văn hoá Dịch vụ
               </p>
             </div>
 
-            <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
+            <div class="tw-flex tw-flex-1 tw-flex-col tw-items-center tw-gap-1">
               <div
-                class="tw-h-12 tw-w-12 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold">
-                T2
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold">
+                G2
               </div>
-              <p class="tw-text-sm tw-text-gray-600 tw-text-center leading-tight">
-                Nhà Sáng Tạo<br />Ngôn Ngữ
+              <p class="tw-text-xs tw-text-gray-600 tw-text-center leading-tight">
+                Phân tích Thổ nhưỡng
+              </p>
+            </div>
+
+            <div class="tw-flex tw-flex-1 tw-flex-col tw-items-center tw-gap-1">
+              <div
+                class="tw-h-10 tw-w-10 tw-rounded-full tw-border tw-border-[#8AA79A] tw-text-[#8AA79A] tw-flex tw-items-center tw-justify-center tw-font-bold">
+                G3
+              </div>
+              <p class="tw-text-xs tw-text-gray-600 tw-text-center leading-tight">
+                Định vị Giá trị Giải pháp
               </p>
             </div>
           </div>
@@ -236,8 +143,7 @@
           </div>
 
           <p class="tw-text-sm tw-text-gray-700 tw-mt-3 tw-leading-relaxed">
-            Tuyệt vời! Hãy tiếp tục với G1: Khám phá Văn hoá & Giá trị Cốt
-            lõi.
+            Tuyệt vời! Hãy tiếp tục với G1: Thiết kế Văn hoá Dịch vụ
           </p>
 
           <p class="tw-text-sm tw-text-vlbcgreen tw-mt-4 tw-font-medium">
@@ -255,5 +161,6 @@
         <div id="root_foundation_card"></div>
       </aside>
     </div>
+  </div>
   </main>
 </x-app-layout>

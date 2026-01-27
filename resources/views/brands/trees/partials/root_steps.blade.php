@@ -1,4 +1,4 @@
-@foreach($brand->root_timeline as $item)
+@foreach($rootSteps as $item)
 @php
     // Kiểm tra xem có $item không, nếu có thì lấy status, không thì mặc định là locked
     $state = $item['status'] ?? 'locked'; 

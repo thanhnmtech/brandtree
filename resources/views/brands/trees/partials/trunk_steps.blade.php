@@ -1,4 +1,4 @@
-@foreach($brand->root_timeline as $item)
+@foreach($trunkSteps as $item)
 @php
     // Kiểm tra xem có $item không, nếu có thì lấy status, không thì mặc định là locked
     $state = $item['status'] ?? 'locked'; 
@@ -9,7 +9,7 @@
     
     // Logic link
     $isLocked = $state === 'locked';
-    $actionUrl = !$isLocked ? route('brands.root.step', ['brand' => $brand->slug ?? 'default', 'step' => $item['key'] ?? '']) : '#';
+    $actionUrl = !$isLocked ? route('brands.trunk.step', ['brand' => $brand->slug ?? 'default', 'step' => $item['key'] ?? '']) : '#';
     $resultUrl = '#'; // Hoặc logic url kết quả của bạn
 @endphp
 <div

@@ -333,6 +333,10 @@ class Brand extends Model
         return rand(10, 100) . '%';
     }
 
+    // ============================================
+    // TRUNK HELPERS
+    // ============================================
+
     public function getProcessTrunk()
     {
         return rand(10, 100) . '%';
