@@ -24,7 +24,7 @@ class BrandTreeController extends Controller
 
     public function trunk(Brand $brand): View
     {
-        $isRootFinished = !empty($brand->root_data['root_3']);
+        $isRootFinished = !empty($brand->root_data['root3']);
 
         $trunkSteps = $this->buildTimelineSteps(
             config('timeline_steps.trunk'),

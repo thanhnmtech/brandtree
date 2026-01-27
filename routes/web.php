@@ -126,7 +126,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 //Build Brand Tree
                 Route::get('root', [BrandTreeController::class, 'root'])->name('brands.root.show');
 
-                Route::get('root/{step}', [BrandTreeController::class, 'step'])->name('brands.root.step');
+                // Route::get('root/{step}', [BrandTreeController::class, 'step'])->name('brands.root.step');
 
                 Route::get('trunk', [BrandTreeController::class, 'trunk'])->name('brands.trunk.show');
                 Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');

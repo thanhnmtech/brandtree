@@ -9,7 +9,14 @@
     
     // Logic link
     $isLocked = $state === 'locked';
-    $actionUrl = !$isLocked ? route('brands.trunk.step', ['brand' => $brand->slug ?? 'default', 'step' => $item['key'] ?? '']) : '#';
+    if (!$isLocked) {
+        $actionUrl = route('chat', [
+            'brand' => $brand->slug, 
+            'agentType' => $item['key'] 
+        ]);
+    } else {
+        $actionUrl = '#';
+    }
     $resultUrl = '#'; // Hoặc logic url kết quả của bạn
 @endphp
 <div
