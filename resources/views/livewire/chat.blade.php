@@ -136,7 +136,13 @@
 
             <!-- Header -->
             <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
-                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">Xác nhận và Lưu thông tin</h3>
+                <div class="tw-flex tw-items-center tw-gap-3">
+                    <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">Xác nhận và Lưu thông tin</h3>
+                    <button
+                        class="tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-text-blue-600 tw-bg-blue-50 tw-rounded-md hover:tw-bg-blue-100 tw-transition-colors">
+                        Trích xuất dữ liệu
+                    </button>
+                </div>
                 <button @click="showSaveModal = false" class="tw-text-gray-400 hover:tw-text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="tw-h-6 tw-w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -150,7 +156,7 @@
             <div class="tw-flex-1 tw-p-6 tw-overflow-y-auto">
                 <textarea x-model="editingContent" spellcheck="false"
                     class="tw-w-full tw-h-[60vh] tw-p-4 tw-border tw-border-gray-200 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-[#16a34a] focus:tw-border-transparent tw-resize-none tw-text-sm"
-                    style="font-family: inherit;" placeholder="Nội dung phân tích..."></textarea>
+                    style="font-family: inherit;" placeholder="Hãy bấm nút trích xuất dữ liệu ở trên"></textarea>
             </div>
 
             <!-- Footer -->
@@ -283,13 +289,11 @@
 
                 // Get last message (assistant)
                 const lastMsg = this.messages[this.messages.length - 1];
-                if (lastMsg.role !== 'assistant') return;
 
-                const content = lastMsg.content.toLowerCase();
-                // Check keywords: "xác nhận" AND "lưu thông tin"
-                if (content.includes('xác nhận') && content.includes('lưu thông tin')) {
+                // Active if the last message is from assistant (removed keyword check)
+                if (lastMsg.role === 'assistant') {
                     this.isConfirmationActive = true;
-                    this.editingContent = lastMsg.content; // Pre-fill content
+                    // this.editingContent = lastMsg.content; // Pre-fill content removed
                 } else {
                     this.isConfirmationActive = false;
                 }
@@ -297,6 +301,13 @@
 
             openSaveModal() {
                 if (this.isConfirmationActive) {
+                    // Auto-fill if empty
+                    if (!this.editingContent || this.editingContent.trim() === '') {
+                        const lastMsg = this.messages[this.messages.length - 1];
+                        if (lastMsg && lastMsg.role === 'assistant') {
+                            this.editingContent = lastMsg.content;
+                        }
+                    }
                     this.showSaveModal = true;
                 }
             },
@@ -376,6 +387,7 @@
                 this.userInput = ''; // Clear input
                 this.isStreaming = true;
                 this.isConfirmationActive = false; // Reset on new message
+                this.editingContent = ''; // Reset editing content on new turn
 
                 // 1. Optimistically append User Message
                 this.messages.push({

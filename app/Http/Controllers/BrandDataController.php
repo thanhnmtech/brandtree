@@ -38,36 +38,8 @@ class BrandDataController extends Controller
             ], 400);
         }
 
-        // 3. Process Content with OpenAI (GPT-4o-mini)
-        $apiKey = env('OPENAI_API_KEY');
-        $refinedContent = $rawContent; // Default to raw if AI fails
-
-        try {
-            $response = Http::withToken($apiKey)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-4o-mini',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'Bạn sẽ đọc nội dung tin nhắn, và chỉ giữ lại mô tả về thông tin thương hiệu, loại bỏ các câu chào hỏi, hỏi thăm, lời chúc, hay hỏi làm thêm gì khác v.v... Trả lời chỉ có nội dung thông tin về thương hiệu, không thêm bất cứ nội dung nào khác.'
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => "Hãy trích xuất nội dung liên quan thương hiệu trong tin nhắn này: \n" . $rawContent
-                    ]
-                ],
-                'temperature' => 0.3
-            ]);
-
-            if ($response->successful()) {
-                $refinedContent = $response->json()['choices'][0]['message']['content'] ?? $rawContent;
-                // Trim potential extra whitespace
-                $refinedContent = trim($refinedContent);
-            } else {
-                Log::error('OpenAI content refinement failed', ['status' => $response->status(), 'body' => $response->body()]);
-            }
-        } catch (\Exception $e) {
-            Log::error('OpenAI content refinement exception', ['message' => $e->getMessage()]);
-        }
+        // 3. Process Content (Skipped AI Refinement)
+        $refinedContent = $rawContent;
 
         // 4. Update JSON data
         // Laravel attribute casting handles JSON array automatically.
