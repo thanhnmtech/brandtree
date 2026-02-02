@@ -15,6 +15,7 @@ class Chat extends Model
         'brand_id',
         'agent_id',
         'agent_type',
+        'model',
         'title',
         'conversation_id',
         'total_tokens',

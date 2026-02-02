@@ -230,6 +230,7 @@ class ChatStreamController extends Controller
             'brand_id' => $brandId,
             'agent_id' => (int) $agentId,
             'agent_type' => $agentType,
+            'model' => 'ChatGPT',
             'title' => 'Phiên làm việc ' . date('Y/m/d H:i:s'),
             'conversation_id' => $openAiConvId
         ]);

@@ -22,6 +22,10 @@ class Chat extends Component
     public $description = 'Hỗ trợ tra cứu và phân tích dữ liệu.';
     public $isNew = false;
 
+    // Model selection
+    public $chatModel = 'ChatGPT';
+    public $isModelLocked = false;
+
     public function mount($agentType = null, $agentId = null, $convId = null, $brandId = null)
     {
         $this->agentType = $agentType;
@@ -40,8 +44,10 @@ class Chat extends Component
         if ($convId && $convId !== 'new') {
             $this->loadMessages();
             $this->isNew = false;
+            $this->isModelLocked = true;
         } else {
             $this->isNew = true;
+            $this->isModelLocked = false;
         }
 
         // Just to ensure view gets variables
@@ -60,6 +66,7 @@ class Chat extends Component
                 ->get()
                 ->toArray();
             $this->title = $chat->title ?? $this->title;
+            $this->chatModel = $chat->model ?? 'ChatGPT';
         } else {
             // Chat not found or doesn't belong to brand
             $this->convId = 'new';
