@@ -10,20 +10,37 @@ class BrandTreeController extends Controller
 {
     public function root(Brand $brand): View
     {
+        // Xây dựng rootSteps
         $rootSteps = $this->buildTimelineSteps(
             config('timeline_steps.root'),
             $brand->root_data ?? [],
             true // Root phase is always unlocked
         );
 
+        // Kiểm tra root đã hoàn thành chưa để build trunkSteps
+        $isRootFinished = !empty($brand->root_data['root3']);
+        $trunkSteps = $this->buildTimelineSteps(
+            config('timeline_steps.trunk'),
+            $brand->trunk_data ?? [],
+            $isRootFinished
+        );
+
         return view('brands.trees.root', [
-            'brand'     => $brand,
-            'rootSteps' => $rootSteps,
+            'brand'      => $brand,
+            'rootSteps'  => $rootSteps,
+            'trunkSteps' => $trunkSteps,
         ]);
     }
 
     public function trunk(Brand $brand): View
     {
+        // Xây dựng rootSteps để kiểm tra tiến trình
+        $rootSteps = $this->buildTimelineSteps(
+            config('timeline_steps.root'),
+            $brand->root_data ?? [],
+            true
+        );
+
         $isRootFinished = !empty($brand->root_data['root3']);
 
         $trunkSteps = $this->buildTimelineSteps(
@@ -33,7 +50,8 @@ class BrandTreeController extends Controller
         );
 
         return view('brands.trees.trunk', [
-            'brand'     => $brand,
+            'brand'      => $brand,
+            'rootSteps'  => $rootSteps,
             'trunkSteps' => $trunkSteps,
         ]);
     }
