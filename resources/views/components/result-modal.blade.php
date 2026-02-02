@@ -11,8 +11,7 @@
      data-action="click->result-modal#closeOnBackdrop">
     
     {{-- Modal Content --}}
-    <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-max-h-[90vh] tw-flex tw-flex-col"
-         data-action="click->result-modal#stopPropagation">
+    <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-max-h-[90vh] tw-flex tw-flex-col">
 
         {{-- Modal Header --}}
         <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">

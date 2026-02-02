@@ -14,11 +14,15 @@ export default class extends Controller {
         "status", // Thông báo trạng thái (success/error)
         "saveBtn", // Nút lưu
         "chatLink", // Link chat với AI
+        "stepsContainer",
+        "progressContainer",
+        "nextStepContainer",
     ];
 
     // Khai báo các giá trị từ data attributes
     static values = {
         brandSlug: String, // Slug của brand
+        url: String, // URL để reload data (vd: /brands/{slug}/root hoặc /trunk)
         data: { type: Object, default: {} }, // Object chứa dữ liệu các section
     };
 
@@ -138,6 +142,9 @@ export default class extends Controller {
                 const newData = { ...this.dataValue };
                 newData[this.currentKey] = this.contentTarget.value;
                 this.dataValue = newData;
+
+                // Load lại danh sách bước
+                this.fetchSteps();
             } else {
                 this.showStatus(
                     "Lỗi: " + (result.message || "Không thể lưu"),
@@ -190,6 +197,41 @@ export default class extends Controller {
     /**
      * Xóa thông báo trạng thái
      */
+    async fetchSteps() {
+        if (!this.hasStepsContainerTarget) return;
+
+        try {
+            this.stepsContainerTarget.classList.add("tw-opacity-50");
+
+            const url = this.hasUrlValue 
+                ? this.urlValue 
+                : `/brands/${this.brandSlugValue}/root`;
+            const response = await fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.html && this.hasStepsContainerTarget) {
+                    this.stepsContainerTarget.innerHTML = data.html;
+                }
+                if (data.progress_html && this.hasProgressContainerTarget) {
+                    this.progressContainerTarget.innerHTML = data.progress_html;
+                }
+                if (data.next_step_html && this.hasNextStepContainerTarget) {
+                    this.nextStepContainerTarget.innerHTML = data.next_step_html;
+                }
+            }
+        } catch (error) {
+            console.error("ResultModal: Error fetching steps", error);
+        } finally {
+            this.stepsContainerTarget.classList.remove("tw-opacity-50");
+        }
+    }
+
     clearStatus() {
         this.statusTarget.textContent = "";
         this.statusTarget.classList.add("tw-hidden");
