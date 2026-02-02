@@ -1,0 +1,180 @@
+tài liệu hướng dẫn sử dụng api vector 	store search 
+post
+https://api.openai.com/v1/vector_stores/{vector_store_id}/search
+
+Search a vector store for relevant chunks based on a query and file attributes filter.
+
+Path parameters
+vector_store_id
+string
+
+Required
+The ID of the vector store to search.
+
+Request body
+query
+string or array
+
+Required
+A query string for a search
+
+filters
+object
+
+Optional
+A filter to apply based on file attributes.
+
+
+Show possible types
+max_num_results
+integer
+
+Optional
+Defaults to 10
+The maximum number of results to return. This number should be between 1 and 50 inclusive.
+
+ranking_options
+object
+
+Optional
+Ranking options for search.
+
+
+Show properties
+rewrite_query
+boolean
+
+Optional
+Defaults to false
+Whether to rewrite the natural language query for vector search.
+
+Returns
+A page of search results from the vector store.
+
+Ví dụ 
+curl -X POST \
+https://api.openai.com/v1/vector_stores/vs_abc123/search \
+-H "Authorization: Bearer $OPENAI_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{"query": "What is the return policy?", "filters": {...}}'
+
+Response
+{
+  "object": "vector_store.search_results.page",
+  "search_query": "What is the return policy?",
+  "data": [
+    {
+      "file_id": "file_123",
+      "filename": "document.pdf",
+      "score": 0.95,
+      "attributes": {
+        "author": "John Doe",
+        "date": "2023-01-01"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Relevant chunk"
+        }
+      ]
+    },
+    {
+      "file_id": "file_456",
+      "filename": "notes.txt",
+      "score": 0.89,
+      "attributes": {
+        "author": "Jane Smith",
+        "date": "2023-01-02"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Sample text content from the vector store."
+        }
+      ]
+    }
+  ],
+  "has_more": false,
+  "next_page": null
+}
+---
+
+The vector store object
+A vector store is a collection of processed files can be used by the file_search tool.
+
+created_at
+integer
+
+The Unix timestamp (in seconds) for when the vector store was created.
+
+expires_after
+object
+
+The expiration policy for a vector store.
+
+
+Show properties
+expires_at
+integer
+
+The Unix timestamp (in seconds) for when the vector store will expire.
+
+file_counts
+object
+
+
+Show properties
+id
+string
+
+The identifier, which can be referenced in API endpoints.
+
+last_active_at
+integer
+
+The Unix timestamp (in seconds) for when the vector store was last active.
+
+metadata
+map
+
+Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.
+
+Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
+
+name
+string
+
+The name of the vector store.
+
+object
+string
+
+The object type, which is always vector_store.
+
+status
+string
+
+The status of the vector store, which can be either expired, in_progress, or completed. A status of completed indicates that the vector store is ready for use.
+
+usage_bytes
+integer
+
+The total number of bytes used by the files in the vector store.
+ví dụ: 
+{
+  "id": "vs_123",
+  "object": "vector_store",
+  "created_at": 1698107661,
+  "usage_bytes": 123456,
+  "last_active_at": 1698107661,
+  "name": "my_vector_store",
+  "status": "completed",
+  "file_counts": {
+    "in_progress": 0,
+    "completed": 100,
+    "cancelled": 0,
+    "failed": 0,
+    "total": 100
+  },
+  "last_used_at": 1698107661
+}

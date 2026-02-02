@@ -3,7 +3,9 @@
         agentType: @entangle('agentType'),
         agentId: @entangle('agentId'),
         brandId: @entangle('brandId'),
-        messages: @entangle('messages')
+        messages: @entangle('messages'),
+        chatModel: '{{ $chatModel }}',
+        isModelLocked: {{ $isModelLocked ? 'true' : 'false' }}
     })">
 
     <!-- Header info passed from props/mount -->
@@ -108,11 +110,31 @@
                 </button>
             </div>
 
-            <div class="tw-mt-1 tw-flex tw-items-center tw-justify-between tw-text-[11px] tw-text-gray-500">
-                <div class="tw-flex-1 tw-min-w-0">
-                    <span class="tw-hidden md:tw-block tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+            <div class="tw-mt-2 tw-flex tw-items-center tw-justify-between tw-text-[11px] tw-text-gray-500 tw-gap-4">
+                <div class="tw-flex tw-items-center tw-gap-4 tw-flex-1 tw-min-w-0">
+                    <!-- Model Selector -->
+                    <div class="tw-relative">
+                        <select x-model="selectedModel"
+                            :disabled="isModelLocked"
+                            class="tw-appearance-none tw-border tw-text-gray-700 tw-text-xs tw-rounded-md tw-py-1.5 tw-pl-3 tw-pr-8 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#16a34a]/20 focus:tw-border-[#16a34a] tw-font-medium"
+                            :class="isModelLocked ? 'tw-bg-gray-200 tw-border-gray-300 tw-cursor-not-allowed' : 'tw-bg-gray-50 tw-border-gray-200 tw-cursor-pointer'">
+                            <option value="ChatGPT">ChatGPT</option>
+                            <option value="Gemini">Gemini</option>
+                        </select>
+                        <div
+                            class="tw-pointer-events-none tw-absolute tw-inset-y-0 tw-right-0 tw-flex tw-items-center tw-px-2 tw-text-gray-500">
+                            <svg class="tw-h-3 tw-w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="tw-h-4 tw-w-[1px] tw-bg-gray-200"></div>
+
+                    <div class="tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
                         Kết quả phân tích sẽ hiển thị ở bên phải
-                    </span>
+                    </div>
                 </div>
                 <button @click="openSaveModal()" id="btn-confirm-analysis"
                     class="tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all tw-duration-200"
@@ -214,6 +236,7 @@
     function chatComponent(params) {
         return {
             // State
+            params: params, // Store params if needed
             userInput: '',
             isStreaming: false,
             convId: params.convId,
@@ -221,6 +244,10 @@
             agentId: params.agentId,
             brandId: params.brandId,
             messages: params.messages,
+
+            // Model Selection
+            selectedModel: params.chatModel || 'ChatGPT',
+            isModelLocked: params.isModelLocked || false,
 
             // New State
             isConfirmationActive: false,
@@ -404,8 +431,13 @@
 
 
                 try {
+                    // Determine API URL based on selected model
+                    const apiUrl = (this.selectedModel === 'Gemini')
+                        ? '/api/chat_stream_gemini'
+                        : '/api/chat_stream';
+
                     // Call streaming API
-                    const response = await fetch('/api/chat_stream', {
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -416,7 +448,8 @@
                             agentType: this.agentType,
                             agentId: this.agentId,
                             convId: this.convId,
-                            brandId: this.brandId
+                            brandId: this.brandId,
+                            model: this.selectedModel
                         })
                     });
 
@@ -486,6 +519,7 @@
 
                     // Stream finished. 
                     this.isStreaming = false;
+                    this.isModelLocked = true; // Lock model after first message
                     this.$nextTick(() => this.$refs.userInput.focus());
 
                     // CHECK CONFIRMATION

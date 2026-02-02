@@ -24,6 +24,8 @@ Route::post('/webhook/sepay', [SepayWebhookController::class, 'handle'])->name('
 
 // Chat API Routes
 Route::post('/api/chat_stream', [App\Http\Controllers\ChatStreamController::class, 'stream'])->name('api.chat.stream');
+Route::post('/api/chat_stream_gemini', [App\Http\Controllers\GeminiChatController::class, 'stream'])->name('api.chat.stream.gemini');
+Route::get('/api/gemini/test', [App\Http\Controllers\GeminiTestController::class, 'test'])->name('api.gemini.test');
 Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController::class, 'saveMessage'])->name('api.chat.save');
 Route::get('/api/chat/history', [App\Http\Controllers\ChatStreamController::class, 'history'])->name('api.chat.history');
 
@@ -127,7 +129,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
                 Route::get('root', [BrandTreeController::class, 'root'])->name('brands.root.show');
 
                 // Route::get('root/{step}', [BrandTreeController::class, 'step'])->name('brands.root.step');
-
+    
                 Route::get('trunk', [BrandTreeController::class, 'trunk'])->name('brands.trunk.show');
                 Route::get('canopy', [BrandTreeController::class, 'canopy'])->name('brands.canopy.show');
 
