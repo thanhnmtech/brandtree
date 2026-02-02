@@ -1,5 +1,18 @@
 <x-app-layout>
-  <main class="tw-mt-[36px]">
+  @php
+      $rootData = $brand->root_data ?? [];
+      $initialData = [
+          'root1' => $rootData['root1'] ?? '',
+          'root2' => $rootData['root2'] ?? '',
+          'root3' => $rootData['root3'] ?? '',
+      ];
+  @endphp
+
+  <main class="tw-mt-[36px]"
+      data-controller="result-modal"
+      data-result-modal-brand-slug-value="{{ $brand->slug }}"
+      data-result-modal-data-value='@json($initialData)'
+  >
   <section class="tw-bg-[#e5e5df] tw-py-10 tw-px-6 tw-border-b tw-border-gray-200">
     <div class="tw-max-w-5xl tw-mx-auto tw-text-center">
       <p class="tw-text-xs tw-font-medium tw-text-gray-600 tw-uppercase">
@@ -162,5 +175,8 @@
       </aside>
     </div>
   </div>
+
+  {{-- Result Modal (View Only) --}}
+  <x-result-modal :brand="$brand" />
   </main>
 </x-app-layout>

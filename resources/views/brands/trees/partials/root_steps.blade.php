@@ -69,14 +69,17 @@
       Bắt Đầu Phân Tích
     </a>
 
-    <a
-      href="{{ $resultUrl }}"
+    <button
+      type="button"
+      data-action="result-modal#open"
+      data-result-modal-title-param="{{ $title }}"
+      data-result-modal-key-param="{{ $item['key'] ?? '' }}"
       data-step-card-target="resultButton"
-      class="result-btn tw-flex tw-items-center tw-gap-2 tw-bg-white tw-text-black tw-font-semibold tw-text-sm tw-px-5 tw-py-2 tw-rounded-lg tw-border tw-border-white/40"
+      class="result-btn tw-flex tw-items-center tw-gap-2 tw-bg-white tw-text-black tw-font-semibold tw-text-sm tw-px-5 tw-py-2 tw-rounded-lg tw-border tw-border-white/40 tw-cursor-pointer hover:tw-bg-gray-50 tw-transition"
     >
       <i class="ri-bar-chart-line tw-text-lg"></i>
       Kết Quả Phân Tích
-    </a>
+    </button>
 
     <button
       data-step-card-target="lockedButton"

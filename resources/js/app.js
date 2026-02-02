@@ -13,6 +13,7 @@ import MemberManagementController from "./controllers/member_management_controll
 import DropdownController from "./controllers/dropdown_controller";
 import PaymentStatusController from "./controllers/payment_status_controller";
 import StepCardController from "./controllers/step_card_controller";
+import ResultModalController from "./controllers/result_modal_controller";
 
 // Start Stimulus application
 const application = Application.start();
@@ -24,6 +25,7 @@ application.register("member-management", MemberManagementController);
 application.register("dropdown", DropdownController);
 application.register("payment-status", PaymentStatusController);
 application.register("step-card", StepCardController);
+application.register("result-modal", ResultModalController);
 
 // Make Stimulus available globally (optional, for debugging)
 window.Stimulus = application;
