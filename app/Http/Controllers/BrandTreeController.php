@@ -8,22 +8,61 @@ use Illuminate\Support\Arr;
 
 class BrandTreeController extends Controller
 {
-    public function root(Brand $brand): View
+    public function root(Brand $brand)
     {
+        // Xây dựng rootSteps
         $rootSteps = $this->buildTimelineSteps(
             config('timeline_steps.root'),
             $brand->root_data ?? [],
             true // Root phase is always unlocked
         );
 
+        // Kiểm tra root đã hoàn thành chưa để build trunkSteps
+        // (Move this logic up so it's available for AJAX response too)
+        $isRootFinished = !empty($brand->root_data['root3']);
+        $trunkSteps = $this->buildTimelineSteps(
+            config('timeline_steps.trunk'),
+            $brand->trunk_data ?? [],
+            $isRootFinished
+        );
+
+        if (request()->ajax()) {
+            return response()->json([
+                'html' => view('brands.trees.partials.root_steps', [
+                    'rootSteps' => $rootSteps,
+                    'brand'     => $brand,
+                ])->render(),
+                'progress_html' => view('brands.trees.partials.progress_card', [
+                    'phaseTitle' => 'Gốc Cây',
+                    'steps'      => $rootSteps,
+                    'stepPrefix' => 'G',
+                ])->render(),
+                'next_step_html' => view('brands.trees.partials.next_step_card', [
+                    'rootSteps'  => $rootSteps,
+                    'trunkSteps' => $trunkSteps,
+                    'brand'      => $brand,
+                ])->render(),
+            ]);
+        }
+
+
+
         return view('brands.trees.root', [
-            'brand'     => $brand,
-            'rootSteps' => $rootSteps,
+            'brand'      => $brand,
+            'rootSteps'  => $rootSteps,
+            'trunkSteps' => $trunkSteps,
         ]);
     }
 
-    public function trunk(Brand $brand): View
+    public function trunk(Brand $brand)
     {
+        // Xây dựng rootSteps để kiểm tra tiến trình
+        $rootSteps = $this->buildTimelineSteps(
+            config('timeline_steps.root'),
+            $brand->root_data ?? [],
+            true
+        );
+
         $isRootFinished = !empty($brand->root_data['root3']);
 
         $trunkSteps = $this->buildTimelineSteps(
@@ -32,8 +71,28 @@ class BrandTreeController extends Controller
             $isRootFinished
         );
 
+        if (request()->ajax()) {
+            return response()->json([
+                'html' => view('brands.trees.partials.trunk_steps', [
+                    'trunkSteps' => $trunkSteps,
+                    'brand'      => $brand,
+                ])->render(),
+                'progress_html' => view('brands.trees.partials.progress_card', [
+                    'phaseTitle' => 'Thân Cây',
+                    'steps'      => $trunkSteps,
+                    'stepPrefix' => 'T',
+                ])->render(),
+                'next_step_html' => view('brands.trees.partials.next_step_card', [
+                    'rootSteps'  => $rootSteps,
+                    'trunkSteps' => $trunkSteps,
+                    'brand'      => $brand,
+                ])->render(),
+            ]);
+        }
+
         return view('brands.trees.trunk', [
-            'brand'     => $brand,
+            'brand'      => $brand,
+            'rootSteps'  => $rootSteps,
             'trunkSteps' => $trunkSteps,
         ]);
     }

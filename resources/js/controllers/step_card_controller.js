@@ -89,7 +89,7 @@ export default class extends Controller {
             },
             completed: {
                 card: "tw-bg-gradient-to-r tw-from-vlbcGreen1 tw-to-vlbcGreen2",
-                icon: "ri-check-line tw-text-white",
+                icon: "ri-time-line tw-text-vlbcGreen",
                 stepText: "tw-text-[#F7C163]",
                 badge: "tw-bg-vlbcgreen tw-text-white",
                 badgeLabel: "Đã hoàn thành",
