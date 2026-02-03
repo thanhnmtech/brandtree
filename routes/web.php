@@ -28,6 +28,7 @@ Route::post('/api/chat_stream_gemini', [App\Http\Controllers\GeminiChatControlle
 Route::get('/api/gemini/test', [App\Http\Controllers\GeminiTestController::class, 'test'])->name('api.gemini.test');
 Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController::class, 'saveMessage'])->name('api.chat.save');
 Route::get('/api/chat/history', [App\Http\Controllers\ChatStreamController::class, 'history'])->name('api.chat.history');
+Route::put('/api/chat/{id}/rename', [App\Http\Controllers\ChatStreamController::class, 'rename'])->name('api.chat.rename');
 
 // Chat Route (Standalone, No Localization Prefix)
 Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
