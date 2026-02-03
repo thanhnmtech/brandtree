@@ -65,7 +65,13 @@ class Chat extends Component
                 ->orderBy('created_at', 'asc')
                 ->get()
                 ->toArray();
-            $this->title = $chat->title ?? $this->title;
+            
+            // Kết hợp tên Agent với tên đoạn chat: "Tên Agent - Tên đoạn chat"
+            // $this->title đã được gán tên Agent trong mount()
+            if ($chat->title) {
+                $this->title = $this->title . ' - ' . $chat->title;
+            }
+            
             $this->chatModel = $chat->model ?? 'ChatGPT';
         } else {
             // Chat not found or doesn't belong to brand

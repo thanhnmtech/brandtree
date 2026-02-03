@@ -260,5 +260,34 @@ class ChatStreamController extends Controller
 
         return response()->json($chats);
     }
+
+    /**
+     * Đổi tên đoạn chat
+     * PUT /api/chat/{id}/rename
+     */
+    public function rename(Request $request, $id)
+    {
+        // Validate input
+        $request->validate([
+            'title' => 'required|string|max:255'
+        ]);
+
+        // Tìm chat theo id
+        $chat = Chat::findOrFail($id);
+
+        // Kiểm tra quyền: chỉ chủ sở hữu mới được đổi tên
+        if ($chat->user_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Không có quyền chỉnh sửa'], 403);
+        }
+
+        // Cập nhật title
+        $chat->title = $request->title;
+        $chat->save();
+
+        return response()->json([
+            'success' => true,
+            'title' => $chat->title
+        ]);
+    }
 }
 

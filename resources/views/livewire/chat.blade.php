@@ -98,8 +98,9 @@
                 </button>
 
                 <!-- Input Textarea bound to x-model userInput -->
+                <!-- Shift+Enter: xuống dòng, Enter: gửi tin nhắn -->
                 <textarea x-ref="userInput" x-model="userInput"
-                    @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()" rows="1"
+                    @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage() }" rows="1"
                     class="tw-flex-1 tw-min-h-12 tw-resize-none tw-overflow-y-auto tw-border tw-border-gray-200 tw-rounded-md tw-px-3 tw-py-2 tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#16a34a]/40"
                     placeholder="Ask anything..." :disabled="isStreaming"></textarea>
 

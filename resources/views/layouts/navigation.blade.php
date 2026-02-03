@@ -20,7 +20,6 @@
         </a>
 
         <!-- ==== MENU DESKTOP (>=1024px) ==== -->
-        <!-- ==== MENU DESKTOP (>=1024px) ==== -->
         @if(!empty($currentBrand))
             <div class="tw-hidden lg:tw-flex tw-flex-1 tw-justify-center tw-items-center tw-gap-[20px] lg:tw-gap-[40px]">
                 <a href="{{ route('brands.show', $currentBrand) }}"
@@ -28,20 +27,19 @@
                     <i class="ri-home-line tw-transition"></i> Trang chủ
                 </a>
                 <a href="{{ route('brands.root.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.root.show') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                    class="{{ request()->routeIs('brands.root.show') || request()->is('*/chat/root*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
                     <i class="ri-plant-line tw-transition"></i> Gốc cây
                 </a>
                 <a href="{{ route('brands.trunk.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.trunk.show') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                    class="{{ request()->routeIs('brands.trunk.show') || request()->is('*/chat/trunk*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
                     <i class="ri-tree-line tw-transition"></i> Thân cây
                 </a>
                 <a href="{{ route('brands.canopy.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.canopy.show') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                    class="{{ request()->routeIs('brands.canopy.show') || request()->is('*/chat/canopy*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
                     <i class="ri-leaf-line tw-transition"></i> Tán cây
                 </a>
             </div>
         @endif
-
 
         <!-- ==== MENU MOBILE (<1024px) ==== -->
         @if(!empty($currentBrand))
@@ -49,19 +47,19 @@
                 class="tw-flex tw-flex-1 lg:tw-hidden tw-items-center tw-justify-evenly tw-text-gray-800 tw-text-xl tw-gap-5">
                 <!-- GỐC CÂY -->
                 <a href="{{ route('brands.root.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.root.show') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
+                    class="{{ request()->routeIs('brands.root.show') || request()->is('*/chat/root*') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
                     <i class="ri-plant-line"></i>
                 </a>
 
                 <!-- THÂN CÂY -->
                 <a href="{{ route('brands.trunk.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.trunk.show') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
+                    class="{{ request()->routeIs('brands.trunk.show') || request()->is('*/chat/trunk*') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
                     <i class="ri-tree-line"></i>
                 </a>
 
                 <!-- TÁN CÂY -->
                 <a href="{{ route('brands.canopy.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.canopy.show') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
+                    class="{{ request()->routeIs('brands.canopy.show') || request()->is('*/chat/canopy*') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
                     <i class="ri-leaf-line"></i>
                 </a>
             </div>
