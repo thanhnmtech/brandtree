@@ -110,47 +110,39 @@
         <template x-for="chat in chats" :key="chat.id">
           <li
             class="tw-group tw-px-3 tw-py-2 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2"
-            @mouseenter="hoveredChatId = chat.id"
-            @mouseleave="hoveredChatId = null">
-            
+            @mouseenter="hoveredChatId = chat.id" @mouseleave="hoveredChatId = null">
+
             <!-- Chế độ xem bình thường -->
             <template x-if="editingChatId !== chat.id">
               <div class="tw-flex tw-items-center tw-gap-2 tw-w-full">
                 <a :href="getChatLink(chat)" class="tw-block tw-flex-1 tw-min-w-0">
-                  <span class="tw-font-semibold tw-text-gray-500 hover:tw-text-gray-800 tw-transition-colors tw-block tw-truncate"
+                  <span
+                    class="tw-font-semibold tw-text-gray-500 hover:tw-text-gray-800 tw-transition-colors tw-block tw-truncate"
                     x-text="chat.title"></span>
                   <div class="tw-text-xs tw-text-gray-400" x-text="formatDate(chat.created_at)"></div>
                 </a>
-                
+
                 <!-- Nút chỉnh sửa - hiện khi hover -->
-                <button 
-                  x-show="hoveredChatId === chat.id"
-                  x-transition:enter="tw-transition tw-ease-out tw-duration-150"
-                  x-transition:enter-start="tw-opacity-0"
-                  x-transition:enter-end="tw-opacity-100"
-                  @click.prevent="startEdit(chat)"
-                  class="tw-p-1 tw-rounded hover:tw-bg-gray-200 tw-transition-colors tw-flex-shrink-0"
-                  title="Đổi tên">
+                <button x-show="hoveredChatId === chat.id"
+                  x-transition:enter="tw-transition tw-ease-out tw-duration-150" x-transition:enter-start="tw-opacity-0"
+                  x-transition:enter-end="tw-opacity-100" @click.prevent="startEdit(chat)"
+                  class="tw-p-1 tw-rounded hover:tw-bg-gray-200 tw-transition-colors tw-flex-shrink-0" title="Đổi tên">
                   <svg class="tw-w-4 tw-h-4 tw-text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                    </path>
                   </svg>
                 </button>
               </div>
             </template>
-            
+
             <!-- Chế độ chỉnh sửa -->
             <template x-if="editingChatId === chat.id">
               <div class="tw-w-full">
-                <input 
-                  type="text"
-                  x-model="editingTitle"
-                  x-ref="editInput"
-                  @keydown.enter.prevent="saveEdit(chat)"
-                  @keydown.escape.prevent="cancelEdit()"
-                  @blur="saveEdit(chat)"
+                <input type="text" x-model="editingTitle" x-ref="editInput" @keydown.enter.prevent="saveEdit(chat)"
+                  @keydown.escape.prevent="cancelEdit()" @blur="saveEdit(chat)"
                   class="tw-w-full tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-green-500 tw-rounded tw-outline-none tw-ring-2 tw-ring-green-200"
-                  placeholder="Nhập tên mới..."
-                />
+                  placeholder="Nhập tên mới..." />
                 <div class="tw-text-xs tw-text-gray-400 tw-mt-1">Nhấn Enter để lưu, Esc để hủy</div>
               </div>
             </template>
@@ -180,7 +172,7 @@
       brandSlug: config.brandSlug,
       agentId: config.agentId,
       agentType: config.agentType,
-      
+
       // State cho chức năng đổi tên chat
       hoveredChatId: null,      // ID của chat đang được hover
       editingChatId: null,      // ID của chat đang được chỉnh sửa
@@ -188,6 +180,15 @@
 
       init() {
         this.fetchChats();
+
+        // 🆕 Lắng nghe event khi có chat mới được tạo
+        window.addEventListener('chat-created', (e) => {
+          // Reset và fetch lại danh sách từ đầu để hiển thị chat mới
+          this.chats = [];
+          this.page = 1;
+          this.hasMore = true;
+          this.fetchChats();
+        });
       },
 
       async fetchChats() {
@@ -241,7 +242,7 @@
       startEdit(chat) {
         this.editingChatId = chat.id;
         this.editingTitle = chat.title;
-        
+
         // Focus vào input sau khi DOM cập nhật
         this.$nextTick(() => {
           const input = this.$refs.editInput;
@@ -256,9 +257,9 @@
       async saveEdit(chat) {
         // Không làm gì nếu không đang edit chat này
         if (this.editingChatId !== chat.id) return;
-        
+
         const newTitle = this.editingTitle.trim();
-        
+
         // Nếu tên rỗng hoặc không thay đổi, hủy edit
         if (!newTitle || newTitle === chat.title) {
           this.cancelEdit();

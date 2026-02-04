@@ -115,8 +115,7 @@
                 <div class="tw-flex tw-items-center tw-gap-4 tw-flex-1 tw-min-w-0">
                     <!-- Model Selector -->
                     <div class="tw-relative">
-                        <select x-model="selectedModel"
-                            :disabled="isModelLocked"
+                        <select x-model="selectedModel" :disabled="isModelLocked"
                             class="tw-appearance-none tw-border tw-text-gray-700 tw-text-xs tw-rounded-md tw-py-1.5 tw-pl-3 tw-pr-8 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#16a34a]/20 focus:tw-border-[#16a34a] tw-font-medium"
                             :class="isModelLocked ? 'tw-bg-gray-200 tw-border-gray-300 tw-cursor-not-allowed' : 'tw-bg-gray-50 tw-border-gray-200 tw-cursor-pointer'">
                             <option value="ChatGPT">ChatGPT</option>
@@ -522,6 +521,24 @@
                     this.isStreaming = false;
                     this.isModelLocked = true; // Lock model after first message
                     this.$nextTick(() => this.$refs.userInput.focus());
+
+                    // ✨ Đổi URL mượt mà nếu là chat mới (từ /new sang /{id})
+                    if (dbChatId && this.convId === dbChatId) {
+                        const pathParts = window.location.pathname.split('/');
+                        const lastPart = pathParts[pathParts.length - 1];
+
+                        if (lastPart === 'new') {
+                            // Đổi URL mà không reload trang
+                            pathParts[pathParts.length - 1] = dbChatId;
+                            const newUrl = pathParts.join('/');
+                            window.history.replaceState({}, '', newUrl);
+
+                            // 🔄 Dispatch event để sidebar refresh danh sách chat
+                            window.dispatchEvent(new CustomEvent('chat-created', {
+                                detail: { chatId: dbChatId }
+                            }));
+                        }
+                    }
 
                     // CHECK CONFIRMATION
                     this.checkConfirmationCondition();

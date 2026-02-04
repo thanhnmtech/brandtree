@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\AgentSystem;
 use App\Models\BrandAgent;
 use App\Models\Brand;
+use App\Models\SystemPrompt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -24,8 +25,8 @@ class GeminiChatController extends Controller
         $brandId = $request->input('brandId');
         $userId = $request->user() ? $request->user()->id : null;
 
-        // --- Prompt Building Logic (Copied from ChatStreamController) ---
-        $prompt = "Bạn là trợ lý ảo.";
+        // --- Prompt Building Logic - Lấy từ bảng system_prompts ---
+        $prompt = SystemPrompt::getPromptOrDefault('default_assistant', 'Bạn là trợ lý ảo.');
 
         if ($agentType === 'canopy') {
             if ($agentId) {
@@ -36,7 +37,8 @@ class GeminiChatController extends Controller
                     if ($brandAgent->is_include && $brandId) {
                         $brand = Brand::find($brandId);
                         if ($brand) {
-                            $prompt .= "\n\nHãy nhớ toàn bộ thông tin về thương hiệu bên dưới để tạo câu trả lời phù hợp:\n";
+                            // Lấy prompt intro từ bảng system_prompts
+                            $prompt .= SystemPrompt::getPromptOrDefault('brand_data_intro', "\n\nHãy nhớ toàn bộ thông tin về thương hiệu bên dưới để tạo câu trả lời phù hợp:\n");
 
                             $rootData = $brand->root_data ?? [];
                             $trunkData = $brand->trunk_data ?? [];
@@ -97,7 +99,9 @@ class GeminiChatController extends Controller
                 }
 
                 if (!empty($contextParts)) {
-                    $prompt .= "\n\nHãy ghi nhớ các thông tin thương hiệu đã xác nhận bên dưới để tạo câu trả lời tiếp theo phù hợp:\n" . implode("\n", $contextParts);
+                    // Lấy prompt intro từ bảng system_prompts
+                    $contextIntro = SystemPrompt::getPromptOrDefault('context_steps_intro', "\n\nHãy ghi nhớ các thông tin thương hiệu đã xác nhận bên dưới để tạo câu trả lời tiếp theo phù hợp:\n");
+                    $prompt .= $contextIntro . implode("\n", $contextParts);
                 }
             }
         }
@@ -116,7 +120,9 @@ class GeminiChatController extends Controller
         if (!empty($vectorId)) {
             $ragContent = $this->searchVectorStore($vectorId, $userInput);
             if (!empty($ragContent)) {
-                $prompt .= "\n\nCó thể tham khảo các tài liệu mẫu bên dưới, cho phép tự quyết định có sử dụng thông tin bên dưới hoặc không sử dụng tùy vào sự phù hợp. Các thông tin liên quan là:\n" . $ragContent;
+                // Lấy prompt intro từ bảng system_prompts
+                $ragIntro = SystemPrompt::getPromptOrDefault('rag_context_intro', "\n\nCó thể tham khảo các tài liệu mẫu bên dưới, cho phép tự quyết định có sử dụng thông tin bên dưới hoặc không sử dụng tùy vào sự phù hợp. Các thông tin liên quan là:\n");
+                $prompt .= $ragIntro . $ragContent;
             }
         }
         // --- End RAG ---
