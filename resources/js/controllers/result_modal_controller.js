@@ -145,6 +145,22 @@ export default class extends Controller {
 
                 // Load lại danh sách bước
                 this.fetchSteps();
+
+                // Update navigation dropdown status
+                const navItem = document.querySelector(`a[data-nav-key="${this.currentKey}"]`);
+                if (navItem) {
+                    // Current Item: Ensure it has Green style (it might already have it if it was ready)
+                    navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                    navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+
+                    // Next Item: Unlocking
+                    // Simple logic: Find next sibling a tag
+                    let nextItem = navItem.nextElementSibling;
+                    if (nextItem && nextItem.tagName === 'A') {
+                        nextItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                        nextItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+                    }
+                }
             } else {
                 this.showStatus(
                     "Lỗi: " + (result.message || "Không thể lưu"),
