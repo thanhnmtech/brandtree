@@ -147,18 +147,70 @@ export default class extends Controller {
                 this.fetchSteps();
 
                 // Update navigation dropdown status
-                const navItem = document.querySelector(`a[data-nav-key="${this.currentKey}"]`);
+                // Tìm cả a và span với data-nav-key
+                const navItem = document.querySelector(`[data-nav-key="${this.currentKey}"]`);
                 if (navItem) {
-                    // Current Item: Ensure it has Green style (it might already have it if it was ready)
-                    navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                    // Current Item: Đổi style sang màu xanh (unlocked)
+                    navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]', 'tw-cursor-not-allowed');
                     navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
 
-                    // Next Item: Unlocking
-                    // Simple logic: Find next sibling a tag
-                    let nextItem = navItem.nextElementSibling;
-                    if (nextItem && nextItem.tagName === 'A') {
-                        nextItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
-                        nextItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+                    // Tìm container chứa tất cả các navigation items
+                    const container = navItem.closest('.tw-rounded-\\[4px\\]');
+                    if (container) {
+                        // Lấy tất cả items trong container
+                        const allItems = container.querySelectorAll('[data-nav-key]');
+                        let currentIndex = -1;
+                        
+                        // Tìm index của item hiện tại
+                        allItems.forEach((item, index) => {
+                            if (item.getAttribute('data-nav-key') === this.currentKey) {
+                                currentIndex = index;
+                            }
+                        });
+
+                        // Unlock next item nếu có trong cùng dropdown
+                        if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
+                            const nextItem = allItems[currentIndex + 1];
+                            const nextKey = nextItem.getAttribute('data-nav-key');
+                            
+                            // Nếu next item là span (locked), thay bằng a (unlocked)
+                            if (nextItem.tagName === 'SPAN') {
+                                const newLink = document.createElement('a');
+                                newLink.href = `/brands/${this.brandSlugValue}/chat/${nextKey}`;
+                                newLink.setAttribute('data-nav-key', nextKey);
+                                newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
+                                newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                                newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+                                newLink.innerHTML = nextItem.innerHTML;
+                                nextItem.replaceWith(newLink);
+                            } else {
+                                // Nếu đã là a, chỉ cần đổi style
+                                nextItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                                nextItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+                            }
+                        }
+                        
+                        // Nếu là step cuối của root (root3), kiểm tra và unlock trunk1
+                        if (this.currentKey === 'root3') {
+                            // Kiểm tra tất cả root steps đã có data chưa
+                            const rootKeys = ['root1', 'root2', 'root3'];
+                            const allRootDone = rootKeys.every(key => this.dataValue[key]);
+                            
+                            if (allRootDone) {
+                                // Tìm trunk1 trong dropdown trunk
+                                const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
+                                if (trunk1Item && trunk1Item.tagName === 'SPAN') {
+                                    const newLink = document.createElement('a');
+                                    newLink.href = `/brands/${this.brandSlugValue}/chat/trunk1`;
+                                    newLink.setAttribute('data-nav-key', 'trunk1');
+                                    newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
+                                    newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                                    newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+                                    newLink.innerHTML = trunk1Item.innerHTML;
+                                    trunk1Item.replaceWith(newLink);
+                                }
+                            }
+                        }
                     }
                 }
             } else {
