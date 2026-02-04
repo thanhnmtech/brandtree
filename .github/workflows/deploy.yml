@@ -24,7 +24,7 @@ jobs:
             git pull origin main
 
             # Cài đặt PHP dependencies
-            composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+            #composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
             # Chạy migration (Quan trọng: dùng --force trên production)
             php artisan migrate --force
@@ -33,7 +33,7 @@ jobs:
             # php artisan db:seed --force
 
             # Dọn dẹp và tối ưu cache
-            php artisan config:cache
+            #php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
