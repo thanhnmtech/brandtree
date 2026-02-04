@@ -42,7 +42,9 @@
                             @foreach(config('timeline_steps.root') as $key => $step)
                                 @php
                                     $isDone = !empty($rootData[$key]);
-                                    $isUnlocked = $prevStepDone;
+                                    // Chỉ root1 mở mặc định, các step sau chỉ mở khi step trước đã có data
+                                    $isFirstStep = ($key === 'root1');
+                                    $isUnlocked = $isFirstStep ? true : $prevStepDone;
                                     
                                     // Kiểm tra xem đang ở trang chat của step này không
                                     // URL: /brands/{slug}/chat/{agentType} => segment(4) = agentType
@@ -88,12 +90,23 @@
                         <div class="tw-border tw-border-gray-300 tw-bg-white tw-rounded-[4px] tw-shadow-lg tw-overflow-hidden">
                             @php
                                 $trunkData = $currentBrand->trunk_data ?? [];
-                                $prevStepDone = true; // Assumed start for trunk, modify if dependent on root
+                                // Kiểm tra xem tất cả root đã hoàn thành chưa
+                                $rootSteps = array_keys(config('timeline_steps.root'));
+                                $allRootCompleted = true;
+                                foreach ($rootSteps as $rootKey) {
+                                    if (empty($rootData[$rootKey])) {
+                                        $allRootCompleted = false;
+                                        break;
+                                    }
+                                }
+                                $prevTrunkStepDone = $allRootCompleted;
                             @endphp
                             @foreach(config('timeline_steps.trunk') as $key => $step)
                                 @php
                                     $isDone = !empty($trunkData[$key]);
-                                    $isUnlocked = $prevStepDone;
+                                    // trunk1 mở nếu root xong hết, các step sau mở khi step trước đã có data
+                                    $isFirstTrunkStep = ($key === 'trunk1');
+                                    $isUnlocked = $isFirstTrunkStep ? $allRootCompleted : $prevTrunkStepDone;
                                     
                                     // Kiểm tra xem đang ở trang chat của step này không
                                     // URL: /brands/{slug}/chat/{agentType} => segment(4) = agentType
@@ -122,7 +135,7 @@
                                 </span>
                                 @endif
                                 @php
-                                    $prevStepDone = $isDone;
+                                    $prevTrunkStepDone = $isDone;
                                 @endphp
                             @endforeach
                         </div>
