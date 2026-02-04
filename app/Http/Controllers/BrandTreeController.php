@@ -30,17 +30,17 @@ class BrandTreeController extends Controller
             return response()->json([
                 'html' => view('brands.trees.partials.root_steps', [
                     'rootSteps' => $rootSteps,
-                    'brand'     => $brand,
+                    'brand' => $brand,
                 ])->render(),
                 'progress_html' => view('brands.trees.partials.progress_card', [
                     'phaseTitle' => 'Gốc Cây',
-                    'steps'      => $rootSteps,
+                    'steps' => $rootSteps,
                     'stepPrefix' => 'G',
                 ])->render(),
                 'next_step_html' => view('brands.trees.partials.next_step_card', [
-                    'rootSteps'  => $rootSteps,
+                    'rootSteps' => $rootSteps,
                     'trunkSteps' => $trunkSteps,
-                    'brand'      => $brand,
+                    'brand' => $brand,
                 ])->render(),
             ]);
         }
@@ -48,8 +48,8 @@ class BrandTreeController extends Controller
 
 
         return view('brands.trees.root', [
-            'brand'      => $brand,
-            'rootSteps'  => $rootSteps,
+            'brand' => $brand,
+            'rootSteps' => $rootSteps,
             'trunkSteps' => $trunkSteps,
         ]);
     }
@@ -75,24 +75,24 @@ class BrandTreeController extends Controller
             return response()->json([
                 'html' => view('brands.trees.partials.trunk_steps', [
                     'trunkSteps' => $trunkSteps,
-                    'brand'      => $brand,
+                    'brand' => $brand,
                 ])->render(),
                 'progress_html' => view('brands.trees.partials.progress_card', [
                     'phaseTitle' => 'Thân Cây',
-                    'steps'      => $trunkSteps,
+                    'steps' => $trunkSteps,
                     'stepPrefix' => 'T',
                 ])->render(),
                 'next_step_html' => view('brands.trees.partials.next_step_card', [
-                    'rootSteps'  => $rootSteps,
+                    'rootSteps' => $rootSteps,
                     'trunkSteps' => $trunkSteps,
-                    'brand'      => $brand,
+                    'brand' => $brand,
                 ])->render(),
             ]);
         }
 
         return view('brands.trees.trunk', [
-            'brand'      => $brand,
-            'rootSteps'  => $rootSteps,
+            'brand' => $brand,
+            'rootSteps' => $rootSteps,
             'trunkSteps' => $trunkSteps,
         ]);
     }
@@ -100,10 +100,11 @@ class BrandTreeController extends Controller
     public function canopy(Brand $brand): View
     {
         $agents = \App\Models\BrandAgent::where('brand_id', $brand->id)->latest()->get();
-        return view('brands.trees.canopy', compact('brand', 'agents'));
+        $agentLibrary = \App\Models\AgentLibrary::where('is_active', true)->get();
+        return view('brands.trees.canopy', compact('brand', 'agents', 'agentLibrary'));
     }
 
-        private function buildTimelineSteps(array $stepsConfig, ?array $data, bool $isPhaseUnlocked): array
+    private function buildTimelineSteps(array $stepsConfig, ?array $data, bool $isPhaseUnlocked): array
     {
         $data = $data ?? [];
         $steps = [];
@@ -127,12 +128,12 @@ class BrandTreeController extends Controller
             }
 
             $steps[] = [
-                'key'         => $key,
-                'status'      => $status,
-                'is_current'  => $status === 'ready',
-                'data'        => $hasData ? $data[$key] : null,
+                'key' => $key,
+                'status' => $status,
+                'is_current' => $status === 'ready',
+                'data' => $hasData ? $data[$key] : null,
 
-                'label'       => Arr::get($config, 'label'),
+                'label' => Arr::get($config, 'label'),
                 'label_short' => Arr::get($config, 'label_short'),
                 'description' => Arr::get($config, 'description'),
             ];

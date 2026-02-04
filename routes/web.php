@@ -59,6 +59,18 @@ Route::post('/brands/{brand:slug}/agents', [\App\Http\Controllers\BrandAgentCont
     ->middleware(['auth', 'brand.access'])
     ->name('brands.agents.store');
 
+Route::post('/brands/{brand:slug}/agents/from-template', [\App\Http\Controllers\BrandAgentController::class, 'storeFromTemplate'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.agents.store-from-template');
+
+Route::delete('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'destroy'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.agents.destroy');
+
+Route::put('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'update'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.agents.update');
+
 // TEMPORARY: Run migrations via link (For agent_type column)
 Route::get('/run-pending-migrations', function () {
     \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);

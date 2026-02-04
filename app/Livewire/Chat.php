@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Chat as ChatModel;
 use App\Models\Message;
 use App\Models\AgentSystem;
+use App\Models\BrandAgent;
 use Illuminate\Support\Facades\Log;
 
 class Chat extends Component
@@ -33,11 +34,24 @@ class Chat extends Component
         $this->convId = $convId;
         $this->brandId = $brandId;
 
-        // Fetch Agent Name
+        // Fetch Agent Name - Kiểm tra cả AgentSystem và BrandAgent
         if ($this->agentId) {
-            $agent = AgentSystem::find($this->agentId);
-            if ($agent) {
-                $this->title = $agent->name;
+            // Nếu agentType là canopy thì tìm trong bảng brand_agent
+            if ($this->agentType === 'canopy') {
+                $agent = BrandAgent::find($this->agentId);
+                if ($agent) {
+                    $this->title = $agent->name;
+                    // Gán description nếu có
+                    if ($agent->target) {
+                        $this->description = $agent->target;
+                    }
+                }
+            } else {
+                // Các agentType khác (root1, root2, trunk1, ...) tìm trong AgentSystem
+                $agent = AgentSystem::find($this->agentId);
+                if ($agent) {
+                    $this->title = $agent->name;
+                }
             }
         }
 
@@ -65,13 +79,13 @@ class Chat extends Component
                 ->orderBy('created_at', 'asc')
                 ->get()
                 ->toArray();
-            
+
             // Kết hợp tên Agent với tên đoạn chat: "Tên Agent - Tên đoạn chat"
             // $this->title đã được gán tên Agent trong mount()
             if ($chat->title) {
                 $this->title = $this->title . ' - ' . $chat->title;
             }
-            
+
             $this->chatModel = $chat->model ?? 'ChatGPT';
         } else {
             // Chat not found or doesn't belong to brand
