@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // 1. Seed các bảng nền tảng trước
         $this->call([
             AgentSystemSeeder::class,
+            SystemPromptSeeder::class,
         ]);
     }
 }

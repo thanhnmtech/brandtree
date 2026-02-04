@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\AgentSystem;
+use App\Models\SystemPrompt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -24,8 +25,8 @@ class ChatStreamController extends Controller
         $userId = $request->user() ? $request->user()->id : null;
 
         // Logic: Ưu tiên tìm theo ID trước, nếu không có thì tìm theo Type
-        // Default values
-        $prompt = "Bạn là trợ lý ảo.";
+        // Default values - Lấy từ bảng system_prompts
+        $prompt = SystemPrompt::getPromptOrDefault('default_assistant', 'Bạn là trợ lý ảo.');
         $vectorStoreId = "";
         $aiModel = "gpt-4o";
 
@@ -40,7 +41,8 @@ class ChatStreamController extends Controller
                     if ($brandAgent->is_include && $brandId) {
                         $brand = \App\Models\Brand::find($brandId);
                         if ($brand) {
-                            $prompt .= "\n\nHãy nhớ toàn bộ thông tin về thương hiệu bên dưới để tạo câu trả lời phù hợp:\n";
+                            // Lấy prompt intro từ bảng system_prompts
+                            $prompt .= SystemPrompt::getPromptOrDefault('brand_data_intro', "\n\nHãy nhớ toàn bộ thông tin về thương hiệu bên dưới để tạo câu trả lời phù hợp:\n");
 
                             $rootData = $brand->root_data ?? [];
                             $trunkData = $brand->trunk_data ?? [];
@@ -108,7 +110,9 @@ class ChatStreamController extends Controller
                 }
 
                 if (!empty($contextParts)) {
-                    $prompt .= "\n\nHãy ghi nhớ các thông tin thương hiệu đã xác nhận bên dưới để tạo câu trả lời tiếp theo phù hợp:\n" . implode("\n", $contextParts);
+                    // Lấy prompt intro từ bảng system_prompts
+                    $contextIntro = SystemPrompt::getPromptOrDefault('context_steps_intro', "\n\nHãy ghi nhớ các thông tin thương hiệu đã xác nhận bên dưới để tạo câu trả lời tiếp theo phù hợp:\n");
+                    $prompt .= $contextIntro . implode("\n", $contextParts);
                 }
             }
         }
