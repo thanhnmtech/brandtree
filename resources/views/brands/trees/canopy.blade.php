@@ -2,7 +2,7 @@
   <div class="tw-w-full tw-max-w-7xl tw-mx-auto tw-mt-6 tw-px-4">
 
     <!-- Main Content -->
-    <main class="tw-p-4" x-data="{ openCreateModal: false }">
+    <main class="tw-p-4" x-data="{ openCreateModal: false, openTemplateModal: false, openEditModal: false }">
 
       <!-- Title -->
       <div class="tw-text-center tw-mt-4">
@@ -41,23 +41,30 @@
 
       <!-- AI Agents -->
       <section class="tw-mt-12" x-data="{ search: '' }">
-        <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+        <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between md:tw-items-center tw-mb-3 tw-gap-4">
           <div>
             <h3 class="tw-font-bold tw-text-xl tw-text-gray-900">AI Agents Thư viện</h3>
             <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Danh sách các Agents mặc định của hệ thống</p>
           </div>
 
-          <div class="tw-flex tw-gap-3">
-            <div class="tw-relative">
+          <div class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-3 tw-w-full md:tw-w-auto">
+            <div class="tw-relative tw-w-full sm:tw-w-auto">
               <input type="text" x-model="search" placeholder="Tìm kiếm Agent..."
-                class="tw-pl-10 tw-pr-4 tw-py-2 tw-border tw-border-gray-200 tw-rounded-lg tw-text-sm tw-w-[300px] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-green-500">
+                class="tw-pl-10 tw-pr-4 tw-py-2 tw-border tw-border-gray-200 tw-rounded-lg tw-text-sm tw-w-full sm:tw-w-[300px] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-green-500">
               <i class="ri-search-line tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-gray-400"></i>
             </div>
 
-            <button @click="openCreateModal = true"
-              class="tw-px-4 tw-py-2 tw-bg-vlbcgreen tw-text-white tw-rounded-lg tw-text-sm hover:tw-bg-green-700 tw-transition tw-flex tw-items-center tw-gap-2">
-              <i class="ri-add-line"></i> Tạo Agent mới
-            </button>
+            <div class="tw-flex tw-gap-2">
+              <button @click="openCreateModal = true"
+                class="tw-flex-1 sm:tw-flex-none tw-px-4 tw-py-2 tw-bg-vlbcgreen tw-text-white tw-rounded-lg tw-text-sm hover:tw-bg-green-700 tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2 tw-whitespace-nowrap">
+                <i class="ri-add-line"></i> Tạo Agent mới
+              </button>
+
+              <button @click="openTemplateModal = true"
+                class="tw-flex-1 sm:tw-flex-none tw-px-4 tw-py-2 tw-bg-vlbcgreen tw-text-white tw-rounded-lg tw-text-sm hover:tw-bg-green-700 tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2 tw-whitespace-nowrap">
+                <i class="ri-add-line"></i> Tạo từ mẫu
+              </button>
+            </div>
           </div>
         </div>
 
@@ -82,10 +89,25 @@
                 {{ $agent->instruction ?? 'Chưa có mô tả chi tiết cho agent này.' }}
               </p>
 
-              <a href="{{ route('chat', ['brand' => $brand->slug, 'agentType' => 'canopy', 'agentId' => $agent->id, 'convId' => 'new']) }}"
-                class="tw-mt-6 tw-inline-flex tw-items-center tw-gap-2 tw-px-4 tw-py-2 tw-border tw-border-gray-200 tw-rounded-full tw-text-sm tw-font-bold tw-text-green-700 hover:tw-bg-green-50 tw-transition">
-                <i class="ri-shining-fill"></i> Sử dụng Agent
-              </a>
+              <div class="tw-mt-6 tw-flex tw-items-center tw-justify-between">
+                <a href="{{ route('chat', ['brand' => $brand->slug, 'agentType' => 'canopy', 'agentId' => $agent->id, 'convId' => 'new']) }}"
+                  class="tw-inline-flex tw-items-center tw-gap-2 tw-px-4 tw-py-2 tw-border tw-border-gray-200 tw-rounded-full tw-text-sm tw-font-bold tw-text-green-700 hover:tw-bg-green-50 tw-transition">
+                  <i class="ri-shining-fill"></i> Sử dụng Agent
+                </a>
+
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <button type="button"
+                    onclick="openEditAgent({{ $agent->id }}, '{{ addslashes($agent->name) }}', {{ $agent->is_include ? 'true' : 'false' }}, `{{ addslashes($agent->instruction ?? '') }}`)"
+                    class="tw-p-2 tw-text-gray-400 hover:tw-text-blue-600 tw-transition" title="Chỉnh sửa">
+                    <i class="ri-edit-line tw-text-lg"></i>
+                  </button>
+                  <button type="button"
+                    onclick="deleteAgent({{ $agent->id }}, '{{ addslashes($agent->name) }}', '{{ $brand->slug }}')"
+                    class="tw-p-2 tw-text-gray-400 hover:tw-text-red-600 tw-transition" title="Xóa">
+                    <i class="ri-delete-bin-line tw-text-lg"></i>
+                  </button>
+                </div>
+              </div>
             </div>
           @endforeach
 
@@ -118,6 +140,52 @@
       <!-- Create Agent Modal -->
       @include('brands.trees.partials.create-agent-modal')
 
+      <!-- Create From Template Modal -->
+      @include('brands.trees.partials.create-from-template-modal')
+
+      <!-- Edit Agent Modal -->
+      @include('brands.trees.partials.edit-agent-modal')
+
     </main>
   </div>
+
+  <script>
+    async function deleteAgent(agentId, agentName, brandSlug) {
+      if (!confirm('Bạn có chắc muốn xóa Agent "' + agentName + '" không?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/brands/' + brandSlug + '/agents/' + agentId, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          window.location.reload();
+        } else {
+          alert(result.message || 'Có lỗi xảy ra');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Lỗi kết nối');
+      }
+    }
+
+    function openEditAgent(id, name, hasKnowledge, instruction) {
+      window.dispatchEvent(new CustomEvent('open-edit-modal', {
+        detail: {
+          id: id,
+          name: name,
+          hasKnowledge: hasKnowledge,
+          instruction: instruction
+        }
+      }));
+    }
+  </script>
 </x-app-layout>

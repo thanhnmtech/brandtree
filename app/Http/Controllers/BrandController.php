@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\BrandAgent;
 use App\Models\BrandMember;
+use App\Models\AgentLibrary;
 use App\Models\Plan;
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
@@ -72,6 +74,21 @@ class BrandController extends Controller
                 'credits_remaining' => $trialPlan->credits,
                 'credits_reset_at' => now()->addMonth(),
                 'status' => 'active',
+            ]);
+        }
+
+        // Tự động tạo Brand Agents từ Agent Library
+        $activeLibraryAgents = AgentLibrary::where('is_active', true)->get();
+        foreach ($activeLibraryAgents as $libraryAgent) {
+            BrandAgent::create([
+                'brand_id' => $brand->id,
+                'code' => $libraryAgent->code . '-' . uniqid(),
+                'name' => $libraryAgent->name,
+                'instruction' => $libraryAgent->instruction,
+                'prompt' => $libraryAgent->prompt ?? null,
+                'vector_id' => $libraryAgent->vector_id ?? null,
+                'is_include' => true,
+                'created_by' => auth()->id(),
             ]);
         }
 
