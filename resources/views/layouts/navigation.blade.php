@@ -26,14 +26,108 @@
                     class="{{ request()->routeIs('brands.show') ? 'tw-bg-vlbcgreen tw-text-white' : 'tw-bg-transparent tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-px-4 tw-py-1 tw-rounded-full tw-transition-colors tw-duration-200">
                     <i class="ri-home-line tw-transition"></i> Trang chủ
                 </a>
-                <a href="{{ route('brands.root.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.root.show') || request()->is('*/chat/root*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
-                    <i class="ri-plant-line tw-transition"></i> Gốc cây
-                </a>
-                <a href="{{ route('brands.trunk.show', $currentBrand) }}"
-                    class="{{ request()->routeIs('brands.trunk.show') || request()->is('*/chat/trunk*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
-                    <i class="ri-tree-line tw-transition"></i> Thân cây
-                </a>
+                {{-- Gốc cây với dropdown --}}
+                <div class="tw-relative tw-group">
+                    <a href="{{ route('brands.root.show', $currentBrand) }}"
+                        class="{{ request()->routeIs('brands.root.show') || request()->is('*/chat/root*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                        <i class="ri-plant-line tw-transition"></i> Gốc cây
+                    </a>
+                    {{-- Dropdown menu --}}
+                    <div class="tw-absolute tw-hidden group-hover:tw-block tw-w-[246px] tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-pt-2 tw-z-50">
+                        <div class="tw-border tw-border-gray-300 tw-bg-white tw-rounded-[4px] tw-shadow-lg tw-overflow-hidden">
+                            @php
+                                $rootData = $currentBrand->root_data ?? [];
+                                $prevStepDone = true; // First step is always ready
+                            @endphp
+                            @foreach(config('timeline_steps.root') as $key => $step)
+                                @php
+                                    $isDone = !empty($rootData[$key]);
+                                    $isUnlocked = $prevStepDone;
+                                    
+                                    // Kiểm tra xem đang ở trang chat của step này không
+                                    // URL: /brands/{slug}/chat/{agentType} => segment(4) = agentType
+                                    $currentAgentType = request()->segment(4);
+                                    $isActiveChat = (request()->segment(3) === 'chat' && $currentAgentType === $key);
+                                    
+                                    // Style class: nếu active thì đổi bg, nếu không thì theo trạng thái unlocked/locked
+                                    if ($isActiveChat) {
+                                        $styleClass = 'tw-text-vlbcgreen tw-bg-[#D9F2E2]';
+                                    } else {
+                                        $styleClass = $isUnlocked 
+                                            ? 'tw-text-vlbcgreen tw-bg-[#F4FCF7]' 
+                                            : 'tw-text-[#7B7773] tw-bg-[#e7e5df]';
+                                    }
+                                @endphp
+                                @if($isUnlocked || $isActiveChat)
+                                <a href="{{ route('chat', ['brand' => $currentBrand->slug, 'agentType' => $key]) }}"
+                                   data-nav-key="{{ $key }}"
+                                   class="tw-block tw-h-[28px] tw-px-3 tw-flex tw-items-center tw-text-sm {{ $styleClass }} hover:tw-opacity-80 tw-transition-opacity tw-border-b tw-border-gray-200 last:tw-border-b-0">
+                                    {{ $step['label'] }}
+                                </a>
+                                @else
+                                <span data-nav-key="{{ $key }}"
+                                   class="tw-block tw-h-[28px] tw-px-3 tw-flex tw-items-center tw-text-sm {{ $styleClass }} tw-cursor-not-allowed tw-border-b tw-border-gray-200 last:tw-border-b-0">
+                                    {{ $step['label'] }}
+                                </span>
+                                @endif
+                                @php
+                                    $prevStepDone = $isDone;
+                                @endphp
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                {{-- Thân cây với dropdown --}}
+                <div class="tw-relative tw-group">
+                    <a href="{{ route('brands.trunk.show', $currentBrand) }}"
+                        class="{{ request()->routeIs('brands.trunk.show') || request()->is('*/chat/trunk*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
+                        <i class="ri-tree-line tw-transition"></i> Thân cây
+                    </a>
+                    {{-- Dropdown menu --}}
+                    <div class="tw-absolute tw-hidden group-hover:tw-block tw-w-[246px] tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-pt-2 tw-z-50">
+                        <div class="tw-border tw-border-gray-300 tw-bg-white tw-rounded-[4px] tw-shadow-lg tw-overflow-hidden">
+                            @php
+                                $trunkData = $currentBrand->trunk_data ?? [];
+                                $prevStepDone = true; // Assumed start for trunk, modify if dependent on root
+                            @endphp
+                            @foreach(config('timeline_steps.trunk') as $key => $step)
+                                @php
+                                    $isDone = !empty($trunkData[$key]);
+                                    $isUnlocked = $prevStepDone;
+                                    
+                                    // Kiểm tra xem đang ở trang chat của step này không
+                                    // URL: /brands/{slug}/chat/{agentType} => segment(4) = agentType
+                                    $currentAgentType = request()->segment(4);
+                                    $isActiveChat = (request()->segment(3) === 'chat' && $currentAgentType === $key);
+                                    
+                                    // Style class: nếu active thì đổi bg, nếu không thì theo trạng thái unlocked/locked
+                                    if ($isActiveChat) {
+                                        $styleClass = 'tw-text-vlbcgreen tw-bg-[#D9F2E2]';
+                                    } else {
+                                        $styleClass = $isUnlocked 
+                                            ? 'tw-text-vlbcgreen tw-bg-[#F4FCF7]' 
+                                            : 'tw-text-[#7B7773] tw-bg-[#e7e5df]';
+                                    }
+                                @endphp
+                                @if($isUnlocked || $isActiveChat)
+                                <a href="{{ route('chat', ['brand' => $currentBrand->slug, 'agentType' => $key]) }}"
+                                   data-nav-key="{{ $key }}"
+                                   class="tw-block tw-h-[28px] tw-px-3 tw-flex tw-items-center tw-text-sm {{ $styleClass }} hover:tw-opacity-80 tw-transition-opacity tw-border-b tw-border-gray-200 last:tw-border-b-0">
+                                    {{ $step['label'] }}
+                                </a>
+                                @else
+                                <span data-nav-key="{{ $key }}"
+                                   class="tw-block tw-h-[28px] tw-px-3 tw-flex tw-items-center tw-text-sm {{ $styleClass }} tw-cursor-not-allowed tw-border-b tw-border-gray-200 last:tw-border-b-0">
+                                    {{ $step['label'] }}
+                                </span>
+                                @endif
+                                @php
+                                    $prevStepDone = $isDone;
+                                @endphp
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
                 <a href="{{ route('brands.canopy.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.canopy.show') || request()->is('*/chat/canopy*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
                     <i class="ri-leaf-line tw-transition"></i> Tán cây
