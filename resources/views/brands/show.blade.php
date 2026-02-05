@@ -186,115 +186,29 @@
                     </div>
 
                     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6 tw-mt-6">
-                        <!-- CARD 1 -->
-                        <div
-                            class="tw-bg-white tw-rounded-xl tw-border tw-border-[#DDE7E2] tw-p-6 tw-shadow-sm tw-relative tw-overflow-hidden">
-                            <div class="tw-h-2 tw-w-full tw-bg-[#1AA24C] tw-absolute tw-top-0"></div>
+                        {{-- Root Card --}}
+                        <x-progress-phase-card 
+                            phase="root" 
+                            :status="$phases['root']['status']"
+                            :progress="$phases['root']['progress']"
+                            :url="$phases['root']['url']"
+                        />
 
-                            <div class="tw-text-center tw-flex tw-flex-col tw-items-center">
-                                <div
-                                    class="tw-h-14 tw-w-14 tw-rounded-full tw-bg-[#E6F4EC] tw-flex tw-items-center tw-justify-center tw-text-[#1AA24C] tw-text-2xl tw-mb-3">
-                                    <i class="ri-seedling-fill"></i>
-                                </div>
+                        {{-- Trunk Card --}}
+                        <x-progress-phase-card 
+                            phase="trunk" 
+                            :status="$phases['trunk']['status']"
+                            :progress="$phases['trunk']['progress']"
+                            :url="$phases['trunk']['url']"
+                        />
 
-                                <p
-                                    class="tw-bg-[#F2F8F4] tw-text-[#1AA24C] tw-text-xs tw-font-bold tw-px-3 tw-py-1 tw-rounded-full">
-                                    {{ __('messages.brand_show.stage_1') }}
-                                </p>
-
-                                <h3 class="tw-text-lg tw-font-semibold">{{ __('messages.brand_show.root') }}</h3>
-                                <p class="tw-text-gray-500 tw-text-sm">{{ __('messages.brand_show.brand_foundation') }}</p>
-
-                                <div class="tw-mt-4 tw-w-full">
-                                    <div class="tw-text-xs tw-font-medium tw-text-gray-700 tw-mb-1">
-                                        {{ __('messages.brand_show.progress') }}
-                                    </div>
-                                    <div class="tw-w-full tw-h-2 tw-bg-[#E8EDEB] tw-rounded-full tw-overflow-hidden">
-                                        <div class="tw-h-full tw-bg-[#1AA24C]" style="width: 100%"></div>
-                                    </div>
-
-                                    <div class="tw-text-right tw-text-xs tw-text-gray-700 tw-mt-1">
-                                        100%
-                                    </div>
-                                </div>
-
-                                <div class="tw-mt-5">
-                                    <span
-                                        class="tw-text-xs tw-font-semibold tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-px-3 tw-py-1 tw-rounded-full">
-                                        ✔ {{ __('messages.brand_show.stage_completed') }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 2 -->
-                        <div
-                            class="tw-bg-white tw-rounded-xl tw-border tw-border-[#DDE7E2] tw-p-6 tw-shadow-sm tw-relative tw-overflow-hidden">
-                            <div class="tw-h-2 tw-w-full tw-bg-[#96C7B0] tw-absolute tw-top-0"></div>
-
-                            <div class="tw-text-center tw-flex tw-flex-col tw-items-center">
-                                <div
-                                    class="tw-h-14 tw-w-14 tw-rounded-full tw-bg-[#E8F2EE] tw-flex tw-items-center tw-justify-center tw-text-[#489A6D] tw-text-2xl tw-mb-3">
-                                    <i class="ri-tree-line"></i>
-                                </div>
-
-                                <p
-                                    class="tw-bg-[#F0F5F2] tw-text-[#489A6D] tw-text-xs tw-font-bold tw-px-3 tw-py-1 tw-rounded-full">
-                                    {{ __('messages.brand_show.stage_2') }}
-                                </p>
-
-                                <h3 class="tw-text-lg tw-font-semibold">{{ __('messages.brand_show.trunk') }}</h3>
-                                <p class="tw-text-gray-500 tw-text-sm">{{ __('messages.brand_show.brand_identity') }}</p>
-
-                                <div class="tw-mt-4 tw-w-full">
-                                    <div class="tw-text-xs tw-font-medium tw-text-gray-700 tw-mb-1">
-                                        {{ __('messages.brand_show.progress') }}
-                                    </div>
-                                    <div class="tw-w-full tw-h-2 tw-bg-[#E8EDEB] tw-rounded-full tw-overflow-hidden">
-                                        <div class="tw-h-full tw-bg-[#1AA24C]" style="width: 60%"></div>
-                                    </div>
-
-                                    <div class="tw-text-right tw-text-xs tw-text-gray-700 tw-mt-1">
-                                        60%
-                                    </div>
-                                </div>
-
-                                <div class="tw-mt-5">
-                                    <span
-                                        class="tw-text-xs tw-font-semibold tw-bg-[#E9F3EF] tw-text-[#489A6D] tw-px-3 tw-py-1 tw-rounded-full">
-                                        ⏳ {{ __('messages.brand_show.in_progress') }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 3 -->
-                        <div
-                            class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E2EAE5] tw-p-6 tw-shadow-sm tw-opacity-60">
-                            <div class="tw-text-center tw-flex tw-flex-col tw-items-center">
-                                <div
-                                    class="tw-h-14 tw-w-14 tw-rounded-full tw-bg-[#F3F5F4] tw-flex tw-items-center tw-justify-center tw-text-[#A0B5AA] tw-text-2xl tw-mb-3">
-                                    <i class="ri-sparkling-fill"></i>
-                                </div>
-
-                                <p
-                                    class="tw-bg-[#F3F5F4] tw-text-[#A0B5AA] tw-text-xs tw-font-bold tw-px-3 tw-py-1 tw-rounded-full">
-                                    {{ __('messages.brand_show.stage_3') }}
-                                </p>
-
-                                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-500">
-                                    {{ __('messages.brand_show.canopy') }}
-                                </h3>
-                                <p class="tw-text-gray-400 tw-text-sm">{{ __('messages.brand_show.growth_spread') }}</p>
-
-                                <div class="tw-mt-5">
-                                    <span
-                                        class="tw-text-xs tw-font-semibold tw-bg-[#EDEFEF] tw-text-[#A0B5AA] tw-px-3 tw-py-1 tw-rounded-full">
-                                        {{ __('messages.brand_show.not_unlocked') }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        {{-- Canopy Card --}}
+                        <x-progress-phase-card 
+                            phase="canopy" 
+                            :status="$phases['canopy']['status']"
+                            :progress="$phases['canopy']['progress']"
+                            :url="$phases['canopy']['url']"
+                        />
                     </div>
                 </div>
             </section>
