@@ -111,10 +111,17 @@ class BrandDataController extends Controller
             'phases' => $phases
         ])->render();
 
+        // Render HTML cho phần Progress Header (các card tiến trình)
+        $progressHeaderHtml = view('brands.partials.progress-header', [
+            'brand' => $brand,
+            'phases' => $phases
+        ])->render();
+
         return response()->json([
             'status' => 'success',
             'message' => 'Đã lưu thành công.',
-            'next_step_html' => $nextStepHtml
+            'next_step_html' => $nextStepHtml,
+            'progress_header_html' => $progressHeaderHtml
         ]);
     }
 }

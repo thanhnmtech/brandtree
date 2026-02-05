@@ -116,24 +116,7 @@ export default class extends Controller {
         this.clearStatus();
 
         try {
-            const response = await fetch(
-                `/brands/${this.brandSlugValue}/update-section`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]',
-                        ).content,
-                    },
-                    body: JSON.stringify({
-                        key: this.currentKey,
-                        content: this.contentTarget.value,
-                    }),
-                },
-            );
-
-            const result = await response.json();
+            const result = await this.sendSaveRequest();
 
             if (result.status === "success") {
                 this.showStatus("Đã lưu thành công", "success");
@@ -143,81 +126,11 @@ export default class extends Controller {
                 newData[this.currentKey] = this.contentTarget.value;
                 this.dataValue = newData;
 
-                // Nếu có next_step_html từ server (Trang Brand Show), update luôn
-                if (result.next_step_html && this.hasNextStepContainerTarget) {
-                    this.nextStepContainerTarget.innerHTML = result.next_step_html;
-                }
+                // Cập nhật các phần UI (Next Step, Progress, Steps)
+                this.updateUIFromResponse(result);
 
-                // Load lại danh sách bước (dùng cho trang Root/Trunk)
-                this.fetchSteps();
-
-                // Update navigation dropdown status
-                // Tìm cả a và span với data-nav-key
-                const navItem = document.querySelector(`[data-nav-key="${this.currentKey}"]`);
-                if (navItem) {
-                    // Current Item: Đổi style sang màu xanh (unlocked)
-                    navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]', 'tw-cursor-not-allowed');
-                    navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
-
-                    // Tìm container chứa tất cả các navigation items
-                    const container = navItem.closest('.tw-rounded-\\[4px\\]');
-                    if (container) {
-                        // Lấy tất cả items trong container
-                        const allItems = container.querySelectorAll('[data-nav-key]');
-                        let currentIndex = -1;
-                        
-                        // Tìm index của item hiện tại
-                        allItems.forEach((item, index) => {
-                            if (item.getAttribute('data-nav-key') === this.currentKey) {
-                                currentIndex = index;
-                            }
-                        });
-
-                        // Unlock next item nếu có trong cùng dropdown
-                        if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
-                            const nextItem = allItems[currentIndex + 1];
-                            const nextKey = nextItem.getAttribute('data-nav-key');
-                            
-                            // Nếu next item là span (locked), thay bằng a (unlocked)
-                            if (nextItem.tagName === 'SPAN') {
-                                const newLink = document.createElement('a');
-                                newLink.href = `/brands/${this.brandSlugValue}/chat/${nextKey}`;
-                                newLink.setAttribute('data-nav-key', nextKey);
-                                newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
-                                newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
-                                newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
-                                newLink.innerHTML = nextItem.innerHTML;
-                                nextItem.replaceWith(newLink);
-                            } else {
-                                // Nếu đã là a, chỉ cần đổi style
-                                nextItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
-                                nextItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
-                            }
-                        }
-                        
-                        // Nếu là step cuối của root (root3), kiểm tra và unlock trunk1
-                        if (this.currentKey === 'root3') {
-                            // Kiểm tra tất cả root steps đã có data chưa
-                            const rootKeys = ['root1', 'root2', 'root3'];
-                            const allRootDone = rootKeys.every(key => this.dataValue[key]);
-                            
-                            if (allRootDone) {
-                                // Tìm trunk1 trong dropdown trunk
-                                const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
-                                if (trunk1Item && trunk1Item.tagName === 'SPAN') {
-                                    const newLink = document.createElement('a');
-                                    newLink.href = `/brands/${this.brandSlugValue}/chat/trunk1`;
-                                    newLink.setAttribute('data-nav-key', 'trunk1');
-                                    newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
-                                    newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
-                                    newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
-                                    newLink.innerHTML = trunk1Item.innerHTML;
-                                    trunk1Item.replaceWith(newLink);
-                                }
-                            }
-                        }
-                    }
-                }
+                // Cập nhật trạng thái navigation dropdown
+                this.updateNavigationDropdown();
             } else {
                 this.showStatus(
                     "Lỗi: " + (result.message || "Không thể lưu"),
@@ -230,6 +143,122 @@ export default class extends Controller {
         } finally {
             this.isSaving = false;
             this.updateSaveButtonState(false);
+        }
+    }
+
+    /**
+     * Gửi request lưu dữ liệu lên server
+     */
+    async sendSaveRequest() {
+        const response = await fetch(
+            `/brands/${this.brandSlugValue}/update-section`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]',
+                    ).content,
+                },
+                body: JSON.stringify({
+                    key: this.currentKey,
+                    content: this.contentTarget.value,
+                }),
+            },
+        );
+        return await response.json();
+    }
+
+    /**
+     * Cập nhật các phần UI sau khi lưu thành công
+     */
+    updateUIFromResponse(result) {
+        // Nếu có next_step_html từ server (Trang Brand Show), update luôn
+        if (result.next_step_html && this.hasNextStepContainerTarget) {
+            this.nextStepContainerTarget.innerHTML = result.next_step_html;
+        }
+
+        // Nếu có progress_header_html từ server, update Progress Header cards
+        if (result.progress_header_html && this.hasProgressContainerTarget) {
+            this.progressContainerTarget.innerHTML = result.progress_header_html;
+        }
+
+        // Load lại danh sách bước (dùng cho trang Root/Trunk)
+        this.fetchSteps();
+    }
+
+    /**
+     * Cập nhật trạng thái navigation dropdown sau khi lưu
+     * - Đổi style item hiện tại sang màu xanh
+     * - Unlock item tiếp theo nếu có
+     * - Xử lý đặc biệt khi hoàn thành root3 → unlock trunk1
+     */
+    updateNavigationDropdown() {
+        // Tìm cả a và span với data-nav-key
+        const navItem = document.querySelector(`[data-nav-key="${this.currentKey}"]`);
+        if (!navItem) return;
+
+        // Current Item: Đổi style sang màu xanh (unlocked)
+        navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]', 'tw-cursor-not-allowed');
+        navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+
+        // Tìm container chứa tất cả các navigation items
+        const container = navItem.closest('.tw-rounded-\\[4px\\]');
+        if (!container) return;
+
+        // Lấy tất cả items trong container
+        const allItems = container.querySelectorAll('[data-nav-key]');
+        let currentIndex = -1;
+        
+        // Tìm index của item hiện tại
+        allItems.forEach((item, index) => {
+            if (item.getAttribute('data-nav-key') === this.currentKey) {
+                currentIndex = index;
+            }
+        });
+
+        // Unlock next item nếu có trong cùng dropdown
+        if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
+            const nextItem = allItems[currentIndex + 1];
+            const nextKey = nextItem.getAttribute('data-nav-key');
+            
+            // Nếu next item là span (locked), thay bằng a (unlocked)
+            if (nextItem.tagName === 'SPAN') {
+                const newLink = document.createElement('a');
+                newLink.href = `/brands/${this.brandSlugValue}/chat/${nextKey}`;
+                newLink.setAttribute('data-nav-key', nextKey);
+                newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
+                newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+                newLink.innerHTML = nextItem.innerHTML;
+                nextItem.replaceWith(newLink);
+            } else {
+                // Nếu đã là a, chỉ cần đổi style
+                nextItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                nextItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+            }
+        }
+        
+        // Nếu là step cuối của root (root3), kiểm tra và unlock trunk1
+        if (this.currentKey === 'root3') {
+            // Kiểm tra tất cả root steps đã có data chưa
+            const rootKeys = ['root1', 'root2', 'root3'];
+            const allRootDone = rootKeys.every(key => this.dataValue[key]);
+            
+            if (allRootDone) {
+                // Tìm trunk1 trong dropdown trunk
+                const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
+                if (trunk1Item && trunk1Item.tagName === 'SPAN') {
+                    const newLink = document.createElement('a');
+                    newLink.href = `/brands/${this.brandSlugValue}/chat/trunk1`;
+                    newLink.setAttribute('data-nav-key', 'trunk1');
+                    newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
+                    newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+                    newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+                    newLink.innerHTML = trunk1Item.innerHTML;
+                    trunk1Item.replaceWith(newLink);
+                }
+            }
         }
     }
 
