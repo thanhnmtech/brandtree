@@ -139,6 +139,7 @@ return [
         'next_step_desc' => 'Excellent! Now it\'s time to create a unique identity.',
         'next_step_detail' => 'Continue perfecting your Brand Identity. Create a unique positioning statement and design a consistent visual identity system.',
         'start_now' => 'Start Now',
+        'continue' => 'Continue',
         'tip' => 'Tip: You can ask AI for assistance anytime during the brand building process',
         'delete_brand_title' => 'Delete Brand',
         'action_cannot_undo' => 'This action cannot be undone',

@@ -116,86 +116,15 @@ class BrandController extends Controller
         $brand->load(['members.user', 'activeSubscription.plan']);
 
         // Tính toán trạng thái các phase cho Progress Cards
-        $phases = $this->calculatePhaseStatuses($brand);
+        $phases = $brand->calculatePhaseStatuses();
 
         return view('brands.show', compact('brand', 'phases'));
     }
 
-    /**
-     * Tính toán trạng thái của 3 phase: Root, Trunk, Canopy
-     * Lấy danh sách steps từ config/timeline_steps.php
-     * 
-     * @param Brand $brand
-     * @return array
-     */
-    private function calculatePhaseStatuses(Brand $brand): array
-    {
-        $rootData = $brand->root_data ?? [];
-        $trunkData = $brand->trunk_data ?? [];
-
-        // Lấy danh sách steps từ config (dynamic)
-        $rootSteps = array_keys(config('timeline_steps.root', []));
-        $trunkSteps = array_keys(config('timeline_steps.trunk', []));
-
-        $rootTotal = count($rootSteps);
-        $trunkTotal = count($trunkSteps);
-
-        // Đếm số steps đã hoàn thành
-        $rootCompleted = count(array_filter($rootSteps, fn($k) => !empty($rootData[$k])));
-        $trunkCompleted = count(array_filter($trunkSteps, fn($k) => !empty($trunkData[$k])));
-
-        $isRootFinished = $rootTotal > 0 && $rootCompleted === $rootTotal;
-        $isTrunkFinished = $trunkTotal > 0 && $trunkCompleted === $trunkTotal;
-
-        // Xác định trạng thái và URL cho từng phase
-        return [
-            'root' => [
-                'status' => $isRootFinished ? 'completed' : 'ready',
-                'progress' => $rootTotal > 0 ? round(($rootCompleted / $rootTotal) * 100) : 0,
-                'url' => $isRootFinished ? route('brands.root.show', $brand) : route('chat', [
-                    'brand' => $brand->slug, 
-                    'agentType' => $this->getNextStep($rootData, $rootSteps)
-                ]),
-            ],
-            'trunk' => [
-                'status' => $isTrunkFinished ? 'completed' : ($isRootFinished ? 'ready' : 'locked'),
-                'progress' => $isRootFinished && $trunkTotal > 0 ? round(($trunkCompleted / $trunkTotal) * 100) : 0,
-                'url' => $isTrunkFinished 
-                    ? route('brands.trunk.show', $brand)
-                    : ($isRootFinished 
-                        ? route('chat', [
-                            'brand' => $brand->slug, 
-                            'agentType' => $this->getNextStep($trunkData, $trunkSteps)
-                        ]) 
-                        : null),
-            ],
-            'canopy' => [
-                'status' => ($isRootFinished && $isTrunkFinished) ? 'ready' : 'locked',
-                'progress' => 0, // Canopy không có progress bar
-                'url' => ($isRootFinished && $isTrunkFinished) 
-                    ? route('brands.canopy.show', $brand) 
-                    : null,
-            ],
-        ];
-    }
 
 
-    /**
-     * Lấy step tiếp theo cần hoàn thành
-     * 
-     * @param array $data Dữ liệu hiện tại (root_data hoặc trunk_data)
-     * @param array $steps Danh sách steps cần hoàn thành
-     * @return string
-     */
-    private function getNextStep(array $data, array $steps): string
-    {
-        foreach ($steps as $step) {
-            if (empty($data[$step])) {
-                return $step;
-            }
-        }
-        return $steps[0]; // Fallback
-    }
+
+
 
     /**
      * Update the specified resource in storage.

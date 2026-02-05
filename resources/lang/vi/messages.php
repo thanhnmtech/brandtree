@@ -139,6 +139,7 @@ return [
         'next_step_desc' => 'Tuyệt vời! Giờ là lúc tạo bản sắc độc đáo.',
         'next_step_detail' => 'Hãy tiếp tục hoàn thiện Bản sắc Thương hiệu của bạn. Tạo tuyên bố định vị độc đáo và thiết kế hệ thống nhận diện thị giác nhất quán.',
         'start_now' => 'Bắt đầu ngay',
+        'continue' => 'Tiếp tục',
         'tip' => 'Mẹo: Bạn có thể yêu cầu AI hỗ trợ bất kỳ lúc nào trong quá trình xây dựng thương hiệu',
         'delete_brand_title' => 'Xóa thương hiệu',
         'action_cannot_undo' => 'Hành động này không thể hoàn tác',
