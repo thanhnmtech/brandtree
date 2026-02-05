@@ -152,7 +152,7 @@ class BrandController extends Controller
             'root' => [
                 'status' => $isRootFinished ? 'completed' : 'ready',
                 'progress' => $rootTotal > 0 ? round(($rootCompleted / $rootTotal) * 100) : 0,
-                'url' => $isRootFinished ? null : route('chat', [
+                'url' => $isRootFinished ? route('brands.root.show', $brand) : route('chat', [
                     'brand' => $brand->slug, 
                     'agentType' => $this->getNextStep($rootData, $rootSteps)
                 ]),
@@ -160,12 +160,14 @@ class BrandController extends Controller
             'trunk' => [
                 'status' => $isTrunkFinished ? 'completed' : ($isRootFinished ? 'ready' : 'locked'),
                 'progress' => $isRootFinished && $trunkTotal > 0 ? round(($trunkCompleted / $trunkTotal) * 100) : 0,
-                'url' => ($isRootFinished && !$isTrunkFinished) 
-                    ? route('chat', [
-                        'brand' => $brand->slug, 
-                        'agentType' => $this->getNextStep($trunkData, $trunkSteps)
-                    ]) 
-                    : null,
+                'url' => $isTrunkFinished 
+                    ? route('brands.trunk.show', $brand)
+                    : ($isRootFinished 
+                        ? route('chat', [
+                            'brand' => $brand->slug, 
+                            'agentType' => $this->getNextStep($trunkData, $trunkSteps)
+                        ]) 
+                        : null),
             ],
             'canopy' => [
                 'status' => ($isRootFinished && $isTrunkFinished) ? 'ready' : 'locked',

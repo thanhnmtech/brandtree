@@ -92,7 +92,7 @@
     $styles = $statusStyles[$status] ?? $statusStyles['locked'];
     
     // Xác định tag wrapper: <a> nếu có url và status ready, ngược lại <div>
-    $isClickable = $status === 'ready' && $url;
+    $isClickable = ($status === 'ready' || $status === 'completed') && $url;
 @endphp
 
 @if($isClickable)
