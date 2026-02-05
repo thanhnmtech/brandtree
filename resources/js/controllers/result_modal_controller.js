@@ -143,7 +143,12 @@ export default class extends Controller {
                 newData[this.currentKey] = this.contentTarget.value;
                 this.dataValue = newData;
 
-                // Load lại danh sách bước
+                // Nếu có next_step_html từ server (Trang Brand Show), update luôn
+                if (result.next_step_html && this.hasNextStepContainerTarget) {
+                    this.nextStepContainerTarget.innerHTML = result.next_step_html;
+                }
+
+                // Load lại danh sách bước (dùng cho trang Root/Trunk)
                 this.fetchSteps();
 
                 // Update navigation dropdown status

@@ -102,9 +102,19 @@ class BrandDataController extends Controller
         $brand->$targetColumn = $currentData;
         $brand->save();
 
+        // Tính toán lại trạng thái phases để cập nhật giao diện
+        $phases = $brand->calculatePhaseStatuses();
+        
+        // Render HTML cho phần Next Step
+        $nextStepHtml = view('brands.partials.next-step', [
+            'brand' => $brand,
+            'phases' => $phases
+        ])->render();
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Đã lưu thành công.'
+            'message' => 'Đã lưu thành công.',
+            'next_step_html' => $nextStepHtml
         ]);
     }
 }
