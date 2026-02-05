@@ -14,7 +14,7 @@
     ];
 @endphp
 
-<section class="tw-px-8" x-data="{
+<section class="tw-px-8 tw-hidden" x-data="{
     openModal: false,
     modalTitle: '',
     modalContent: '',
