@@ -177,9 +177,15 @@
 
             <!-- Avatar (ONLY ONE) — CLICK TO OPEN POPUP -->
             <button onclick="toggleAccountPopup()">
-                <img id="accountBtn" src="{{ asset('assets/img/default-avatar.svg') }}"
-                    class="tw-w-[36px] tw-h-[36px] tw-rounded-full tw-object-cover tw-cursor-pointer tw-border tw-border-gray-300"
-                    alt="avatar" />
+                @if(auth()->user()->avatar)
+                    <img id="accountBtn" src="{{ Storage::url(auth()->user()->avatar) }}"
+                        class="tw-w-[36px] tw-h-[36px] tw-rounded-full tw-object-cover tw-cursor-pointer tw-border tw-border-gray-300"
+                        alt="avatar" />
+                @else
+                    <img id="accountBtn" src="{{ asset('assets/img/default-avatar.svg') }}"
+                        class="tw-w-[36px] tw-h-[36px] tw-rounded-full tw-object-cover tw-cursor-pointer tw-border tw-border-gray-300"
+                        alt="avatar" />
+                @endif
             </button>
         </div>
 
@@ -198,7 +204,11 @@
         <div class="tw-p-5">
             <p class="tw-text-sm tw-opacity-80">Tài khoản</p>
             <div class="tw-flex tw-items-center tw-gap-3 tw-mt-3 tw-py-2">
-                <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-white/40"></div>
+                @if(auth()->user()->avatar)
+                    <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="{{ auth()->user()->name }}" class="tw-w-12 tw-h-12 tw-rounded-full tw-object-cover">
+                @else
+                    <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-white/40"></div>
+                @endif
                 <div>
                     <p class="tw-font-semibold">{{ request()->user()->name }}</p>
                     <p class="tw-text-sm tw-opacity-80">{{ request()->user()->email }}</p>

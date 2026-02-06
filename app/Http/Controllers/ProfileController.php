@@ -30,13 +30,22 @@ class ProfileController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        // Xử lý upload avatar (theo mẫu BrandController)
-        if ($request->hasFile('avatar')) {
+        // Xử lý xóa avatar nếu người dùng yêu cầu
+        if ($request->input('remove_avatar') === '1' && !$request->hasFile('avatar')) {
+            // Xóa file avatar cũ nếu tồn tại
+            if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            // Đặt avatar = null trong validated để fill() cập nhật đúng vào database
+            $validated['avatar'] = null;
+        }
+        // Xử lý upload avatar mới (theo mẫu BrandController)
+        elseif ($request->hasFile('avatar')) {
             // Xóa avatar cũ nếu tồn tại và là file local (không phải URL bên ngoài)
             if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
                 Storage::disk('public')->delete($user->avatar);
             }
-            // Lưu avatar mới vào thư mục 'avatars' trên disk 'public'
+            // Lưu avatar mới vào thư mục 'users/avatars' trên disk 'public'
             $validated['avatar'] = $request->file('avatar')->store('users/avatars', 'public');
         }
 

@@ -18,7 +18,9 @@
         @method('patch')
 
         <!-- Avatar Upload -->
-        <div x-data="{ photoName: null, photoPreview: null }" class="tw-col-span-6 sm:tw-col-span-4">
+        <div x-data="{ photoName: null, photoPreview: null, removeExistingAvatar: false }" class="tw-col-span-6 sm:tw-col-span-4">
+            <!-- Hidden input để gửi flag xóa avatar -->
+            <input type="hidden" name="remove_avatar" x-bind:value="removeExistingAvatar ? '1' : '0'">
             <!-- Profile Photo File Input -->
             <input type="file" id="photo" class="tw-hidden"
                         name="avatar"
@@ -56,7 +58,8 @@
 
                     <!-- Preview Area (Right) -->
                     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-2">
-                        <div class="tw-mt-2" x-show="! photoPreview">
+                        <!-- Ảnh hiện tại từ database (chỉ hiện khi không có preview và không đánh dấu xóa) -->
+                        <div class="tw-mt-2" x-show="!photoPreview && !removeExistingAvatar">
                             @if (auth()->user()->avatar)
                                 <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="{{ auth()->user()->name }}" class="tw-rounded-full tw-h-32 tw-w-32 tw-object-cover tw-border-2 tw-border-gray-200">
                             @else
@@ -65,16 +68,41 @@
                                 </div>
                             @endif
                         </div>
-                        <!-- New Profile Photo Preview -->
+                        
+                        <!-- Placeholder khi đã đánh dấu xóa (chưa có ảnh mới) -->
+                        <div class="tw-mt-2" x-show="removeExistingAvatar && !photoPreview" style="display: none;">
+                            <div class="tw-rounded-full tw-h-32 tw-w-32 tw-bg-gray-100 tw-flex tw-items-center tw-justify-center tw-text-gray-400 tw-border-2 tw-border-dashed tw-border-gray-300">
+                                <i class="ri-user-line tw-text-4xl"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview ảnh mới -->
                         <div class="tw-mt-2" x-show="photoPreview" style="display: none;">
                             <span class="tw-block tw-rounded-full tw-w-32 tw-h-32 tw-bg-cover tw-bg-no-repeat tw-bg-center tw-border-2 tw-border-[#1AA24C]"
                                 x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
                             </span>
                         </div>
                         
+                        <!-- Nút xóa ảnh mới (preview) -->
                         <button type="button" class="tw-text-sm tw-text-gray-500 hover:tw-text-red-500" x-show="photoPreview" x-on:click="photoPreview = null; photoName = null; $refs.photo.value = null">
-                            Xóa ảnh
+                            Hủy ảnh mới
                         </button>
+                        
+                        <!-- Nút xóa ảnh hiện tại (từ database) -->
+                        @if(auth()->user()->avatar)
+                        <button type="button" class="tw-text-sm tw-text-red-500 hover:tw-text-red-700 tw-flex tw-items-center tw-gap-1" 
+                            x-show="!photoPreview && !removeExistingAvatar" 
+                            x-on:click="removeExistingAvatar = true">
+                            <i class="ri-delete-bin-line"></i> Xóa ảnh đại diện
+                        </button>
+                        
+                        <!-- Nút hoàn tác xóa -->
+                        <button type="button" class="tw-text-sm tw-text-[#1AA24C] hover:tw-text-[#148a3f] tw-flex tw-items-center tw-gap-1" 
+                            x-show="removeExistingAvatar && !photoPreview" 
+                            x-on:click="removeExistingAvatar = false">
+                            <i class="ri-arrow-go-back-line"></i> Hoàn tác
+                        </button>
+                        @endif
                         
                     </div>
                 </div>
