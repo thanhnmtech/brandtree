@@ -92,6 +92,7 @@ return [
     // Brand Show Page Messages
     'brand_show' => [
         'update_brand' => 'Cập nhật thương hiệu',
+        'brand_info' => 'Thông tin thương hiệu',
         'manage_plan' => 'Quản lý gói',
         'manage_members' => 'Quản lý thành viên',
         'payment_history' => 'Lịch sử thanh toán',
@@ -158,6 +159,13 @@ return [
         'community_desc' => 'Quản lý và phát triển cộng đồng',
         'interact' => 'Tương tác',
         'unlock_later' => 'Mở khóa sau',
+        'close' => 'Đóng',
+        'no_data' => 'Chưa có dữ liệu',
+        'culture_design_canvas' => 'Văn hoá Dịch vụ',
+        'market_opportunity_analysis' => 'Thổ nhưỡng',
+        'value_proposition_canvas' => 'Giá trị Giải pháp',
+        'brand_components_canvas' => 'Định vị Thương hiệu',
+        'brand_verbal_identity' => 'Nhận diện Ngôn ngữ',
     ],
 
     // Member Management Messages
