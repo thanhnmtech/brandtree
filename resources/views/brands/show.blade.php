@@ -204,9 +204,9 @@
             <!-- =================== BRAND OVERVIEW =================== -->
             <section class="tw-px-8">
                 <div
-                    class="tw-w-full tw-bg-[linear-gradient(96deg,#F5FBF7_0.31%,#FCF9F3_50%,#F2F7F0_99.69%)] tw-border tw-border-[#E0EAE6] tw-rounded-xl tw-p-8 tw-shadow-sm tw-flex tw-flex-col lg:tw-flex-row tw-gap-10 tw-items-center">
+                    class="tw-w-full tw-bg-[linear-gradient(96deg,#F5FBF7_0.31%,#FCF9F3_50%,#F2F7F0_99.69%)] tw-border tw-border-[#E0EAE6] tw-rounded-xl tw-p-8 tw-shadow-sm tw-flex tw-flex-col md:tw-flex-row tw-gap-10 tw-items-center">
                     <!-- LEFT -->
-                    <div class="tw-flex-1 tw-space-y-6">
+                    <div class="tw-flex-1 tw-w-full tw-space-y-6">
                         <div>
                             <h2 class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-gap-2">
                                 <i class="ri-bar-chart-line tw-text-[#1AA24C] tw-text-2xl"></i>
@@ -245,7 +245,7 @@
                         </div>
 
                         <div
-                            class="tw-w-full tw-bg-[linear-gradient(90deg,#E7F2E7_0%,#F8F1E0_100%)] tw-border tw-border-[#E0EAE6] tw-rounded-lg tw-py-5 tw-px-10 tw-w-[260px] tw-shadow-sm tw-flex tw-items-center tw-justify-between">
+                            class="tw-w-full tw-bg-[linear-gradient(90deg,#E7F2E7_0%,#F8F1E0_100%)] tw-border tw-border-[#E0EAE6] tw-rounded-lg tw-py-5 tw-px-10 tw-shadow-sm tw-flex tw-items-center tw-justify-between">
                             <div>
                                 <p class="tw-text-gray-500 tw-text-md">{{ __('messages.brand_show.overall_score') }}</p>
                                 <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">
@@ -260,7 +260,7 @@
                     </div>
 
                     <!-- RIGHT -->
-                    <div class="tw-flex tw-items-center tw-justify-center tw-w-full lg:tw-w-[320px]">
+                    <div class="tw-flex tw-items-center tw-justify-center tw-w-full md:tw-w-[280px]">
                         <div class="tw-relative tw-w-[200px] tw-h-[200px]">
                             <svg class="tw-w-full tw-h-full" viewBox="0 0 120 120">
                                 <circle cx="60" cy="60" r="52" stroke="#E8EDEB" stroke-width="8" fill="none" />
