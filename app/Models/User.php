@@ -27,6 +27,7 @@ class User extends Authenticatable
         'google_id',
         'otp',
         'otp_expires_at',
+        'avatar', // Thêm avatar để cho phép lưu đường dẫn ảnh đại diện
     ];
 
     /**
