@@ -92,6 +92,7 @@ return [
     // Brand Show Page Messages
     'brand_show' => [
         'update_brand' => 'Update Brand',
+        'brand_info' => 'Brand Information',
         'manage_plan' => 'Manage Plan',
         'manage_members' => 'Manage Members',
         'payment_history' => 'Payment History',
@@ -158,6 +159,13 @@ return [
         'community_desc' => 'Manage and grow community',
         'interact' => 'Interact',
         'unlock_later' => 'Unlock Later',
+        'close' => 'Close',
+        'no_data' => 'No data',
+        'culture_design_canvas' => 'Culture Design Canvas',
+        'market_opportunity_analysis' => 'Market Opportunity Analysis',
+        'value_proposition_canvas' => 'Value Proposition Canvas',
+        'brand_components_canvas' => 'Brand Components Canvas',
+        'brand_verbal_identity' => 'Brand Verbal Identity',
     ],
 
     // Member Management Messages

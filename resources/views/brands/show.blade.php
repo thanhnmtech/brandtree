@@ -11,7 +11,7 @@
             'trunk2' => $trunkData['trunk2'] ?? '',
         ];
     @endphp
-    <div data-controller="brand-form result-modal" 
+    <div data-controller="brand-form result-modal brand-info" 
         data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
         data-brand-form-modal-mode-value="{{ old('_brand_modal_mode') }}"
         data-brand-form-brand-logo-value="{{ $brand->logo_path ? Storage::url($brand->logo_path) : '' }}"
@@ -20,7 +20,8 @@
         data-brand-form-redirect-url-value="{{ route('dashboard') }}"
         data-result-modal-brand-slug-value="{{ $brand->slug }}"
         data-result-modal-url-value="{{ route('brands.show', $brand->slug) }}"
-        data-result-modal-data-value='@json($initialData)'>
+        data-result-modal-data-value='@json($initialData)'
+        data-brand-info-data-value='@json($initialData)'>
         <main class="tw-mt-[36px] tw-flex tw-flex-col tw-gap-10">
             <!-- =================== HERO =================== -->
             <div class="tw-w-full tw-bg-[#F9F8F5] tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between">
@@ -43,6 +44,12 @@
                                             class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
                                             <i class="ri-edit-line tw-text-lg tw-text-gray-500"></i>
                                             <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.update_brand') }}</span>
+                                        </button>
+
+                                        <button data-action="click->brand-info#open click->dropdown#close" type="button"
+                                            class="tw-w-full tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-text-gray-700 hover:tw-bg-gray-50 tw-transition">
+                                            <i class="ri-information-line tw-text-lg tw-text-gray-500"></i>
+                                            <span class="tw-text-sm tw-font-medium">{{ __('messages.brand_show.brand_info') }}</span>
                                         </button>
 
                                         <a href="{{ route('brands.subscription.show', $brand) }}"
@@ -365,6 +372,9 @@
 
             <!-- Edit Brand Modal Component -->
             <x-modal-brand-form :brand="$brand" mode="edit" />
+
+            <!-- Brand Info Modal Component (Read-only) -->
+            <x-modal_brand_info :brand="$brand" />
 
             <!-- Delete Brand Confirmation Modal -->
             <div data-brand-form-target="deleteModal"
