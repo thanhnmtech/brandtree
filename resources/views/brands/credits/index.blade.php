@@ -104,10 +104,10 @@
                         </div>
                     </div>
                     <p class="tw-text-2xl tw-font-bold tw-text-gray-800">
-                        {{ $subscription?->credits_reset_at?->addMonth()->format('d/m/Y') ?? '-' }}
+                        {{ $subscription?->credits_reset_at?->format('d/m/Y') ?? '-' }}
                     </p>
                     <p class="tw-text-xs tw-text-[#6F7C7A] tw-mt-2">
-                        {{ $subscription?->credits_reset_at?->addMonth()->diffForHumans() ?? 'Chưa có gói' }}
+                        {{ $subscription?->credits_reset_at?->diffForHumans() ?? 'Chưa có gói' }}
                     </p>
                 </div>
             </div>

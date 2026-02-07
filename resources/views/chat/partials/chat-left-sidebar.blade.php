@@ -43,19 +43,23 @@
 
     <ul id="dataPlatformMenu" class="tw-hidden tw-w-full tw-space-y-2 tw-text-sm">
       <li class="tw-px-3 tw-py-1 tw-rounded-md tw-bg-[#D9F2E2] tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Phân tích thổ nhưỡng</span>
+        <span class="tw-font-semibold tw-text-gray-500">AI Thiết kế Văn hoá Dịch vụ (Culture Design Canvas)</span>
       </li>
 
       <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Định vị Giá trị Giải pháp</span>
+        <span class="tw-font-semibold tw-text-gray-500">AI Phân tích Thổ nhưỡng (Market Opportunity Analysis)</span>
       </li>
 
       <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Thiết kế Văn hóa Dịch vụ</span>
+        <span class="tw-font-semibold tw-text-gray-500">AI Định vị Giá trị Giải pháp (Value Proposition Canvas)</span>
       </li>
 
       <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Định vị thương hiệu</span>
+        <span class="tw-font-semibold tw-text-gray-500">AI Định vị Thương hiệu (Brand Components Canvas)</span>
+      </li>
+
+      <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
+        <span class="tw-font-semibold tw-text-gray-500">AI Nhận diện Ngôn ngữ (Brand Verbal Identity)</span>
       </li>
     </ul>
   </nav>

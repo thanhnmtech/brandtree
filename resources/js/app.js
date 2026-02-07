@@ -1,39 +1,41 @@
-import './bootstrap';
+import "./bootstrap";
 
 // Alpine.js is bundled with Livewire v3+, no need to import separately
 // Livewire automatically manages Alpine initialization
 
 // Import Stimulus
-import { Application } from "@hotwired/stimulus"
+import { Application } from "@hotwired/stimulus";
 
 // Import Stimulus controllers
-import BrandFormController from "./controllers/brand_form_controller"
-import BrandFilterController from "./controllers/brand_filter_controller"
-import MemberManagementController from "./controllers/member_management_controller"
-import DropdownController from "./controllers/dropdown_controller"
-import PaymentStatusController from "./controllers/payment_status_controller"
+import BrandFormController from "./controllers/brand_form_controller";
+import BrandFilterController from "./controllers/brand_filter_controller";
+import MemberManagementController from "./controllers/member_management_controller";
+import DropdownController from "./controllers/dropdown_controller";
+import PaymentStatusController from "./controllers/payment_status_controller";
+import StepCardController from "./controllers/step_card_controller";
 
 // Start Stimulus application
-const application = Application.start()
+const application = Application.start();
 
 // Register controllers
-application.register("brand-form", BrandFormController)
-application.register("brand-filter", BrandFilterController)
-application.register("member-management", MemberManagementController)
-application.register("dropdown", DropdownController)
-application.register("payment-status", PaymentStatusController)
+application.register("brand-form", BrandFormController);
+application.register("brand-filter", BrandFilterController);
+application.register("member-management", MemberManagementController);
+application.register("dropdown", DropdownController);
+application.register("payment-status", PaymentStatusController);
+application.register("step-card", StepCardController);
 
 // Make Stimulus available globally (optional, for debugging)
-window.Stimulus = application
+window.Stimulus = application;
 
 // ===========================================
 // Form Submit Loading Button
 // ===========================================
-document.addEventListener('DOMContentLoaded', function () {
-    const forms = document.querySelectorAll('form');
+document.addEventListener("DOMContentLoaded", function () {
+    const forms = document.querySelectorAll("form");
 
-    forms.forEach(form => {
-        form.addEventListener('submit', function (e) {
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (e) {
             const submitBtn = form.querySelector('button[type="submit"]');
 
             if (submitBtn && !submitBtn.disabled) {
@@ -50,15 +52,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     </span>
                 `;
 
-                submitBtn.style.opacity = '0.7';
-                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.style.opacity = "0.7";
+                submitBtn.style.cursor = "not-allowed";
 
                 setTimeout(() => {
                     if (!form.checkValidity()) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = submitBtn.dataset.originalHtml;
-                        submitBtn.style.opacity = '1';
-                        submitBtn.style.cursor = 'pointer';
+                        submitBtn.style.opacity = "1";
+                        submitBtn.style.cursor = "pointer";
                     }
                 }, 100);
             }
@@ -67,14 +69,14 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Reset loading state when navigating back via browser back/forward button (bfcache)
-window.addEventListener('pageshow', function (event) {
+window.addEventListener("pageshow", function (event) {
     if (event.persisted) {
-        document.querySelectorAll('button[type="submit"]').forEach(btn => {
+        document.querySelectorAll('button[type="submit"]').forEach((btn) => {
             if (btn.disabled && btn.dataset.originalHtml) {
                 btn.disabled = false;
                 btn.innerHTML = btn.dataset.originalHtml;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
             }
         });
     }
@@ -83,23 +85,35 @@ window.addEventListener('pageshow', function (event) {
 // ===========================================
 // Toastify Configuration
 // ===========================================
-window.showToast = function (message, type = 'success') {
+window.showToast = function (message, type = "success") {
     const config = {
-        success: { background: 'linear-gradient(to right, #00b09b, #96c93d)', icon: '✓' },
-        error: { background: 'linear-gradient(to right, #ff5f6d, #ffc371)', icon: '✕' },
-        warning: { background: 'linear-gradient(to right, #f093fb, #f5576c)', icon: '⚠' },
-        info: { background: 'linear-gradient(to right, #4facfe, #00f2fe)', icon: 'ℹ' }
+        success: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+            icon: "✓",
+        },
+        error: {
+            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+            icon: "✕",
+        },
+        warning: {
+            background: "linear-gradient(to right, #f093fb, #f5576c)",
+            icon: "⚠",
+        },
+        info: {
+            background: "linear-gradient(to right, #4facfe, #00f2fe)",
+            icon: "ℹ",
+        },
     };
 
     const settings = config[type] || config.info;
 
     Toastify({
-        text: settings.icon + '  ' + message,
+        text: settings.icon + "  " + message,
         duration: 4000,
-        gravity: 'top',
-        position: 'right',
+        gravity: "top",
+        position: "right",
         stopOnFocus: true,
-        style: { background: settings.background }
+        style: { background: settings.background },
     }).showToast();
 };
 
