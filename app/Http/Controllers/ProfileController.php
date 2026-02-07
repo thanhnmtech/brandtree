@@ -27,35 +27,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = $request->user();
-        $validated = $request->validated();
+        $request->user()->fill($request->validated());
 
-        // Xử lý xóa avatar nếu người dùng yêu cầu
-        if ($request->input('remove_avatar') === '1' && !$request->hasFile('avatar')) {
-            // Xóa file avatar cũ nếu tồn tại
-            if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            // Đặt avatar = null trong validated để fill() cập nhật đúng vào database
-            $validated['avatar'] = null;
-        }
-        // Xử lý upload avatar mới (theo mẫu BrandController)
-        elseif ($request->hasFile('avatar')) {
-            // Xóa avatar cũ nếu tồn tại và là file local (không phải URL bên ngoài)
-            if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            // Lưu avatar mới vào thư mục 'users/avatars' trên disk 'public'
-            $validated['avatar'] = $request->file('avatar')->store('users/avatars', 'public');
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
         }
 
-        $user->fill($validated);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
+        $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -83,4 +61,47 @@ class ProfileController extends Controller
 
     //     return Redirect::to('/');
     // }
+
+    /**
+     * Cập nhật avatar người dùng từ popup.
+     */
+    public function updateAvatar(Request $request): RedirectResponse
+    {
+        // Validate file avatar
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+
+        // Xóa avatar cũ nếu tồn tại và là file local
+        if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        // Lưu avatar mới vào thư mục 'users/avatars' trên disk 'public'
+        $user->avatar = $request->file('avatar')->store('users/avatars', 'public');
+        $user->save();
+
+        return Redirect::back()->with('status', 'avatar-updated');
+    }
+
+    /**
+     * Xóa avatar người dùng.
+     */
+    public function deleteAvatar(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Xóa file avatar nếu tồn tại và là file local
+        if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        // Đặt avatar = null trong database
+        $user->avatar = null;
+        $user->save();
+
+        return Redirect::back()->with('status', 'avatar-deleted');
+    }
 }

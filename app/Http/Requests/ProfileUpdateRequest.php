@@ -20,8 +20,6 @@ class ProfileUpdateRequest extends FormRequest
             'phone' => ['required','string', 'regex:/^(0|\+84)[0-9]{9}$/',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
-            // Validation cho avatar: cho phép null, phải là ảnh, định dạng cụ thể, tối đa 2MB
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 }
