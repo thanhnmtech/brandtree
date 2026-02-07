@@ -51,6 +51,11 @@ export default class extends Controller {
         }
     }
 
+    // Ngăn sự kiện click lan ra overlay
+    stopPropagation(event) {
+        event.stopPropagation()
+    }
+
     // Mở dialog chọn file
     openFilePicker() {
         this.fileInputTarget.click()

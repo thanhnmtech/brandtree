@@ -16,15 +16,18 @@
         data-action="click->avatar-upload#closeOnOverlay"
         class="tw-fixed tw-inset-0 tw-bg-black/50 tw-flex tw-items-center tw-justify-center tw-z-[10000] tw-hidden">
         
-        <div class="tw-bg-white tw-rounded-2xl tw-shadow-2xl tw-w-[400px] tw-max-w-[90%] tw-p-6">
-            {{-- Header --}}
-            <div class="tw-flex tw-items-center tw-justify-between tw-mb-6">
-                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">Ảnh đại diện</h3>
-                <button type="button" data-action="avatar-upload#close" 
-                    class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors">
-                    <i class="ri-close-line tw-text-2xl"></i>
-                </button>
-            </div>
+        <div class="tw-bg-white tw-rounded-2xl tw-w-[400px] tw-max-w-[90%] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
+            data-action="click->avatar-upload#stopPropagation">
+            <!-- Close Button -->
+            <button type="button" data-action="click->avatar-upload#close"
+                class="tw-absolute tw-top-3 tw-right-3 tw-text-gray-600 hover:tw-text-black tw-text-xl">
+                <i class="ri-close-line"></i>
+            </button>
+
+            <h2 class="tw-text-lg tw-font-bold tw-text-[#1AA24C] tw-flex tw-items-center tw-gap-2 tw-mb-6">
+                <i class="ri-user-settings-line tw-text-2xl"></i>
+                Ảnh đại diện
+            </h2>
 
             {{-- Avatar preview circle - click để chọn file --}}
             <form id="avatarUploadForm" action="{{ route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data">
