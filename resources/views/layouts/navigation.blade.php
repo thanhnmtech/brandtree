@@ -204,11 +204,22 @@
         <div class="tw-p-5">
             <p class="tw-text-sm tw-opacity-80">Tài khoản</p>
             <div class="tw-flex tw-items-center tw-gap-3 tw-mt-3 tw-py-2">
-                @if(auth()->user()->avatar)
-                    <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="{{ auth()->user()->name }}" class="tw-w-12 tw-h-12 tw-rounded-full tw-object-cover">
-                @else
-                    <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-white/40"></div>
-                @endif
+                {{-- Avatar với icon camera để thay đổi --}}
+                <div class="tw-relative tw-group/avatar">
+                    @if(auth()->user()->avatar)
+                        <img id="popupCurrentAvatar" src="{{ Storage::url(auth()->user()->avatar) }}" alt="{{ auth()->user()->name }}" class="tw-w-12 tw-h-12 tw-rounded-full tw-object-cover">
+                    @else
+                        <div id="popupCurrentAvatar" class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-white/40 tw-flex tw-items-center tw-justify-center">
+                            <i class="ri-user-line tw-text-white/60 tw-text-xl"></i>
+                        </div>
+                    @endif
+                    {{-- Icon camera ở góc dưới-phải --}}
+                    <button type="button" onclick="openAvatarPreviewPopup()" 
+                        class="tw-absolute tw-bottom-0 tw-right-0 tw-w-5 tw-h-5 tw-bg-white tw-rounded-full tw-flex tw-items-center tw-justify-center tw-shadow-md tw-border tw-border-gray-200 tw-cursor-pointer hover:tw-bg-gray-100 tw-transition-colors"
+                        title="Thay đổi ảnh đại diện">
+                        <i class="ri-camera-line tw-text-gray-600 tw-text-xs"></i>
+                    </button>
+                </div>
                 <div>
                     <p class="tw-font-semibold">{{ request()->user()->name }}</p>
                     <p class="tw-text-sm tw-opacity-80">{{ request()->user()->email }}</p>
@@ -237,4 +248,8 @@
             </form>
         </div>
     </div>
+
+    {{-- Avatar Upload Popup Component --}}
+    <x-avatar-upload-popup />
 </header>
+
