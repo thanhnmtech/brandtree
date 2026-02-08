@@ -237,6 +237,8 @@
             </form>
         </div>
     </div>
+    {{-- Avatar Upload Popup Component --}}
+    <x-avatar-upload-popup />
     <script>
         const popup = document.getElementById('accountPopup');
         const toggleBtn = document.getElementById('accountBtn');
