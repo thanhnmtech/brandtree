@@ -249,5 +249,23 @@
         </div>
     </div>
     <x-avatar-upload-popup />
+
+    <script>
+        const popup = document.getElementById('accountPopup');
+        const toggleBtn = document.getElementById('accountBtn');
+
+        toggleBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.toggle('tw-hidden');
+        });
+        document.addEventListener('click', (e) => {
+            if (!popup.contains(e.target) && !popup.classList.contains('tw-hidden')) {
+                popup.classList.add('tw-hidden');
+            }
+        });
+        popup.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    </script>
 </header>
 
