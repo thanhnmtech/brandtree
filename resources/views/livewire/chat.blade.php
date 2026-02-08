@@ -364,6 +364,13 @@
                     if (result.status === 'success') {
                         this.showSaveModal = false;
                         this.showSuccessModal = true;
+
+                        // enable nút output ở chat-result-bar khi vừa lưu xong
+                        window.dispatchEvent(new CustomEvent('analysis-saved', {
+                            detail: { agentType: this.agentType, content: this.editingContent }
+                        }));
+
+                        window.dispatchEvent(new CustomEvent('data-saved'));
                     } else {
                         alert('Lỗi: ' + result.message);
                     }

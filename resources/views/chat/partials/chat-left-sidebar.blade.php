@@ -40,23 +40,19 @@
           class="tw-object-contain tw-rotate-[-90deg] tw-transition tw-duration-500" />
       </div>
     </button>
-
     <ul id="dataPlatformMenu" class="tw-hidden tw-w-full tw-space-y-2 tw-text-sm">
-      <li class="tw-px-3 tw-py-1 tw-rounded-md tw-bg-[#D9F2E2] tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Phân tích thổ nhưỡng</span>
-      </li>
-
-      <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Định vị Giá trị Giải pháp</span>
-      </li>
-
-      <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Thiết kế Văn hóa Dịch vụ</span>
-      </li>
-
-      <li class="tw-px-3 tw-py-1 tw-rounded-md hover:tw-bg-gray-50 tw-cursor-pointer tw-flex tw-items-center tw-gap-2">
-        <span class="tw-font-semibold tw-text-gray-500">Định vị thương hiệu</span>
-      </li>
+      @if(isset($dataPlatformMenuItems) && count($dataPlatformMenuItems) > 0)
+        @foreach($dataPlatformMenuItems as $index => $item)
+          <li 
+            class="tw-px-3 tw-py-1 tw-rounded-md {{ $item['active'] ? 'tw-bg-[#D9F2E2]' : 'hover:tw-bg-[#D9F2E2]-100 tw-cursor-pointer' }} tw-flex tw-items-center tw-gap-2"
+            @if(!$item['active'])
+              {{-- khi nào động vào sidebar này thì mới làm tiếp vụ này --}}
+            @endif
+          >
+            <span class="tw-font-semibold tw-text-gray-500">{{ $item['label'] }}</span>
+          </li>
+        @endforeach
+      @endif
     </ul>
   </nav>
 
