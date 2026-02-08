@@ -15,6 +15,7 @@ import PaymentStatusController from "./controllers/payment_status_controller";
 import StepCardController from "./controllers/step_card_controller";
 import ResultModalController from "./controllers/result_modal_controller";
 import BrandInfoController from "./controllers/brand_info_controller";
+import AvatarUploadController from "./controllers/avatar_upload_controller";
 
 // Start Stimulus application
 const application = Application.start();
@@ -28,6 +29,7 @@ application.register("payment-status", PaymentStatusController);
 application.register("step-card", StepCardController);
 application.register("result-modal", ResultModalController);
 application.register("brand-info", BrandInfoController);
+application.register("avatar-upload", AvatarUploadController);
 
 // Make Stimulus available globally (optional, for debugging)
 window.Stimulus = application;
