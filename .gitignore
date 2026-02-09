@@ -24,3 +24,5 @@ Thumbs.db
 /.agument
 .augmentignore
 .claude/commands/
+composer.lock
+package-lock.json

@@ -15,7 +15,7 @@
     class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-z-[9999]"
     style="display: none;"
     data-action="click->brand-form#closeOnBackdrop">
-    <div class="tw-bg-white tw-rounded-2xl tw-w-[600px] tw-max-w-[90%] tw-overflow-y-auto tw-p-6 tw-relative tw-border tw-border-gray-300"
+    <div class="tw-bg-white tw-rounded-2xl tw-w-[800px] tw-max-w-[100%] tw-h-[675px] tw-overflow-y-hidden tw-p-6 tw-relative tw-border tw-border-gray-300"
         data-action="click->brand-form#stopPropagation">
         <!-- Close Button -->
         <button type="button" data-action="click->brand-form#close{{ $isEdit ? 'Edit' : 'Add' }}"
@@ -81,42 +81,64 @@
                     class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none {{ $errors->has('founded_year') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
                     placeholder="{{ __('messages.brand_form.founded_year_placeholder') }}">
             </div>
+                <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+                <!-- Cột trái: Mô tả -->
+                <div class="tw-flex tw-flex-col">
+                    <label for="brand_description" class="tw-text-sm tw-font-medium">
+                        Mô tả
+                        @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
+                    </label>
+                    <textarea id="brand_description" name="description" {{ !$isEdit ? 'required' : '' }} rows="6"
+                        class="tw-flex-1 tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1
+                            focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C]
+                            tw-outline-none tw-resize-none
+                            {{ $errors->has('description') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
+                        placeholder="Nhập mô tả">{{ old('description', $brand->description ?? '') }}</textarea>
+                </div>
+                <!-- Cột phải: Logo -->
+                <div class="tw-flex tw-flex-col">
+                    <label class="tw-text-sm tw-font-medium">
+                        Logo thương hiệu
+                        @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
+                    </label>
+                    <div class="tw-mt-1 tw-flex-1">
+                        <div
+                            class="tw-relative tw-w-full tw-h-full tw-min-h-[150px]
+                                tw-border-2 tw-border-dashed tw-rounded-lg
+                                tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100 tw-transition
+                                {{ $errors->has('logo') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
+                            onclick="this.querySelector('input[type=file]').click()">
 
-            <!-- Mô tả -->
-            <div>
-                <label for="brand_description" class="tw-text-sm tw-font-medium">
-                    {{ __('messages.brand_form.description') }}
-                    @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
-                </label>
-                <textarea id="brand_description" name="description" {{ !$isEdit ? 'required' : '' }} rows="3"
-                    class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1 focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C] tw-outline-none tw-resize-none {{ $errors->has('description') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                    placeholder="{{ __('messages.brand_form.description_placeholder') }}">{{ old('description', $brand->description ?? '') }}</textarea>
-            </div>
+                            <input type="file" name="logo" accept="image/*" {{ !$isEdit ? 'required' : '' }}
+                                class="tw-hidden"
+                                data-brand-form-target="logoInput"
+                                data-action="change->brand-form#previewLogo">
 
-            <!-- Logo -->
-            <div>
-                <label class="tw-text-sm tw-font-medium">
-                    {{ __('messages.brand_form.logo') }}
-                    @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
-                </label>
-                <div class="tw-mt-1">
-                    <div class="tw-relative tw-w-full tw-h-32 tw-border-2 tw-border-dashed tw-rounded-lg tw-cursor-pointer tw-bg-gray-50 hover:tw-bg-gray-100 tw-transition {{ $errors->has('logo') ? 'tw-border-red-500' : 'tw-border-gray-300' }}" onclick="this.querySelector('input[type=file]').click()">
-                        <!-- Hidden file input inside container -->
-                        <input type="file" name="logo" accept="image/*" {{ !$isEdit ? 'required' : '' }} class="tw-hidden" data-brand-form-target="logoInput" data-action="change->brand-form#previewLogo">
+                            <!-- Preview -->
+                            <div data-logo-container
+                                class="{{ ($isEdit && $brand && $brand->logo_path) ? '' : 'tw-hidden' }}
+                                    tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
+                                <img data-brand-form-target="logoPreview"
+                                    src="{{ $isEdit && $brand ? Storage::url($brand->logo_path) : '' }}"
+                                    class="tw-max-h-28 tw-max-w-full tw-object-contain" alt="Preview">
 
-                        <!-- Preview khi đã chọn file -->
-                        <div data-logo-container class="{{ ($isEdit && $brand && $brand->logo_path) ? '' : 'tw-hidden' }} tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
-                            <img data-brand-form-target="logoPreview" src="{{ $isEdit && $brand ? Storage::url($brand->logo_path) : '' }}" class="tw-max-h-28 tw-max-w-full tw-object-contain" alt="Preview">
-                            <button type="button" data-action="click->brand-form#clearLogoPreview"
-                                class="tw-absolute tw-top-1 tw-right-1 tw-bg-red-500 tw-text-white tw-rounded-full tw-w-6 tw-h-6 tw-flex tw-items-center tw-justify-center tw-text-xs hover:tw-bg-red-600">
-                                <i class="ri-close-line"></i>
-                            </button>
-                        </div>
-                        <!-- Placeholder khi chưa chọn file -->
-                        <div data-logo-placeholder class="{{ ($isEdit && $brand && $brand->logo_path) ? 'tw-hidden' : '' }} tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-full">
-                            <i class="ri-upload-cloud-2-line tw-text-3xl tw-text-gray-400 tw-mb-2"></i>
-                            <p class="tw-text-sm tw-text-gray-500">{{ __('messages.brand_form.logo_upload_text') }}</p>
-                            <p class="tw-text-xs tw-text-gray-400">{{ __('messages.brand_form.logo_upload_hint') }}</p>
+                                <button type="button"
+                                    data-action="click->brand-form#clearLogoPreview"
+                                    class="tw-absolute tw-top-1 tw-right-1 tw-bg-red-500 tw-text-white
+                                        tw-rounded-full tw-w-6 tw-h-6 tw-flex tw-items-center tw-justify-center
+                                        tw-text-xs hover:tw-bg-red-600">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+
+                            <!-- Placeholder -->
+                            <div data-logo-placeholder
+                                class="{{ ($isEdit && $brand && $brand->logo_path) ? 'tw-hidden' : '' }}
+                                    tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-full">
+                                <i class="ri-upload-cloud-2-line tw-text-3xl tw-text-gray-400 tw-mb-2"></i>
+                                <p class="tw-text-sm tw-text-gray-500">Nhấn để chọn hoặc kéo thả</p>
+                                <p class="tw-text-xs tw-text-gray-400">PNG, JPG, GIF (tối đa 2MB)</p>
+                            </div>
                         </div>
                     </div>
                 </div>

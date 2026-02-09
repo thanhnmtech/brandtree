@@ -98,4 +98,4 @@
 
     {{-- Result Modal Component --}}
     <x-result-modal :brand="$brand" />
-</section>
+</section> 

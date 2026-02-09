@@ -43,8 +43,11 @@ Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', functi
             $agentId = $systemAgent->id;
         }
     }
+    
+    //Lấy menu items cho agent type hiện tại
+    $dataPlatformMenuItems = config("data_platform_menus.{$agentType}", []);
 
-    return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId'));
+    return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId', 'dataPlatformMenuItems'));
 })->middleware(['auth', 'brand.access'])->name('chat');
 
 Route::post('/brands/{brand:slug}/chat/save-data', [\App\Http\Controllers\BrandDataController::class, 'store'])
