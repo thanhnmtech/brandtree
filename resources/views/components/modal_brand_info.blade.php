@@ -1,9 +1,9 @@
 @props(['brand'])
 
 {{-- 
-    Modal Brand Info (Read-only)
+    Modal Brand Info với chức năng Inline Edit
     Hiển thị thông tin phân tích thương hiệu từ root_data và trunk_data
-    Không cho phép chỉnh sửa, chỉ xem thông tin
+    Sử dụng contenteditable để chỉnh sửa trực tiếp trên nội dung
 --}}
 
 <div data-brand-info-target="modal_brand_info"
@@ -37,60 +37,207 @@
         <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto">
             <div class="tw-space-y-6">
 
-                    {{-- Root1: Văn hoá Dịch vụ --}}
-                    <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
-                        <h5 class="tw-font-semibold tw-text-gray-700 tw-mb-2 tw-flex tw-items-center tw-gap-2">
+                {{-- Root1: Văn hoá Dịch vụ --}}
+                <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
+                    <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+                        <h5 class="tw-font-semibold tw-text-gray-700 tw-flex tw-items-center tw-gap-2">
                             {{ __('messages.brand_show.culture_design_canvas') }}
                         </h5>
-                        <div data-brand-info-target="root1Content" 
-                             class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap">
-                            <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                        {{-- Nút Edit/Save/Cancel --}}
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <button data-brand-info-target="root1EditBtn"
+                                    data-action="click->brand-info#toggleEdit"
+                                    data-field="root1"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-gray-500 hover:tw-text-[#1AA24C] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#E6F6EC]"
+                                    title="Chỉnh sửa">
+                                <i class="ri-edit-line tw-text-base"></i>
+                                <span class="tw-text-xs tw-font-medium">Sửa</span>
+                            </button>
+                            <button data-brand-info-target="root1SaveBtn"
+                                    data-action="click->brand-info#saveEdit"
+                                    data-field="root1"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-text-[#1AA24C] tw-bg-[#E6F6EC] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#d0eedc] tw-text-xs tw-font-medium"
+                                    title="Lưu">
+                                <i class="ri-check-line tw-text-base"></i>
+                                <span>Lưu</span>
+                            </button>
+                            <button data-brand-info-target="root1CancelBtn"
+                                    data-action="click->brand-info#cancelEdit"
+                                    data-field="root1"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-bg-gray-200 tw-text-gray-600 tw-px-3 tw-py-1 tw-rounded tw-text-xs tw-font-medium hover:tw-bg-gray-300 tw-transition"
+                                    title="Hủy">
+                                <i class="ri-close-line tw-text-base"></i>
+                                <span>Hủy</span>
+                            </button>
                         </div>
                     </div>
+                    {{-- Nội dung - có thể chỉnh sửa trực tiếp --}}
+                    <div data-brand-info-target="root1Content" 
+                         data-field="root1"
+                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                        <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                    </div>
+                </div>
 
-                    {{-- Root2: Thổ nhưỡng --}}
-                    <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
-                        <h5 class="tw-font-semibold tw-text-gray-700 tw-mb-2 tw-flex tw-items-center tw-gap-2">
+                {{-- Root2: Thổ nhưỡng --}}
+                <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
+                    <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+                        <h5 class="tw-font-semibold tw-text-gray-700 tw-flex tw-items-center tw-gap-2">
                             {{ __('messages.brand_show.market_opportunity_analysis') }}
                         </h5>
-                        <div data-brand-info-target="root2Content" 
-                             class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap">
-                            <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <button data-brand-info-target="root2EditBtn"
+                                    data-action="click->brand-info#toggleEdit"
+                                    data-field="root2"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-gray-500 hover:tw-text-[#1AA24C] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#E6F6EC]"
+                                    title="Chỉnh sửa">
+                                <i class="ri-edit-line tw-text-base"></i>
+                                <span class="tw-text-xs tw-font-medium">Sửa</span>
+                            </button>
+                            <button data-brand-info-target="root2SaveBtn"
+                                    data-action="click->brand-info#saveEdit"
+                                    data-field="root2"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-text-[#1AA24C] tw-bg-[#E6F6EC] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#d0eedc] tw-text-xs tw-font-medium"
+                                    title="Lưu">
+                                <i class="ri-check-line tw-text-base"></i>
+                                <span>Lưu</span>
+                            </button>
+                            <button data-brand-info-target="root2CancelBtn"
+                                    data-action="click->brand-info#cancelEdit"
+                                    data-field="root2"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-bg-gray-200 tw-text-gray-600 tw-px-3 tw-py-1 tw-rounded tw-text-xs tw-font-medium hover:tw-bg-gray-300 tw-transition"
+                                    title="Hủy">
+                                <i class="ri-close-line tw-text-base"></i>
+                                <span>Hủy</span>
+                            </button>
                         </div>
                     </div>
+                    <div data-brand-info-target="root2Content" 
+                         data-field="root2"
+                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                        <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                    </div>
+                </div>
 
-                    {{-- Root3: Giá trị Giải pháp --}}
-                    <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
-                        <h5 class="tw-font-semibold tw-text-gray-700 tw-mb-2 tw-flex tw-items-center tw-gap-2">
+                {{-- Root3: Giá trị Giải pháp --}}
+                <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
+                    <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+                        <h5 class="tw-font-semibold tw-text-gray-700 tw-flex tw-items-center tw-gap-2">
                             {{ __('messages.brand_show.value_proposition_canvas') }}
                         </h5>
-                        <div data-brand-info-target="root3Content" 
-                             class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap">
-                            <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <button data-brand-info-target="root3EditBtn"
+                                    data-action="click->brand-info#toggleEdit"
+                                    data-field="root3"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-gray-500 hover:tw-text-[#1AA24C] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#E6F6EC]"
+                                    title="Chỉnh sửa">
+                                <i class="ri-edit-line tw-text-base"></i>
+                                <span class="tw-text-xs tw-font-medium">Sửa</span>
+                            </button>
+                            <button data-brand-info-target="root3SaveBtn"
+                                    data-action="click->brand-info#saveEdit"
+                                    data-field="root3"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-text-[#1AA24C] tw-bg-[#E6F6EC] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#d0eedc] tw-text-xs tw-font-medium"
+                                    title="Lưu">
+                                <i class="ri-check-line tw-text-base"></i>
+                                <span>Lưu</span>
+                            </button>
+                            <button data-brand-info-target="root3CancelBtn"
+                                    data-action="click->brand-info#cancelEdit"
+                                    data-field="root3"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-bg-gray-200 tw-text-gray-600 tw-px-3 tw-py-1 tw-rounded tw-text-xs tw-font-medium hover:tw-bg-gray-300 tw-transition"
+                                    title="Hủy">
+                                <i class="ri-close-line tw-text-base"></i>
+                                <span>Hủy</span>
+                            </button>
                         </div>
                     </div>
+                    <div data-brand-info-target="root3Content" 
+                         data-field="root3"
+                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                        <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                    </div>
+                </div>
 
-                    {{-- Trunk1: Định vị Thương hiệu --}}
-                    <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
-                        <h5 class="tw-font-semibold tw-text-gray-700 tw-mb-2 tw-flex tw-items-center tw-gap-2">
+                {{-- Trunk1: Định vị Thương hiệu --}}
+                <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
+                    <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+                        <h5 class="tw-font-semibold tw-text-gray-700 tw-flex tw-items-center tw-gap-2">
                             {{ __('messages.brand_show.brand_components_canvas') }}
                         </h5>
-                        <div data-brand-info-target="trunk1Content" 
-                             class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap">
-                            <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <button data-brand-info-target="trunk1EditBtn"
+                                    data-action="click->brand-info#toggleEdit"
+                                    data-field="trunk1"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-gray-500 hover:tw-text-[#1AA24C] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#E6F6EC]"
+                                    title="Chỉnh sửa">
+                                <i class="ri-edit-line tw-text-base"></i>
+                                <span class="tw-text-xs tw-font-medium">Sửa</span>
+                            </button>
+                            <button data-brand-info-target="trunk1SaveBtn"
+                                    data-action="click->brand-info#saveEdit"
+                                    data-field="trunk1"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-text-[#1AA24C] tw-bg-[#E6F6EC] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#d0eedc] tw-text-xs tw-font-medium"
+                                    title="Lưu">
+                                <i class="ri-check-line tw-text-base"></i>
+                                <span>Lưu</span>
+                            </button>
+                            <button data-brand-info-target="trunk1CancelBtn"
+                                    data-action="click->brand-info#cancelEdit"
+                                    data-field="trunk1"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-bg-gray-200 tw-text-gray-600 tw-px-3 tw-py-1 tw-rounded tw-text-xs tw-font-medium hover:tw-bg-gray-300 tw-transition"
+                                    title="Hủy">
+                                <i class="ri-close-line tw-text-base"></i>
+                                <span>Hủy</span>
+                            </button>
                         </div>
                     </div>
+                    <div data-brand-info-target="trunk1Content" 
+                         data-field="trunk1"
+                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                        <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                    </div>
+                </div>
 
-                    {{-- Trunk2: Nhận diện Ngôn ngữ --}}
-                    <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
-                        <h5 class="tw-font-semibold tw-text-gray-700 tw-mb-2 tw-flex tw-items-center tw-gap-2">
+                {{-- Trunk2: Nhận diện Ngôn ngữ --}}
+                <div class="tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-p-4">
+                    <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+                        <h5 class="tw-font-semibold tw-text-gray-700 tw-flex tw-items-center tw-gap-2">
                             {{ __('messages.brand_show.brand_verbal_identity') }}
                         </h5>
-                        <div data-brand-info-target="trunk2Content" 
-                             class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap">
-                            <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <button data-brand-info-target="trunk2EditBtn"
+                                    data-action="click->brand-info#toggleEdit"
+                                    data-field="trunk2"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-gray-500 hover:tw-text-[#1AA24C] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#E6F6EC]"
+                                    title="Chỉnh sửa">
+                                <i class="ri-edit-line tw-text-base"></i>
+                                <span class="tw-text-xs tw-font-medium">Sửa</span>
+                            </button>
+                            <button data-brand-info-target="trunk2SaveBtn"
+                                    data-action="click->brand-info#saveEdit"
+                                    data-field="trunk2"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-text-[#1AA24C] tw-bg-[#E6F6EC] tw-transition tw-px-2 tw-py-1 tw-rounded hover:tw-bg-[#d0eedc] tw-text-xs tw-font-medium"
+                                    title="Lưu">
+                                <i class="ri-check-line tw-text-base"></i>
+                                <span>Lưu</span>
+                            </button>
+                            <button data-brand-info-target="trunk2CancelBtn"
+                                    data-action="click->brand-info#cancelEdit"
+                                    data-field="trunk2"
+                                    class="tw-hidden tw-flex tw-items-center tw-gap-1 tw-bg-gray-200 tw-text-gray-600 tw-px-3 tw-py-1 tw-rounded tw-text-xs tw-font-medium hover:tw-bg-gray-300 tw-transition"
+                                    title="Hủy">
+                                <i class="ri-close-line tw-text-base"></i>
+                                <span>Hủy</span>
+                            </button>
                         </div>
                     </div>
+                    <div data-brand-info-target="trunk2Content" 
+                         data-field="trunk2"
+                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                        <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -58,6 +58,7 @@ export default class extends Controller {
 
     openEdit() {
         this.editModalTarget.classList.remove('tw-hidden')
+        document.body.classList.add('tw-overflow-hidden')
         this.editModalTarget.style.display = 'flex'
         this.editModalTarget.style.alignItems = 'center'
         this.editModalTarget.style.justifyContent = 'center'
@@ -69,6 +70,7 @@ export default class extends Controller {
 
     openDelete() {
         this.deleteModalTarget.classList.remove('tw-hidden')
+        document.body.classList.add('tw-overflow-hidden')
         this.deleteModalTarget.style.display = 'flex'
         this.deleteModalTarget.style.alignItems = 'center'
         this.deleteModalTarget.style.justifyContent = 'center'
@@ -80,13 +82,14 @@ export default class extends Controller {
 
     closeAdd() {
         this.addModalTarget.classList.add('tw-hidden')
-        document.body.classList.add('tw-overflow-hidden')
+        document.body.classList.remove('tw-overflow-hidden')
         this.addModalTarget.style.display = 'none'
         this.resetForm()
     }
 
     closeEdit() {
         this.editModalTarget.classList.add('tw-hidden')
+        document.body.classList.remove('tw-overflow-hidden')
         this.editModalTarget.style.display = 'none'
         this.resetLogoPreview()
         this.formErrors = {}
@@ -94,6 +97,7 @@ export default class extends Controller {
 
     closeDelete() {
         this.deleteModalTarget.classList.add('tw-hidden')
+        document.body.classList.remove('tw-overflow-hidden')
         this.deleteModalTarget.style.display = 'none'
         this.deleteConfirmName = ''
     }
