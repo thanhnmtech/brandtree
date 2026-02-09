@@ -28,6 +28,8 @@ export default class extends Controller {
     // Mở popup
     open() {
         this.popupTarget.classList.remove("tw-hidden")
+        // Chặn scroll body
+        document.body.style.overflow = "hidden"
         // Đóng account popup nếu có
         const accountPopup = document.getElementById("accountPopup")
         if (accountPopup) {
@@ -38,6 +40,8 @@ export default class extends Controller {
     // Đóng popup
     close() {
         this.popupTarget.classList.add("tw-hidden")
+        // Restore scroll body
+        document.body.style.overflow = ""
         // Reset file input
         this.fileInputTarget.value = ""
         // Reset preview về trạng thái ban đầu

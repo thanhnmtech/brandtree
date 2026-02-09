@@ -68,6 +68,9 @@ export default class extends Controller {
         // Hiển thị modal
         this.modalTarget.classList.remove("tw-hidden");
         this.modalTarget.style.display = "";
+        
+        // Chặn scroll body
+        document.body.style.overflow = "hidden";
 
         // Focus vào textarea
         setTimeout(() => this.contentTarget.focus(), 100);
@@ -80,6 +83,8 @@ export default class extends Controller {
         this.modalTarget.classList.add("tw-hidden");
         this.currentKey = "";
         this.currentTitle = "";
+        // Restore scroll body
+        document.body.style.overflow = "";
     }
 
     /**
