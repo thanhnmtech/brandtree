@@ -1,7 +1,14 @@
 <div class="tw-flex-1 tw-space-y-2">
   <div class="tw-flex tw-items-end tw-gap-3 tw-flex-nowrap">
-    <button type="newchat"
-      class="tw-w-12 tw-h-12 tw-bg-vlbcgreen tw-text-white tw-rounded-md tw-flex tw-items-center tw-justify-center">
+    <!-- Input file ẩn để upload file (image, pdf, word) -->
+    <input type="file" id="chat-file-upload" class="tw-hidden"
+      accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      multiple />
+
+    <!-- Nút bấm để trigger chọn file -->
+    <button type="button" id="chat-file-upload-btn" onclick="document.getElementById('chat-file-upload').click()"
+      title="Đính kèm file (Hình ảnh, PDF, Word)"
+      class="tw-w-12 tw-h-12 tw-bg-vlbcgreen tw-text-white tw-rounded-md tw-flex tw-items-center tw-justify-center hover:tw-bg-[#15803d] tw-transition-colors">
       <img src="{{ asset('assets/img/icon-plus-white.svg') }}" class="tw-w-[20px] tw-h-[20px] tw-object-contain" />
     </button>
 

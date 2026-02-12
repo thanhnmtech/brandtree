@@ -1,0 +1,274 @@
+Tải trực tiếp lên cửa hàng Tìm kiếm tệp
+Ví dụ này cho biết cách tải trực tiếp một tệp lên kho lưu trữ tìm kiếm tệp:
+
+Python
+JavaScript
+
+from google import genai
+from google.genai import types
+import time
+
+client = genai.Client()
+
+# File name will be visible in citations
+file_search_store = client.file_search_stores.create(config={'display_name': 'your-fileSearchStore-name'})
+
+operation = client.file_search_stores.upload_to_file_search_store(
+  file='sample.txt',
+  file_search_store_name=file_search_store.name,
+  config={
+      'display_name' : 'display-file-name',
+  }
+)
+
+while not operation.done:
+    time.sleep(5)
+    operation = client.operations.get(operation)
+
+response = client.models.generate_content(
+    model="gemini-3-flash-preview",
+    contents="""Can you tell me about [insert question]""",
+    config=types.GenerateContentConfig(
+        tools=[
+            types.Tool(
+                file_search=types.FileSearch(
+                    file_search_store_names=[file_search_store.name]
+                )
+            )
+        ]
+    )
+)
+
+print(response.text)
+Hãy xem tài liệu tham khảo về API uploadToFileSearchStore để biết thêm thông tin.
+
+Nhập tệp
+Ngoài ra, bạn có thể tải một tệp hiện có lên và nhập tệp đó vào kho lưu trữ tìm kiếm tệp:
+
+Python
+JavaScript
+
+from google import genai
+from google.genai import types
+import time
+
+client = genai.Client()
+
+# File name will be visible in citations
+sample_file = client.files.upload(file='sample.txt', config={'name': 'display_file_name'})
+
+file_search_store = client.file_search_stores.create(config={'display_name': 'your-fileSearchStore-name'})
+
+operation = client.file_search_stores.import_file(
+    file_search_store_name=file_search_store.name,
+    file_name=sample_file.name
+)
+
+while not operation.done:
+    time.sleep(5)
+    operation = client.operations.get(operation)
+
+response = client.models.generate_content(
+    model="gemini-3-flash-preview",
+    contents="""Can you tell me about [insert question]""",
+    config=types.GenerateContentConfig(
+        tools=[
+            types.Tool(
+                file_search=types.FileSearch(
+                    file_search_store_names=[file_search_store.name]
+                )
+            )
+        ]
+    )
+)
+
+print(response.text)
+Hãy xem tài liệu tham khảo về API importFile để biết thêm thông tin.
+
+Cấu hình phân đoạn
+Khi bạn nhập một tệp vào một kho lưu trữ Tìm kiếm tệp, tệp đó sẽ tự động được chia thành các đoạn, được nhúng, lập chỉ mục và tải lên kho lưu trữ Tìm kiếm tệp của bạn. Nếu cần kiểm soát thêm về chiến lược phân đoạn, bạn có thể chỉ định chế độ cài đặt chunking_config để đặt số lượng mã thông báo tối đa cho mỗi đoạn và số lượng mã thông báo trùng lặp tối đa.
+
+Python
+JavaScript
+
+from google import genai
+from google.genai import types
+import time
+
+client = genai.Client()
+
+operation = client.file_search_stores.upload_to_file_search_store(
+    file_search_store_name=file_search_store.name,
+    file_name=sample_file.name,
+    config={
+        'chunking_config': {
+          'white_space_config': {
+            'max_tokens_per_chunk': 200,
+            'max_overlap_tokens': 20
+          }
+        }
+    }
+)
+
+while not operation.done:
+    time.sleep(5)
+    operation = client.operations.get(operation)
+
+print("Custom chunking complete.")
+Để sử dụng công cụ Tìm kiếm tệp, hãy truyền công cụ này dưới dạng một công cụ cho phương thức generateContent, như trong ví dụ Tải lên và Nhập.
+
+Cách hoạt động
+Tính năng Tìm kiếm tệp sử dụng một kỹ thuật gọi là tìm kiếm ngữ nghĩa để tìm thông tin liên quan đến câu lệnh của người dùng. Không giống như tìm kiếm dựa trên từ khoá thông thường, tìm kiếm ngữ nghĩa hiểu được ý nghĩa và bối cảnh của cụm từ tìm kiếm.
+
+Khi bạn nhập một tệp, tệp đó sẽ được chuyển đổi thành các biểu diễn bằng số gọi là embedding (mã nhúng), giúp nắm bắt ý nghĩa ngữ nghĩa của văn bản. Các vectơ nhúng này được lưu trữ trong một cơ sở dữ liệu Tìm kiếm tệp chuyên biệt. Khi bạn đưa ra một cụm từ tìm kiếm, cụm từ đó cũng sẽ được chuyển đổi thành một vectơ nhúng. Sau đó, hệ thống sẽ thực hiện một thao tác Tìm kiếm tệp để tìm các đoạn tài liệu tương tự và phù hợp nhất trong kho lưu trữ Tìm kiếm tệp.
+
+Không có Thời gian tồn tại (TTL) cho các tệp và dữ liệu được nhúng; các tệp và dữ liệu này sẽ tồn tại cho đến khi bạn xoá theo cách thủ công hoặc khi mô hình không còn được dùng nữa.
+
+Sau đây là quy trình sử dụng API Tìm kiếm tệp uploadToFileSearchStore:
+
+Tạo một kho lưu trữ Tìm kiếm tệp: Kho lưu trữ Tìm kiếm tệp chứa dữ liệu đã xử lý từ các tệp của bạn. Đây là vùng chứa liên tục cho các mục nhúng mà tính năng tìm kiếm ngữ nghĩa sẽ hoạt động.
+
+Tải tệp lên và nhập vào một kho lưu trữ Tìm kiếm tệp: Tải đồng thời một tệp lên và nhập kết quả vào kho lưu trữ Tìm kiếm tệp. Thao tác này sẽ tạo một đối tượng File tạm thời, là một tham chiếu đến tài liệu thô của bạn. Sau đó, dữ liệu đó sẽ được chia thành các khối, chuyển đổi thành các vectơ nhúng của tính năng Tìm kiếm tệp và được lập chỉ mục. Đối tượng File sẽ bị xoá sau 48 giờ, trong khi dữ liệu được nhập vào kho lưu trữ Tìm kiếm tệp sẽ được lưu trữ vô thời hạn cho đến khi bạn chọn xoá.
+
+Truy vấn bằng tính năng Tìm kiếm tệp: Cuối cùng, bạn sử dụng công cụ FileSearch trong cuộc gọi generateContent. Trong cấu hình công cụ, bạn chỉ định một FileSearchRetrievalResource, trỏ đến FileSearchStore mà bạn muốn tìm kiếm. Điều này yêu cầu mô hình thực hiện một tìm kiếm ngữ nghĩa trên Kho lưu trữ tìm kiếm tệp cụ thể đó để tìm thông tin liên quan nhằm đưa ra câu trả lời có căn cứ.
+
+Quy trình lập chỉ mục và truy vấn của tính năng Tìm kiếm tệp
+Quy trình lập chỉ mục và truy vấn của tính năng Tìm kiếm tệp
+Trong sơ đồ này, đường nét đứt từ Documents (Tài liệu) đến Embedding model (Mô hình nhúng) (sử dụng gemini-embedding-001) biểu thị API uploadToFileSearchStore (bỏ qua File storage (Bộ nhớ tệp)). Nếu không, việc sử dụng Files API để tạo riêng rồi nhập tệp sẽ di chuyển quy trình lập chỉ mục từ Documents (Tài liệu) sang File storage (Bộ nhớ tệp) rồi đến Embedding model (Mô hình nhúng).
+
+Tìm kiếm trong File Search
+Kho lưu trữ Tìm kiếm tệp là một vùng chứa cho các mục nhúng tài liệu của bạn. Mặc dù các tệp thô được tải lên thông qua File API sẽ bị xoá sau 48 giờ, nhưng dữ liệu được nhập vào một kho lưu trữ Tìm kiếm tệp sẽ được lưu trữ vô thời hạn cho đến khi bạn xoá dữ liệu đó theo cách thủ công. Bạn có thể tạo nhiều kho lưu trữ Tìm kiếm tệp để sắp xếp tài liệu. API FileSearchStore cho phép bạn tạo, liệt kê, nhận và xoá để quản lý các kho lưu trữ tìm kiếm tệp. Tên cửa hàng Tìm kiếm tệp có phạm vi trên toàn cầu.
+
+Sau đây là một số ví dụ về cách quản lý các cửa hàng Tìm kiếm tệp:
+
+Python
+JavaScript
+REST
+
+curl -X POST "https://generativelanguage.googleapis.com/v1beta/fileSearchStores?key=${GEMINI_API_KEY}" \
+    -H "Content-Type: application/json"
+    -d '{ "displayName": "My Store" }'
+
+curl "https://generativelanguage.googleapis.com/v1beta/fileSearchStores?key=${GEMINI_API_KEY}" \
+
+curl "https://generativelanguage.googleapis.com/v1beta/fileSearchStores/my-file_search-store-123?key=${GEMINI_API_KEY}"
+
+curl -X DELETE "https://generativelanguage.googleapis.com/v1beta/fileSearchStores/my-file_search-store-123?key=${GEMINI_API_KEY}"
+Tìm tài liệu
+Bạn có thể quản lý từng tài liệu trong kho lưu trữ tệp bằng API File Search Documents để list từng tài liệu trong kho lưu trữ tìm kiếm tệp, get thông tin về một tài liệu và delete một tài liệu theo tên.
+
+Python
+JavaScript
+REST
+
+curl "https://generativelanguage.googleapis.com/v1beta/fileSearchStores/my-file_search-store-123/documents?key=${GEMINI_API_KEY}"
+
+curl "https://generativelanguage.googleapis.com/v1beta/fileSearchStores/my-file_search-store-123/documents/my_doc?key=${GEMINI_API_KEY}"
+
+curl -X DELETE "https://generativelanguage.googleapis.com/v1beta/fileSearchStores/my-file_search-store-123/documents/my_doc?key=${GEMINI_API_KEY}"
+Siêu dữ liệu tệp
+Bạn có thể thêm siêu dữ liệu tuỳ chỉnh vào tệp để lọc hoặc cung cấp thêm bối cảnh. Siêu dữ liệu là một tập hợp các cặp khoá-giá trị.
+
+Python
+JavaScript
+
+op = client.file_search_stores.import_file(
+    file_search_store_name=file_search_store.name,
+    file_name=sample_file.name,
+    custom_metadata=[
+        {"key": "author", "string_value": "Robert Graves"},
+        {"key": "year", "numeric_value": 1934}
+    ]
+)
+Điều này sẽ hữu ích khi bạn có nhiều tài liệu trong một kho lưu trữ Tìm kiếm tệp và chỉ muốn tìm kiếm một số tài liệu trong số đó.
+
+Python
+JavaScript
+REST
+
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+            "contents": [{
+                "parts":[{"text": "Tell me about the book I, Claudius"}]
+            }],
+            "tools": [{
+                "file_search": {
+                    "file_search_store_names":["'$STORE_NAME'"],
+                    "metadata_filter": "author = \"Robert Graves\""
+                }
+            }]
+        }' 2> /dev/null > response.json
+
+cat response.json
+Bạn có thể xem hướng dẫn về cách triển khai cú pháp bộ lọc danh sách cho metadata_filter tại google.aip.dev/160
+
+Trích dẫn
+Khi bạn sử dụng tính năng Tìm kiếm tệp, câu trả lời của mô hình có thể bao gồm các trích dẫn nêu rõ những phần nào trong tài liệu bạn tải lên được dùng để tạo câu trả lời. Điều này giúp ích cho việc kiểm chứng và xác minh.
+
+Bạn có thể truy cập thông tin trích dẫn thông qua thuộc tính grounding_metadata của phản hồi.
+
+Python
+JavaScript
+
+print(response.candidates[0].grounding_metadata)
+Đầu ra có cấu trúc
+Bắt đầu từ các mô hình Gemini 3, bạn có thể kết hợp công cụ tìm kiếm tệp với đầu ra có cấu trúc.
+
+Python
+JavaScript
+REST
+
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [{
+      "parts": [{"text": "What is the minimum hourly wage in Tokyo right now?"}]
+    }],
+    "tools": [
+      {
+        "fileSearch": {
+          "fileSearchStoreNames": ["$FILE_SEARCH_STORE_NAME"]
+        }
+      }
+    ],
+    "generationConfig": {
+        "responseMimeType": "application/json",
+        "responseJsonSchema": {
+            "type": "object",
+            "properties": {
+                "amount": {"type": "string", "description": "The numerical part of the amount."},
+                "currency": {"type": "string", "description": "The currency of amount."}
+            },
+            "required": ["amount", "currency"]
+        }
+    }
+  }'
+Mô hình được hỗ trợ
+Các mô hình sau đây hỗ trợ tính năng Tìm kiếm tệp:
+
+gemini-3-pro-preview
+gemini-3-flash-preview
+gemini-2.5-pro
+gemini-2.5-flash-lite
+Các loại tệp được hỗ trợ
+Tính năng Tìm kiếm tệp hỗ trợ nhiều định dạng tệp, được liệt kê trong các phần sau.
+
+Các loại tệp ứng dụng
+Loại tệp văn bản
+Các điểm hạn chế
+Live API: Tính năng Tìm kiếm tệp không được hỗ trợ trong Live API.
+Không tương thích với các công cụ: Hiện tại, bạn không thể kết hợp tính năng Tìm kiếm tệp với các công cụ khác như Căn cứ vào Google Tìm kiếm, Bối cảnh URL, v. v.
+Giới hạn số lượng yêu cầu
+File Search API có các giới hạn sau để đảm bảo tính ổn định của dịch vụ:
+
+Kích thước tệp tối đa / giới hạn cho mỗi tài liệu: 100 MB
+Tổng kích thước của bộ nhớ Tìm kiếm tệp dự án (dựa trên cấp người dùng):
+Miễn phí: 1 GB
+Cấp 1: 10 GB
+Lớp 2: 100 GB
+Cấp 3: 1 TB
+Đề xuất: Giới hạn kích thước của mỗi kho lưu trữ Tìm kiếm tệp dưới 20 GB để đảm bảo độ trễ truy xuất tối ưu.

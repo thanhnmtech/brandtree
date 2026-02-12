@@ -26,4 +26,12 @@ class Chat extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    /**
+     * File đã upload cho chat này (RAG)
+     */
+    public function uploadedFiles()
+    {
+        return $this->morphMany(UploadedFile::class, 'attachable');
+    }
 }

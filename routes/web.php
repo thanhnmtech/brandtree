@@ -30,6 +30,17 @@ Route::post('/api/chat/save_message', [App\Http\Controllers\ChatStreamController
 Route::get('/api/chat/history', [App\Http\Controllers\ChatStreamController::class, 'history'])->name('api.chat.history');
 Route::put('/api/chat/{id}/rename', [App\Http\Controllers\ChatStreamController::class, 'rename'])->name('api.chat.rename');
 
+// File Upload API Routes (RAG)
+Route::middleware('auth')->group(function () {
+    Route::post('/api/files/upload', [App\Http\Controllers\FileUploadController::class, 'uploadForChat'])->name('api.files.upload');
+    Route::get('/api/files/{file}/status', [App\Http\Controllers\FileUploadController::class, 'status'])->name('api.files.status');
+    Route::delete('/api/files/{file}', [App\Http\Controllers\FileUploadController::class, 'destroy'])->name('api.files.destroy');
+    Route::get('/api/files/chat/{chatId}', [App\Http\Controllers\FileUploadController::class, 'listForChat'])->name('api.files.chat');
+    Route::get('/api/files/agent/{agentId}', [App\Http\Controllers\FileUploadController::class, 'listForAgent'])->name('api.files.agent');
+    // Upload file cho Agent (canopy)
+    Route::post('/brands/{brand}/agents/{agent}/files', [App\Http\Controllers\FileUploadController::class, 'uploadForAgent'])->name('api.agents.files.upload');
+});
+
 // Chat Route (Standalone, No Localization Prefix)
 Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
 
@@ -75,6 +86,15 @@ Route::put('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\BrandAg
 Route::get('/run-pending-migrations', function () {
     \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
     return "Migrations run successfully (Check DB): " . \Illuminate\Support\Facades\Artisan::output();
+});
+
+Route::get('/debug/rag-logs', function () {
+    $path = storage_path('logs/rag_debug.log');
+    if (!file_exists($path)) {
+        return "Log file not found. Upload a file to generate logs.";
+    }
+    $content = file_get_contents($path);
+    return response($content)->header('Content-Type', 'text/plain');
 });
 
 
