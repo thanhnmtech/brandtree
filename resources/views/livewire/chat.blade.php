@@ -90,25 +90,64 @@
         class="tw-w-full tw-bg-white tw-border-t tw-border-gray-200 tw-px-5 tw-py-4 tw-flex tw-flex-col tw-justify-end">
         <div class="tw-flex-1 tw-space-y-2">
             <div class="tw-flex tw-items-end tw-gap-3 tw-flex-nowrap">
-                <button type="newchat"
-                    class="tw-w-12 tw-h-12 tw-bg-vlbcgreen tw-text-white tw-rounded-md tw-flex tw-items-center tw-justify-center"
-                    @click="window.location.href='/chat/' + brandId + '/root/1/new'">
+                <!-- Input file ẩn để upload file (image, pdf, word, txt) -->
+                <input type="file" id="chat-file-upload" class="tw-hidden"
+                    accept="image/*,.pdf,.doc,.docx,.txt,text/plain,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    multiple @change="handleFileUpload($event)" />
+
+                <!-- Nút bấm để trigger chọn file -->
+                <button type="button" id="chat-file-upload-btn"
+                    @click="document.getElementById('chat-file-upload').click()"
+                    title="Đính kèm file (Hình ảnh, PDF, Word, TXT)"
+                    class="tw-w-12 tw-h-12 tw-bg-vlbcgreen tw-text-white tw-rounded-md tw-flex tw-items-center tw-justify-center hover:tw-bg-[#15803d] tw-transition-colors tw-relative"
+                    :class="{ 'tw-opacity-50': isUploading }">
                     <img src="{{ asset('assets/img/icon-plus-white.svg') }}"
                         class="tw-w-[20px] tw-h-[20px] tw-object-contain" />
+                    <!-- Badge số file đã upload -->
+                    <span x-show="uploadedFiles.length > 0"
+                        class="tw-absolute tw--top-1 tw--right-1 tw-bg-red-500 tw-text-white tw-text-[10px] tw-w-5 tw-h-5 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-font-bold"
+                        x-text="uploadedFiles.length"></span>
                 </button>
 
                 <!-- Input Textarea bound to x-model userInput -->
                 <!-- Shift+Enter: xuống dòng, Enter: gửi tin nhắn -->
                 <textarea x-ref="userInput" x-model="userInput"
-                    @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage() }" rows="1"
+                    @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage() }"
+                    @paste="handlePaste($event)" rows="1"
                     class="tw-flex-1 tw-min-h-12 tw-resize-none tw-overflow-y-auto tw-border tw-border-gray-200 tw-rounded-md tw-px-3 tw-py-2 tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#16a34a]/40"
-                    placeholder="Ask anything..." :disabled="isStreaming"></textarea>
+                    placeholder="Ask anything..." :disabled="isStreaming || isUploading"></textarea>
 
-                <button @click="sendMessage()" :disabled="!userInput.trim() || isStreaming">
+                <button @click="sendMessage()" :disabled="!userInput.trim() || isStreaming || isUploading">
                     <img src="{{ asset('assets/img/enter-button.svg') }}"
                         class="tw-w-[48px] tw-h-[48px] tw-object-contain"
-                        :class="{'tw-opacity-50': !userInput.trim() || isStreaming}" />
+                        :class="{'tw-opacity-50': !userInput.trim() || isStreaming || isUploading}" />
                 </button>
+            </div>
+
+            <!-- Hiển thị danh sách file đã upload và trạng thái -->
+            <div x-show="uploadedFiles.length > 0" class="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2">
+                <template x-for="(file, idx) in uploadedFiles" :key="file.id || idx">
+                    <div
+                        class="tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-bg-gray-100 tw-rounded-md tw-text-xs">
+                        <!-- Icon theo trạng thái -->
+                        <span x-show="file.status === 'pending' || file.status === 'processing'"
+                            class="tw-animate-spin tw-text-yellow-500">⌛</span>
+                        <span x-show="file.status === 'completed'" class="tw-text-green-600">✅</span>
+                        <span x-show="file.status === 'failed'" class="tw-text-red-500">❌</span>
+
+                        <!-- Tên file (truncate) -->
+                        <span class="tw-max-w-[100px] tw-truncate" x-text="file.filename" :title="file.filename"></span>
+
+                        <!-- Nút xóa file -->
+                        <button @click="removeFile(file.id, idx)" class="tw-text-gray-400 hover:tw-text-red-500 tw-ml-1"
+                            title="Xóa file">
+                            <svg class="tw-w-3 tw-h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </template>
             </div>
 
             <div class="tw-mt-2 tw-flex tw-items-center tw-justify-between tw-text-[11px] tw-text-gray-500 tw-gap-4">
@@ -255,6 +294,10 @@
             showSuccessModal: false,
             editingContent: '',
             isSaving: false,
+
+            // File Upload State
+            uploadedFiles: [], // [{id, filename, status: 'pending'|'processing'|'completed'|'failed'}]
+            isUploading: false,
 
             // Setup
             init() {
@@ -569,6 +612,192 @@
                     console.error('Stream error:', error);
                     this.isStreaming = false;
                     this.messages[assistantMsgIndex].content += '\n[Lỗi kết nối hoặc xử lý]';
+                }
+            },
+
+            // === FILE UPLOAD METHODS ===
+             /**              * Xử lý khi người dùng chọn file              */
+            async handleFileUpload(event) {
+                const files = event.target.files;
+                if (!files || files.length === 0) return;
+
+                this.isUploading = true;
+                const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+
+                for (const file of files) {
+                    // Kiểm tra size (max 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert(`File "${file.name}" quá lớn (tối đa 10MB)`);
+                        continue;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('chat_id', this.convId || '');
+                    // Gửi thêm thông tin để tạo chat mới nếu chat_id rỗng
+                    formData.append('brand_id', this.brandId || '');
+                    formData.append('agent_type', this.agentType || '');
+                    formData.append('agent_id', this.agentId || '');
+
+                    try {
+                        const response = await fetch('/api/files/upload', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
+                            // Nếu server tạo chat mới → cập nhật convId và URL
+                            if (result.is_new_chat && result.chat_id) {
+                                this.convId = result.chat_id;
+
+                                // Đổi URL trên thanh địa chỉ: /new → /{chatId}
+                                const pathParts = window.location.pathname.split('/');
+                                const lastPart = pathParts[pathParts.length - 1];
+                                if (lastPart === 'new') {
+                                    pathParts[pathParts.length - 1] = result.chat_id;
+                                    const newUrl = pathParts.join('/');
+                                    window.history.replaceState({}, '', newUrl);
+                                }
+
+                                // Dispatch event để sidebar refresh danh sách chat
+                                window.dispatchEvent(new CustomEvent('chat-created', {
+                                    detail: { chatId: result.chat_id }
+                                }));
+                            }
+
+                            // Thêm file vào danh sách
+                            const newFile = {
+                                id: result.file_id,
+                                filename: result.filename || file.name,
+                                status: result.status || 'pending'
+                            };
+                            this.uploadedFiles.push(newFile);
+
+                            // Poll status nếu chưa completed
+                            if (newFile.status !== 'completed') {
+                                this.pollFileStatus(newFile.id);
+                            }
+                        } else {
+                            alert(`Lỗi upload "${file.name}": ${result.error || result.message || 'Unknown error'}`);
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        alert(`Lỗi upload "${file.name}": ${error.message}`);
+                    }
+                }
+
+                this.isUploading = false;
+                // Reset input
+                event.target.value = '';
+
+                // Focus back to input
+                this.$nextTick(() => {
+                    if (this.$refs.userInput) {
+                        this.$refs.userInput.focus();
+                    }
+                });
+            },
+
+            /**
+             * Xử lý paste hình từ clipboard (Ctrl+V)
+             * Nếu clipboard có hình → tạo File object → upload như file thông thường
+             */
+            handlePaste(event) {
+                const clipboardData = event.clipboardData || window.clipboardData;
+                if (!clipboardData) return;
+
+                const items = clipboardData.items;
+                if (!items) return;
+
+                // Tìm item là hình ảnh trong clipboard
+                const imageFiles = [];
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.startsWith('image/')) {
+                        const blob = items[i].getAsFile();
+                        if (blob) {
+                            // Tạo File object với tên có timestamp
+                            const ext = items[i].type.split('/')[1] || 'png';
+                            const fileName = `pasted_image_${Date.now()}.${ext}`;
+                            const file = new File([blob], fileName, { type: items[i].type });
+                            imageFiles.push(file);
+                        }
+                    }
+                }
+
+                // Nếu không có hình → để paste text bình thường
+                if (imageFiles.length === 0) return;
+
+                // Ngăn paste text/hình mặc định vào textarea
+                event.preventDefault();
+
+                // Tái sử dụng logic upload file
+                this.handleFileUpload({ target: { files: imageFiles } });
+            },
+
+             /**              * Poll trạng thái file processing              */
+            async pollFileStatus(fileId) {
+                const maxAttempts = 60; // 60 * 2s = 2 phút max
+                let attempts = 0;
+
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+
+                    try {
+                        const response = await fetch(`/api/files/${fileId}/status`);
+                        const result = await response.json();
+
+                        if (result.status) {
+                            // Cập nhật status trong uploadedFiles
+                            const fileIndex = this.uploadedFiles.findIndex(f => f.id === fileId);
+                            if (fileIndex !== -1) {
+                                this.uploadedFiles[fileIndex].status = result.status;
+                            }
+
+                            // Nếu đã xong (completed/failed), dừng poll
+                            if (result.status === 'completed' || result.status === 'failed') {
+                                clearInterval(pollInterval);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Poll status error:', error);
+                    }
+
+                    // Timeout
+                    if (attempts >= maxAttempts) {
+                        clearInterval(pollInterval);
+                    }
+                }, 2000); // Poll mỗi 2 giây
+            },
+             /**              * Xóa file đã upload              */
+            async removeFile(fileId, index) {
+                if (!fileId) {
+                    this.uploadedFiles.splice(index, 1);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/files/${fileId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.uploadedFiles.splice(index, 1);
+                    } else {
+                        const result = await response.json();
+                        alert(`Lỗi xóa file: ${result.message || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Delete file error:', error);
+                    // Vẫn xóa khỏi UI
+                    this.uploadedFiles.splice(index, 1);
                 }
             }
         }

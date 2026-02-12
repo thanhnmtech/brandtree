@@ -39,4 +39,12 @@ class BrandAgent extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * File đã upload cho agent này (RAG)
+     */
+    public function uploadedFiles()
+    {
+        return $this->morphMany(UploadedFile::class, 'attachable');
+    }
 }
