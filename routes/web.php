@@ -97,6 +97,8 @@ Route::get('/debug/rag-logs', function () {
     return response($content)->header('Content-Type', 'text/plain');
 });
 
+Route::get('/debug/chat-ai-logs', [App\Http\Controllers\LogViewerController::class, 'index'])->middleware('auth');
+
 
 
 
