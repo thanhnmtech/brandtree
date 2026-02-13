@@ -18,7 +18,12 @@
     </div>
   </div>
 
+  {{-- Section Nền Tảng Dữ Liệu - Hiển thị danh sách root/trunk steps --}}
+  {{-- Bọc bằng result-modal controller để có thể mở modal xem kết quả --}}
   <nav id="dataPlatformSection"
+    data-controller="result-modal"
+    data-result-modal-brand-slug-value="{{ $brand->slug }}"
+    data-result-modal-data-value='@json(array_merge($brand->root_data ?? [], $brand->trunk_data ?? []))'
     class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2">
     <button onclick="toggleMenu('dataPlatformMenu', 'dataArrow')"
       class="tw-w-full tw-px-3 tw-py-2 tw-bg-[linear-gradient(90deg,#0E642D_0%,#16A048_100%)] tw-rounded-md tw-flex tw-items-center tw-gap-3 tw-text-left">
@@ -40,20 +45,57 @@
           class="tw-object-contain tw-rotate-[-90deg] tw-transition tw-duration-500" />
       </div>
     </button>
+
+    {{-- Danh sách các step Root và Trunk --}}
     <ul id="dataPlatformMenu" class="tw-hidden tw-w-full tw-space-y-2 tw-text-sm">
-      @if(isset($dataPlatformMenuItems) && count($dataPlatformMenuItems) > 0)
-        @foreach($dataPlatformMenuItems as $index => $item)
-          <li 
-            class="tw-px-3 tw-py-1 tw-rounded-md {{ $item['active'] ? 'tw-bg-[#D9F2E2]' : 'hover:tw-bg-[#D9F2E2]-100 tw-cursor-pointer' }} tw-flex tw-items-center tw-gap-2"
-            @if(!$item['active'])
-              {{-- khi nào động vào sidebar này thì mới làm tiếp vụ này --}}
-            @endif
-          >
-            <span class="tw-font-semibold tw-text-gray-500">{{ $item['label'] }}</span>
-          </li>
-        @endforeach
-      @endif
+      @php
+        $rootData = $brand->root_data ?? [];
+        $trunkData = $brand->trunk_data ?? [];
+      @endphp
+
+      {{-- Các step Root (root1, root2, root3) --}}
+      @foreach(config('timeline_steps.root') as $key => $step)
+        @php $hasData = !empty($rootData[$key]); @endphp
+        <li class="tw-px-3 tw-py-1 tw-rounded-md {{ $hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60' }} tw-flex tw-items-center tw-gap-2">
+          @if($hasData)
+            {{-- Có dữ liệu: cho phép click mở result-modal --}}
+            <button type="button"
+              data-action="result-modal#open"
+              data-result-modal-title-param="{{ $step['label'] }}"
+              data-result-modal-key-param="{{ $key }}"
+              class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
+              <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
+            </button>
+          @else
+            {{-- Chưa có dữ liệu: hiển thị mờ, không click được --}}
+            <span class="tw-font-semibold tw-text-gray-400">{{ $step['label'] }}</span>
+          @endif
+        </li>
+      @endforeach
+
+      {{-- Các step Trunk (trunk1, trunk2) --}}
+      @foreach(config('timeline_steps.trunk') as $key => $step)
+        @php $hasData = !empty($trunkData[$key]); @endphp
+        <li class="tw-px-3 tw-py-1 tw-rounded-md {{ $hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60' }} tw-flex tw-items-center tw-gap-2">
+          @if($hasData)
+            {{-- Có dữ liệu: cho phép click mở result-modal --}}
+            <button type="button"
+              data-action="result-modal#open"
+              data-result-modal-title-param="{{ $step['label'] }}"
+              data-result-modal-key-param="{{ $key }}"
+              class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
+              <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
+            </button>
+          @else
+            {{-- Chưa có dữ liệu: hiển thị mờ, không click được --}}
+            <span class="tw-font-semibold tw-text-gray-400">{{ $step['label'] }}</span>
+          @endif
+        </li>
+      @endforeach
     </ul>
+
+    {{-- Result Modal Component - để hiển thị popup kết quả phân tích --}}
+    <x-result-modal :brand="$brand" />
   </nav>
 
   <!-- Chat History Section with Alpine.js -->
@@ -158,6 +200,121 @@
 </div>
 
 <script>
+  // Mapping agentType → label (lấy từ config timeline_steps)
+  const dataPlatformLabels = {
+    @foreach(config('timeline_steps.root') as $key => $step)
+      '{{ $key }}': '{{ $step['label'] }}',
+    @endforeach
+    @foreach(config('timeline_steps.trunk') as $key => $step)
+      '{{ $key }}': '{{ $step['label'] }}',
+    @endforeach
+  };
+
+  // Lắng nghe event khi phân tích được lưu → cập nhật sidebar + navigation
+  window.addEventListener('analysis-saved', function(e) {
+    const agentType = e.detail?.agentType;
+    const content = e.detail?.content;
+    if (!agentType || !content) return;
+
+    // === 1. Cập nhật data-value của Stimulus result-modal controller ===
+    const nav = document.getElementById('dataPlatformSection');
+    if (nav) {
+      try {
+        const currentData = JSON.parse(nav.dataset.resultModalDataValue || '{}');
+        currentData[agentType] = content;
+        nav.dataset.resultModalDataValue = JSON.stringify(currentData);
+      } catch (err) {
+        console.error('Lỗi cập nhật data sidebar:', err);
+      }
+    }
+
+    // === 2. Cập nhật UI thẻ trong dataPlatformMenu ===
+    const label = dataPlatformLabels[agentType];
+    if (label) {
+      const menuItems = document.querySelectorAll('#dataPlatformMenu li');
+      menuItems.forEach(function(li) {
+        // Tìm thẻ có span/button chứa đúng label
+        const textEl = li.querySelector('span.tw-font-semibold');
+        if (textEl && textEl.textContent.trim() === label) {
+          // Đổi style từ xám sang xanh
+          li.classList.remove('tw-bg-gray-100', 'tw-opacity-60');
+          li.classList.add('tw-bg-[#D9F2E2]');
+
+          // Nếu đang là span (chưa có data), thay bằng button click được
+          if (li.querySelector('span.tw-text-gray-400') && !li.querySelector('button')) {
+            li.innerHTML = `
+              <button type="button"
+                data-action="result-modal#open"
+                data-result-modal-title-param="${label}"
+                data-result-modal-key-param="${agentType}"
+                class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
+                <span class="tw-font-semibold tw-text-gray-500">${label}</span>
+              </button>
+            `;
+          }
+        }
+      });
+    }
+
+    // === 3. Cập nhật navigation dropdown ===
+    const navItem = document.querySelector('[data-nav-key="' + agentType + '"]');
+    if (navItem) {
+      // Đổi style item hiện tại sang màu xanh (unlocked)
+      navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]', 'tw-cursor-not-allowed');
+      navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+
+      // Tìm container chứa tất cả navigation items
+      const container = navItem.closest('.tw-rounded-\\[4px\\]');
+      if (container) {
+        const allItems = container.querySelectorAll('[data-nav-key]');
+        let currentIndex = -1;
+
+        allItems.forEach(function(item, index) {
+          if (item.getAttribute('data-nav-key') === agentType) {
+            currentIndex = index;
+          }
+        });
+
+        // Unlock next item nếu có trong cùng dropdown
+        if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
+          const nextItem = allItems[currentIndex + 1];
+          const nextKey = nextItem.getAttribute('data-nav-key');
+
+          if (nextItem.tagName === 'SPAN') {
+            // Thay span bằng a (unlocked)
+            const pathParts = window.location.pathname.split('/');
+            const brandSlug = pathParts[2];
+            const newLink = document.createElement('a');
+            newLink.href = '/brands/' + brandSlug + '/chat/' + nextKey;
+            newLink.setAttribute('data-nav-key', nextKey);
+            newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
+            newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+            newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+            newLink.innerHTML = nextItem.innerHTML;
+            nextItem.replaceWith(newLink);
+          }
+        }
+      }
+
+      // Xử lý đặc biệt: root3 xong → unlock trunk1
+      if (agentType === 'root3') {
+        const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
+        if (trunk1Item && trunk1Item.tagName === 'SPAN') {
+          const pathParts = window.location.pathname.split('/');
+          const brandSlug = pathParts[2];
+          const newLink = document.createElement('a');
+          newLink.href = '/brands/' + brandSlug + '/chat/trunk1';
+          newLink.setAttribute('data-nav-key', 'trunk1');
+          newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
+          newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+          newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+          newLink.innerHTML = trunk1Item.innerHTML;
+          trunk1Item.replaceWith(newLink);
+        }
+      }
+    }
+  });
+
   function chatHistorySidebar(config) {
     return {
       chats: [],
@@ -222,10 +379,6 @@
       },
 
       getChatLink(chat) {
-        // Link format: /brands/{slug}/chat/{agentType}/{agentId}/{convId}
-        // Determine convId. If chat.conversation_id exists use it? No, route uses ID or 'new'.
-        // Actually the route is: /brands/{brand}/chat/{agentType?}/{agentId?}/{convId?}
-        // So convId should be the ID of the chat record in our usage context (Chat::find($convId)).
         return `/brands/${this.brandSlug}/chat/${this.agentType}/${this.agentId}/${chat.id}`;
       },
 
