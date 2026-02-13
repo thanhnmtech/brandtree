@@ -143,6 +143,39 @@ class LocalRagService implements RagServiceInterface
     }
 
     /**
+     * Đợi danh sách file cụ thể xử lý xong
+     * 
+     * @param array $fileIds Danh sách ID file cần đợi
+     * @param int $maxWaitSeconds Thời gian tối đa chờ
+     * @return bool True nếu tất cả file đã completed
+     */
+    public function waitForFiles(array $fileIds, int $maxWaitSeconds = 30): bool
+    {
+        if (empty($fileIds)) {
+            return true;
+        }
+
+        $startTime = time();
+        $pollInterval = config('rag.wait.poll_interval_us', 500000);
+
+        while (time() - $startTime < $maxWaitSeconds) {
+            $pendingCount = UploadedFile::whereIn('id', $fileIds)
+                ->whereIn('status', ['pending', 'processing'])
+                ->count();
+
+            if ($pendingCount === 0) {
+                return true; // Tất cả file đã xong
+            }
+
+            usleep($pollInterval); // Đợi rồi check lại
+        }
+
+        // Timeout
+        Log::warning("File processing timeout for files: " . implode(',', $fileIds));
+        return false;
+    }
+
+    /**
      * Xóa file và chunks liên quan
      * 
      * @param int $fileId ID của uploaded_file cần xóa

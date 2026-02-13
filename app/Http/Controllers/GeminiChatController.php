@@ -38,6 +38,7 @@ class GeminiChatController extends Controller
         $agentType = $request->input('agentType');
         $agentId = $request->input('agentId');
         $brandId = $request->input('brandId');
+        $fileIds = $request->input('file_ids'); // Nhận danh sách file ID từ frontend
         $userId = $request->user() ? $request->user()->id : null;
 
         // --- Prompt Building Logic - Lấy từ bảng system_prompts ---
@@ -162,6 +163,21 @@ class GeminiChatController extends Controller
         }
 
         // === Đính kèm nội dung file vào tin nhắn ===
+        // Logic mới: Chỉ lấy các file trong fileIds được gửi lên từ frontend
+        $attachedFiles = collect([]);
+
+        if (!empty($fileIds) && is_array($fileIds)) {
+            // Đợi các file này xử lý xong
+            $this->ragService->waitForFiles($fileIds);
+
+            // Lấy nội dung
+            $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)
+                ->whereIn('id', $fileIds)
+                ->completed()
+                ->get();
+        }
+
+        /* Logic cũ (đã bỏ)
         // Đợi các file đang processing hoàn tất
         $this->ragService->waitForPendingFiles('App\\Models\\Chat', $chat->id);
 
@@ -169,6 +185,7 @@ class GeminiChatController extends Controller
         $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)
             ->completed()
             ->get();
+        */
 
         if ($attachedFiles->isNotEmpty()) {
             $fileTexts = [];
@@ -283,7 +300,7 @@ class GeminiChatController extends Controller
                     $agentId,
                     $aName,
                     $agentType,
-                    'gemini-1.5-flash', // or dynamic model
+                    env('GEMINI_CHAT_MODEL', 'gemini-2.0-flash-exp'),
                     $lastUserContent,
                     $prompt ?? ''
                 );
@@ -292,13 +309,14 @@ class GeminiChatController extends Controller
             \Illuminate\Support\Facades\Log::error("Gemini Chat Logging Failed: " . $e->getMessage());
         }
 
-        return response()->stream(function () use ($chat, $prompt, $contents, $log, $loggingService) {
+        $apiKey = env('GEMINI_API_KEY');
+        $model = env('GEMINI_CHAT_MODEL', 'gemini-2.0-flash-exp');
+
+        return response()->stream(function () use ($chat, $prompt, $contents, $log, $loggingService, $apiKey, $model) {
             // Disable output buffering
             while (ob_get_level()) {
                 ob_end_flush();
             }
-
-            $apiKey = env('GEMINI_API_KEY');
 
             // Check API Key
             if (empty($apiKey)) {
@@ -308,7 +326,7 @@ class GeminiChatController extends Controller
                 return;
             }
 
-            $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse&key=' . $apiKey;
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:streamGenerateContent?alt=sse&key=" . $apiKey;
 
             $payload = [
                 'system_instruction' => [
