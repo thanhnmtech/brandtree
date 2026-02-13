@@ -25,8 +25,7 @@
       </h1>
 
       <p class="tw-text-base tw-text-gray-600 tw-mt-3 tw-max-w-2xl tw-mx-auto">
-        Xây dựng nền tảng chiến lược vững chắc để thương hiệu tỏa sáng giá
-        trị...
+        Xây dựng nền tảng chiến lược vững chắc cho thương hiệu của bạn. Tuân thủ lộ trình tuyến tính để đảm bảo tính nhất quán và hiệu quả trong mọi quyết định.
       </p>
     </div>
   </section>

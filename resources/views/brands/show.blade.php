@@ -32,7 +32,7 @@
                         </h2>
                         @if($brand->isAdmin(auth()->user()))
                             <div class="tw-relative" data-controller="dropdown">
-                                <i class="ri-more-2-fill tw-text-gray-600 tw-text-2xl tw-cursor-pointer hover:tw-text-gray-800 tw-transition"
+                                <i class="ri-settings-3-line tw-text-gray-600 tw-text-3xl tw-cursor-pointer hover:tw-text-gray-800 tw-transition"
                                     data-action="click->dropdown#toggle"></i>
 
                                 <!-- Dropdown Menu -->
@@ -90,10 +90,10 @@
                             id="brandSwitcherBtn"></i> --}}
 
                     </div>
-                    <p class="tw-text-md tw-text-gray-500 tw-mt-1">
+                    <p class="tw-text-md tw-text-gray-500 tw-mt-1 tw-font-bold">
                         {{ __('messages.brand_show.founded_year') }}: {{ $brand->founded_year }}
                     </p>
-                    <p class="tw-text-md tw-text-gray-500 tw-mt-1">
+                    <p class="tw-text-md tw-text-gray-500 tw-mt-1 tw-font-bold">
                         {{ $brand->description }}
                     </p>
                 </div>

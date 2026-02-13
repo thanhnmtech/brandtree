@@ -1,50 +1,129 @@
 <x-app-layout>
-  <div class="tw-w-full tw-max-w-7xl tw-mx-auto tw-mt-6 tw-px-4">
-
-    <!-- Main Content -->
-    <main class="tw-p-4" x-data="{ openCreateModal: false, openTemplateModal: false, openEditModal: false }">
+  <!-- Main Content -->
+  <main class="tw-mt-[36px]" x-data="{ openCreateModal: false, openTemplateModal: false, openEditModal: false }">
 
       <!-- Title -->
-      <div class="tw-text-center tw-mt-4">
-        <h1 class="tw-text-3xl tw-font-bold tw-text-gray-800">
+    <section class="tw-bg-[#e5e5df] tw-py-10 tw-px-6 tw-border-b tw-border-gray-200">
+      <div class="tw-max-w-5xl tw-mx-auto tw-text-center">
+        <p class="tw-text-xs tw-font-medium tw-text-gray-600 tw-uppercase">
+          GIAI ĐOẠN TÁN CÂY ĐANG HOẠT ĐỘNG
+        </p>
+
+        <h1 class="tw-text-4xl tw-font-bold tw-mt-3">
           Bản Đồ Hành Trình <span class="tw-text-vlbcgreen">Tán Cây</span>
         </h1>
-        <p class="tw-text-gray-600 tw-mt-2">
-          AI sẽ đánh giá mức độ sẵn sàng và đề xuất chiến lược truyền thông, quảng cáo.
+
+        <p class="tw-text-base tw-text-gray-600 tw-mt-3 tw-max-w-2xl tw-mx-auto">
+          AI đã biến chiến lược nền tảng thành bộ nhận diện thương hiệu hoàn chỉnh, sẵn sàng để triển khai.
         </p>
       </div>
+    </section>
 
-      <!-- Completion Status -->
-      <div class="tw-mx-auto tw-mt-8 tw-flex tw-justify-center">
-        <div
-          class="tw-w-40 tw-h-40 tw-rounded-full tw-border-8 tw-border-green-300 tw-flex tw-items-center tw-justify-center">
-          <span class="tw-text-3xl tw-font-bold tw-text-vlbcgreen">53%</span>
+    <div class="tw-mx-auto tw-px-8 tw-pt-10 tw-flex tw-flex-col tw-gap-10">
+      <!-- ===== HEADER BLOCK ===== -->
+      <div class="tw-w-full tw-bg-[#faf9f6] tw-rounded-xl tw-border tw-border-gray-200 tw-py-6 tw-px-8 tw-flex tw-items-center tw-justify-between">
+        <div>
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <h2 class="tw-text-xl tw-font-semibold tw-text-gray-900">
+              <a href="{{ route('brands.show', $brand) }}" class="hover:tw-text-vlbcgreen tw-transition-colors">
+                {{ $brand->name }}
+              </a>
+            </h2>
+            <i class="ri-settings-3-line tw-text-gray-600 tw-text-lg"></i>
+            <i class="ri-arrow-down-s-line tw-text-gray-500 tw-text-lg"></i>
+          </div>
+
+          <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
+            Xây dựng và phát triển thương hiệu dựa trên cốt lõi của bạn
+          </p>
+        </div>
+
+        <div class="tw-flex tw-items-center">
+          <div class="tw-h-20 tw-w-20 tw-rounded-full tw-border-[6px] tw-border-green-300 tw-bg-white tw-flex tw-flex-col tw-items-center tw-justify-center tw-shadow-sm">
+            <span class="tw-text-green-600 tw-font-semibold tw-text-xl">53%</span>
+            <span class="tw-text-gray-500 tw-text-[10px] tw-mt-0.5">Hoàn thành</span>
+          </div>
         </div>
       </div>
 
-      <!-- Brand Garden -->
-      <section class="tw-mt-12">
-        <h2 class="tw-text-2xl tw-font-bold">{{ $brand->name }} Brand Garden</h2>
-        <p class="tw-text-gray-600 tw-mt-1">Đang triển khai bản đồ truyền thông toàn hành trình</p>
-      </section>
-
       <!-- Nền tảng chiến lược -->
-      <section class="tw-mt-8">
-        <h3 class="tw-font-semibold tw-text-gray-700 tw-mb-3">Nền tảng Chiến Lược</h3>
+      <section class="tw-space-y-6">
+        <h2 class="tw-text-2xl tw-font-bold tw-text-gray-800">
+          Nền Tảng Chiến Lược
+        </h2>
 
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
-          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg">Giá trị Cốt lõi</div>
-          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg">Chiến lược Định vị</div>
-          <div class="tw-bg-white tw-border tw-p-4 tw-rounded-lg">Định vị Thương hiệu</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-5">
+          <!-- CARD 1 -->
+          <div class="tw-bg-white tw-rounded-[10px] tw-border-2 tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-6 tw-transition">
+            <div class="tw-flex tw-items-center tw-gap-3">
+              <div class="tw-h-10 tw-w-10 tw-bg-[#E6F6EC] tw-rounded-full tw-flex tw-items-center tw-justify-center">
+                <img
+                  src="{{ asset('assets/img/icon-target-green.svg') }}"
+                  class="tw-w-[24px] tw-h-[24px]"
+                />
+              </div>
+
+              <div class="tw-flex-1">
+                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
+                  Giá trị Cốt Lõi
+                </h3>
+                <p class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
+                  Chất lượng Đổi mới, Trách nhiệm
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2 -->
+          <div class="tw-bg-white tw-rounded-[10px] tw-border-2 tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-6 tw-transition">
+            <div class="tw-flex tw-items-center tw-gap-3">
+              <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#E6F6EC] tw-flex tw-items-center tw-justify-center">
+                <img
+                  src="{{ asset('assets/img/icon-human-green.svg') }}"
+                  class="tw-w-[20px] tw-h-[20px]"
+                />
+              </div>
+
+              <div class="tw-flex-1">
+                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
+                  Chân dung Khách hàng
+                </h3>
+                <p class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
+                  SME Việt Nam, 30-45 tuổi, tìm kiếm tăng trưởng
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3 -->
+          <div class="tw-bg-white tw-rounded-[10px] tw-border-2 tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-6 tw-transition">
+            <div class="tw-flex tw-items-center tw-gap-3">
+              <div class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#E9F3EF] tw-flex tw-items-center tw-justify-center">
+                <img
+                  src="{{ asset('assets/img/icon-star-green.svg') }}"
+                  class="tw-w-[20px] tw-h-[20px]"
+                />
+              </div>
+
+              <div class="tw-flex-1">
+                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
+                  Định vị Thương hiệu
+                </h3>
+                <p class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
+                  Giải pháp marketing AI-powered cho SME
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- AI Agents -->
-      <section class="tw-mt-12" x-data="{ search: '' }">
+      <section class="tw-space-y-6" x-data="{ search: '' }">
         <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between md:tw-items-center tw-mb-3 tw-gap-4">
           <div>
-            <h3 class="tw-font-bold tw-text-xl tw-text-gray-900">AI Agents Thư viện</h3>
-            <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Danh sách các Agents mặc định của hệ thống</p>
+            <h3 class="tw-font-bold tw-text-2xl tw-text-gray-800">AI Agents Thư viện</h3>
+            <p class="tw-text tw-text-[#829B99] tw-font-semibold">Danh sách các Agents mặc định của hệ thống</p>
           </div>
 
           <div class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-3 tw-w-full md:tw-w-auto">
@@ -121,21 +200,41 @@
       </section>
 
       <!-- Recommended -->
-      <section
-        class="tw-bg-gradient-to-r tw-from-green-500 tw-to-green-600 tw-text-white tw-rounded-xl tw-p-6 tw-mt-12">
-        <h3 class="tw-font-semibold tw-text-lg tw-mb-2">Bước tiếp theo được đề xuất</h3>
-        <ul class="tw-text-sm tw-leading-relaxed">
-          <li>- Tối ưu bộ nhận diện trước khi chạy ads</li>
-          <li>- Chuẩn hóa thông điệp xuyên suốt hành trình</li>
-          <li>- Tạo bộ nội dung onboarding khách hàng</li>
-        </ul>
-        <button class="tw-mt-4 tw-px-4 tw-py-2 tw-bg-white tw-text-green-700 tw-rounded-lg tw-text-sm tw-font-semibold">
-          Xem đề xuất ngay
-        </button>
+      <section class="tw-flex tw-flex-col tw-rounded-[10px] tw-bg-[linear-gradient(270deg,#45C974_-4.54%,#2A9150_71.65%)] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-6 md:tw-p-10 tw-gap-4">
+        <div class="tw-text-white">
+          <div class="tw-flex tw-items-center tw-gap-4">
+            <div class="tw-h-12 tw-w-12 tw-bg-[#FFFFFF] tw-rounded-full tw-flex tw-items-center tw-justify-center">
+              <img src="{{ asset('assets/img/icon-star-green.svg') }}" class="tw-w-[24px] tw-h-[24px]" />
+            </div>
+            <h3 class="tw-flex-1 tw-text-lg tw-font-semibold">
+              Bước tiếp theo được đề xuất
+            </h3>
+          </div>
+
+          <ul class="tw-mt-2 tw-text-sm tw-leading-6">
+            <li>
+              • Tối ưu nhận diện trước khi chạy quảng cáo.
+            </li>
+            <li>
+              • Chuẩn hóa thông điệp xuyên suốt hành trình khách hàng.
+            </li>
+            <li>• Tạo bộ nội dung onboarding tự động.</li>
+          </ul>
+        </div>
+
+        <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-4 tw-gap-4">
+          <button class="tw-bg-white tw-text-[#16a249] tw-px-4 tw-py-2 tw-rounded-lg tw-font-semibold hover:tw-opacity-90">
+            Bắt đầu ngay →
+          </button>
+
+          <button class="tw-bg-[#33B468] tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-font-semibold hover:tw-opacity-90">
+            Tùy chỉnh
+          </button>
+        </div>
       </section>
 
       <!-- Input Bar -->
-      <div id="inputbar" class="tw-mt-10"></div>
+      <div id="inputbar"></div>
 
       <!-- Create Agent Modal -->
       @include('brands.trees.partials.create-agent-modal')
@@ -146,8 +245,8 @@
       <!-- Edit Agent Modal -->
       @include('brands.trees.partials.edit-agent-modal')
 
-    </main>
-  </div>
+    </div>
+  </main>
 
   <script>
     async function deleteAgent(agentId, agentName, brandSlug) {
