@@ -451,6 +451,12 @@
 
             // Action
             async sendMessage() {
+                // Check if any file is still uploading
+                if (this.uploadedFiles.some(f => f.status === 'uploading')) {
+                    alert('Vui lòng đợi file upload xong trước khi gửi.');
+                    return;
+                }
+
                 if (!this.userInput.trim() || this.isStreaming) return;
 
                 const messageContent = this.userInput;
@@ -479,6 +485,11 @@
                         ? '/api/chat_stream_gemini'
                         : '/api/chat_stream';
 
+                    // Collect file IDs to send (bao gồm cả pending để backend đợi)
+                    const fileIds = this.uploadedFiles
+                        .filter(f => f.status === 'completed' || f.status === 'processing' || f.status === 'pending')
+                        .map(f => f.id);
+
                     // Call streaming API
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -492,9 +503,15 @@
                             agentId: this.agentId,
                             convId: this.convId,
                             brandId: this.brandId,
-                            model: this.selectedModel
+                            model: this.selectedModel,
+                            file_ids: fileIds // Gửi danh sách file ID
                         })
                     });
+
+                    // Clear uploaded files after sending
+                    if (this.uploadedFiles.length > 0) {
+                        this.uploadedFiles = [];
+                    }
 
                     if (!response.ok) throw new Error('Network response was not ok');
 
@@ -609,7 +626,7 @@
             },
 
             // === FILE UPLOAD METHODS ===
-             /**              * Xử lý khi người dùng chọn file              */
+            /**              * Xử lý khi người dùng chọn file              */
             async handleFileUpload(event) {
                 const files = event.target.files;
                 if (!files || files.length === 0) return;
@@ -623,6 +640,15 @@
                         alert(`File "${file.name}" quá lớn (tối đa 10MB)`);
                         continue;
                     }
+
+                    // 1. Tạo placeholder để hiện loading ngay lập tức
+                    const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    this.uploadedFiles.push({
+                        id: tempId,
+                        filename: file.name,
+                        status: 'uploading', // Trạng thái dùng để block nút gửi
+                        extracted_content: null
+                    });
 
                     const formData = new FormData();
                     formData.append('file', file);
@@ -643,6 +669,9 @@
 
                         const result = await response.json();
 
+                        // Tìm file trong mảng để update (dùng tempId)
+                        const fileIndex = this.uploadedFiles.findIndex(f => f.id === tempId);
+
                         if (response.ok && result.success) {
                             // Nếu server tạo chat mới → cập nhật convId và URL
                             if (result.is_new_chat && result.chat_id) {
@@ -655,31 +684,37 @@
                                     pathParts[pathParts.length - 1] = result.chat_id;
                                     const newUrl = pathParts.join('/');
                                     window.history.replaceState({}, '', newUrl);
-                                }
 
-                                // Dispatch event để sidebar refresh danh sách chat
-                                window.dispatchEvent(new CustomEvent('chat-created', {
-                                    detail: { chatId: result.chat_id }
-                                }));
+                                    // 🔄 Dispatch event để sidebar refresh danh sách chat
+                                    window.dispatchEvent(new CustomEvent('chat-created', {
+                                        detail: { chatId: result.chat_id }
+                                    }));
+                                }
                             }
 
-                            // Thêm file vào danh sách
-                            const newFile = {
-                                id: result.file_id,
-                                filename: result.filename || file.name,
-                                status: result.status || 'pending'
-                            };
-                            this.uploadedFiles.push(newFile);
+                            // 2. Update thông tin file thật
+                            if (fileIndex !== -1) {
+                                this.uploadedFiles[fileIndex] = {
+                                    id: result.file_id,
+                                    filename: result.filename || file.name,
+                                    status: result.status || 'pending'
+                                };
 
-                            // Poll status nếu chưa completed
-                            if (newFile.status !== 'completed') {
-                                this.pollFileStatus(newFile.id);
+                                // Poll status nếu chưa completed
+                                if (result.status !== 'completed') {
+                                    this.pollFileStatus(result.file_id);
+                                }
                             }
                         } else {
-                            alert(`Lỗi upload "${file.name}": ${result.error || result.message || 'Unknown error'}`);
+                            // Xóa placeholder nếu lỗi
+                            if (fileIndex !== -1) this.uploadedFiles.splice(fileIndex, 1);
+                            alert('Lỗi upload: ' + (result.message || 'Không xác định'));
                         }
                     } catch (error) {
                         console.error('Upload error:', error);
+                        // Xóa placeholder nếu lỗi
+                        const fileIndex = this.uploadedFiles.findIndex(f => f.id === tempId);
+                        if (fileIndex !== -1) this.uploadedFiles.splice(fileIndex, 1);
                         alert(`Lỗi upload "${file.name}": ${error.message}`);
                     }
                 }
@@ -732,7 +767,7 @@
                 this.handleFileUpload({ target: { files: imageFiles } });
             },
 
-             /**              * Poll trạng thái file processing              */
+            /**              * Poll trạng thái file processing              */
             async pollFileStatus(fileId) {
                 const maxAttempts = 60; // 60 * 2s = 2 phút max
                 let attempts = 0;
@@ -766,7 +801,7 @@
                     }
                 }, 2000); // Poll mỗi 2 giây
             },
-             /**              * Xóa file đã upload              */
+            /**              * Xóa file đã upload              */
             async removeFile(fileId, index) {
                 if (!fileId) {
                     this.uploadedFiles.splice(index, 1);

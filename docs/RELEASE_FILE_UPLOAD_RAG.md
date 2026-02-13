@@ -148,6 +148,8 @@ phpoffice/phpword   ^1.3     # Extract text từ DOC/DOCX
 - Đảm bảo thư mục `storage/app/uploads/` có quyền ghi (775 hoặc tương đương)
 
 ### 4.6. Queue Worker (QUAN TRỌNG)
+local cho dev thì nên chạy php artisan queue:listen --tries=3 --timeout=300
+ 
 
 File upload chạy xử lý ngầm qua queue. **BẮT BUỘC** phải có queue worker chạy liên tục:
 

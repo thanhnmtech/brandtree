@@ -55,6 +55,15 @@ interface RagServiceInterface
     public function waitForPendingFiles(string $attachableType, int $attachableId, int $maxWaitSeconds = 30): bool;
 
     /**
+     * Đợi danh sách file cụ thể xử lý xong
+     * 
+     * @param array $fileIds Danh sách ID file cần đợi
+     * @param int $maxWaitSeconds Thời gian tối đa chờ
+     * @return bool True nếu tất cả file đã completed
+     */
+    public function waitForFiles(array $fileIds, int $maxWaitSeconds = 30): bool;
+
+    /**
      * Xóa file và chunks liên quan
      * 
      * @param int $fileId ID của uploaded_file cần xóa

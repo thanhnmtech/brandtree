@@ -34,13 +34,14 @@ class ChatStreamController extends Controller
         $agentType = $request->input('agentType');
         $agentId = $request->input('agentId');
         $brandId = $request->input('brandId');
+        $fileIds = $request->input('file_ids'); // Nhận danh sách file ID từ frontend
         $userId = $request->user() ? $request->user()->id : null;
 
         // Logic: Ưu tiên tìm theo ID trước, nếu không có thì tìm theo Type
         // Default values - Lấy từ bảng system_prompts
         $prompt = SystemPrompt::getPromptOrDefault('default_assistant', 'Bạn là trợ lý ảo.');
         $vectorStoreId = "";
-        $aiModel = "gpt-4o";
+        $aiModel = env('OPENAI_CHAT_MODEL', 'gpt-4o');
 
         if ($agentType === 'canopy') {
             // Handle Custom Brand Agent
@@ -144,13 +145,24 @@ class ChatStreamController extends Controller
         $conversationId = $chat->conversation_id;
 
         // === Đính kèm nội dung file vào tin nhắn ===
-        // Đợi các file đang processing hoàn tất
-        $this->ragService->waitForPendingFiles('App\\Models\\Chat', $chat->id);
+        // Logic mới: Chỉ lấy các file trong fileIds được gửi lên từ frontend
+        $attachedFiles = collect([]);
 
-        // Lấy toàn bộ text đã trích xuất từ file đính kèm
-        $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)
-            ->completed()
-            ->get();
+        if (!empty($fileIds) && is_array($fileIds)) {
+            // Đợi các file này xử lý xong
+            $this->ragService->waitForFiles($fileIds);
+
+            // Lấy nội dung
+            $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)
+                ->whereIn('id', $fileIds)
+                ->completed()
+                ->get();
+        }
+
+        /* Logic cũ (đã bỏ): Lấy toàn bộ file của chat
+        // $this->ragService->waitForPendingFiles('App\\Models\\Chat', $chat->id);
+        // $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)->completed()->get();
+        */
 
         if ($attachedFiles->isNotEmpty()) {
             $fileTexts = [];
