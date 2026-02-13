@@ -63,6 +63,7 @@ class BrandAgentController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Agent đã được tạo thành công.',
+            'agent_id' => $agent->id, // Trả về agent_id để frontend upload file
             'redirect' => route('brands.canopy.show', $brand)
         ]);
     }

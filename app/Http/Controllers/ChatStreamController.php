@@ -7,13 +7,25 @@ use App\Models\Chat;
 use App\Models\Message;
 use App\Models\AgentSystem;
 use App\Models\SystemPrompt;
+use App\Contracts\RagServiceInterface;
+use App\Services\VectorSearchService;
+use App\Services\CanopyRagService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
 use Illuminate\Support\Facades\Auth;
 
 class ChatStreamController extends Controller
 {
+    private RagServiceInterface $ragService;
+    private VectorSearchService $vectorSearchService;
+    private CanopyRagService $canopyRagService;
+
+    public function __construct(RagServiceInterface $ragService, VectorSearchService $vectorSearchService, CanopyRagService $canopyRagService)
+    {
+        $this->ragService = $ragService;
+        $this->vectorSearchService = $vectorSearchService;
+        $this->canopyRagService = $canopyRagService;
+    }
 
     public function stream(Request $request)
     {
@@ -131,7 +143,52 @@ class ChatStreamController extends Controller
 
         $conversationId = $chat->conversation_id;
 
-        // Save User Message
+        // === Đính kèm nội dung file vào tin nhắn ===
+        // Đợi các file đang processing hoàn tất
+        $this->ragService->waitForPendingFiles('App\\Models\\Chat', $chat->id);
+
+        // Lấy toàn bộ text đã trích xuất từ file đính kèm
+        $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)
+            ->completed()
+            ->get();
+
+        if ($attachedFiles->isNotEmpty()) {
+            $fileTexts = [];
+            foreach ($attachedFiles as $file) {
+                if ($file->isImage()) {
+                    // Hình: dùng mô tả từ Gemini Vision
+                    $desc = $file->image_description;
+                    if (!empty($desc)) {
+                        $fileTexts[] = "Nội dung của hình đính kèm \"{$file->filename}\" là: {$desc}";
+                    }
+                } else {
+                    // File khác: lấy text đã trích xuất
+                    $content = $file->original_content;
+                    if (!empty($content)) {
+                        $fileTexts[] = "Nội dung tài liệu \"{$file->filename}\":\n{$content}";
+                    }
+                }
+            }
+
+            if (!empty($fileTexts)) {
+                $userInput .= "\nĐây là các nội dung trong tài liệu đính kèm:\n" . implode("\n\n", $fileTexts);
+            }
+        }
+
+        // === RAG Agent-Level cho Canopy ===
+        // Nếu đang chat với canopy agent, kiểm tra agent có file đính kèm
+        // Nếu có → reformulate question + search chunks → nối vào $userInput
+        // (SONG SONG với chat-level file ở trên, không thay thế)
+        if ($agentType === 'canopy' && $agentId) {
+            $userInput = $this->canopyRagService->buildRagEnhancedInput(
+                $userInput,
+                (int) $agentId,
+                $chat->id
+            );
+        }
+        // === End RAG Agent-Level ===
+
+        // Save User Message (bao gồm cả nội dung file đính kèm)
         Message::create([
             'chat_id' => $chat->id,
             'role' => 'user',
@@ -139,17 +196,95 @@ class ChatStreamController extends Controller
         ]);
 
         // 2. Stream Response
-        return response()->stream(function () use ($conversationId, $userInput, $chat, $prompt, $vectorStoreId, $aiModel) {
+        // 2. Stream Response
+        // === LOGGING ===
+        $log = null;
+        $loggingService = null;
+        try {
+            if (config('app.enable_chat_logging') || env('ENABLE_CHAT_LOGGING')) {
+                $loggingService = new \App\Services\ChatLoggingService();
+
+                // Resolve Brand Name
+                $bName = null;
+                if ($brandId) {
+                    $b = \App\Models\Brand::find($brandId);
+                    $bName = $b?->name;
+                }
+
+                // Resolve Agent Name
+                $aName = null;
+                if (isset($brandAgent) && $brandAgent) {
+                    $aName = $brandAgent->name;
+                } elseif (isset($agentConfig) && $agentConfig) {
+                    $aName = $agentConfig->name;
+                }
+
+                $log = $loggingService->log(
+                    $chat->id ?? null,
+                    $userId ?? null,
+                    $brandId,
+                    $bName,
+                    $agentId,
+                    $aName,
+                    $agentType,
+                    $aiModel ?? 'gpt-4o',
+                    $userInput,
+                    $prompt ?? ''
+                );
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Chat Logging Failed: " . $e->getMessage());
+        }
+
+        return response()->stream(function () use (&$conversationId, $userInput, $chat, $prompt, $vectorStoreId, $aiModel, $log, $loggingService) {
             $apiKey = env('OPENAI_API_KEY');
+
+            // === Đảm bảo có OpenAI conversation ID hợp lệ ===
+            // Nếu conversation_id chưa phải OpenAI format (ví dụ 'upload_xxx' từ file upload)
+            // → tạo conversation mới trên OpenAI rồi lưu vào DB
+            if (!$conversationId || !str_starts_with($conversationId, 'conv_')) {
+                try {
+                    $convResponse = Http::withToken($apiKey)
+                        ->withOptions(['verify' => false])
+                        ->post('https://api.openai.com/v1/conversations', [
+                            'metadata' => [
+                                'chat_id' => (string) $chat->id,
+                                'topic' => mb_substr($userInput, 0, 50),
+                            ]
+                        ]);
+
+                    $openAiConvId = $convResponse->json()['id'] ?? null;
+
+                    if ($openAiConvId) {
+                        $conversationId = $openAiConvId;
+                        // Cập nhật conversation_id vào DB
+                        $chat->update(['conversation_id' => $openAiConvId]);
+                        Log::info("Created OpenAI conversation {$openAiConvId} for chat {$chat->id}");
+                    } else {
+                        Log::error('OpenAI Conversation creation failed', $convResponse->json() ?? []);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to create OpenAI conversation: ' . $e->getMessage());
+                }
+            }
+
             $url = 'https://api.openai.com/v1/responses';
 
+            // Theo tài liệu: chỉ gửi tin nhắn mới nhất + conversation id
+            // OpenAI tự quản lý toàn bộ lịch sử trong conversation
             $data = [
                 'model' => $aiModel,
                 'instructions' => $prompt,
                 'input' => $userInput,
-                'conversation' => $conversationId,
                 'stream' => true,
             ];
+
+            // Gửi conversation id nếu đã tạo thành công
+            if ($conversationId && str_starts_with($conversationId, 'conv_')) {
+                $data['conversation'] = [
+                    'id' => $conversationId,
+                ];
+            }
 
             if ($vectorStoreId) {
                 $data['tools'] = [
@@ -175,16 +310,79 @@ class ChatStreamController extends Controller
                 'Authorization: Bearer ' . $apiKey
             ]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            $buffer = '';
+            $fullResponse = '';
+            $inputTokens = 0;
+            $outputTokens = 0;
+
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) use (&$buffer, &$fullResponse, &$inputTokens, &$outputTokens) {
                 echo $chunk;
                 if (ob_get_level() > 0)
                     ob_flush();
                 flush();
+
+                $buffer .= $chunk;
+                while (($pos = strpos($buffer, "\n")) !== false) {
+                    $line = substr($buffer, 0, $pos);
+                    $buffer = substr($buffer, $pos + 1);
+                    $line = trim($line);
+                    if (strpos($line, 'data: ') === 0) {
+                        $json = substr($line, 6);
+                        if ($json === '[DONE]')
+                            continue;
+
+                        $data = json_decode($json, true);
+
+                        // 1. Responses API (v1/responses)
+                        // Check for 'response.completed' event which contains full text and usage
+                        if (isset($data['type']) && $data['type'] === 'response.completed' && isset($data['response'])) {
+                            $resp = $data['response'];
+
+                            // Get Full Text from output array (Handle multiple types: e.g. text, tool_use)
+                            if (isset($resp['output']) && is_array($resp['output'])) {
+                                $fullResponse = ''; // Reset accumulation for final response
+                                foreach ($resp['output'] as $outputItem) {
+                                    if (isset($outputItem['content']) && is_array($outputItem['content'])) {
+                                        foreach ($outputItem['content'] as $contentItem) {
+                                            if (isset($contentItem['type']) && $contentItem['type'] === 'output_text' && isset($contentItem['text'])) {
+                                                $fullResponse .= $contentItem['text'];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Get Token Usage
+                            if (isset($resp['usage'])) {
+                                $inputTokens = $resp['usage']['input_tokens'] ?? 0;
+                                $outputTokens = $resp['usage']['output_tokens'] ?? 0;
+                            }
+                        }
+
+                        // 2. Chat Completions API (Legacy/Fallback)
+                        if (isset($data['choices'][0]['delta']['content'])) {
+                            $fullResponse .= $data['choices'][0]['delta']['content'];
+                        }
+
+                        // Check usage for Chat Completions (if stream_options was relevant)
+                        if (isset($data['usage']) && !isset($data['type'])) {
+                            $inputTokens = $data['usage']['prompt_tokens'] ?? $inputTokens;
+                            $outputTokens = $data['usage']['completion_tokens'] ?? $outputTokens;
+                        }
+                    }
+                }
+
                 return strlen($chunk);
             });
 
             curl_exec($ch);
             curl_close($ch);
+
+            if ($log && $loggingService) {
+                $loggingService->updateLog($log, $fullResponse, $inputTokens, $outputTokens);
+            }
 
         }, 200, [
             'Content-Type' => 'text/event-stream',
@@ -215,7 +413,7 @@ class ChatStreamController extends Controller
     {
         $apiKey = env('OPENAI_API_KEY');
 
-        $response = Http::withToken($apiKey)->post('https://api.openai.com/v1/conversations', [
+        $response = Http::withToken($apiKey)->withOptions(['verify' => false])->post('https://api.openai.com/v1/conversations', [
             'metadata' => [
                 'agentType' => $agentType,
                 'agentId' => (string) $agentId,
@@ -292,6 +490,31 @@ class ChatStreamController extends Controller
             'success' => true,
             'title' => $chat->title
         ]);
+    }
+
+    /**
+     * Format RAG chunks thành text để inject vào prompt
+     * Prompt: "Các thông tin có thể liên quan..."
+     * 
+     * @param array $chunks Mảng chunks từ VectorSearchService
+     * @return string Text đã format
+     */
+    private function formatRagChunks(array $chunks): string
+    {
+        if (empty($chunks)) {
+            return '';
+        }
+
+        $formattedChunks = [];
+        foreach ($chunks as $index => $chunk) {
+            $scorePercent = round(($chunk['score'] ?? 0) * 100, 1);
+            $filename = $chunk['filename'] ?? 'unknown';
+            $text = $chunk['chunk_text'] ?? '';
+
+            $formattedChunks[] = "--- Tài liệu " . ($index + 1) . " (Độ liên quan: {$scorePercent}%, File: {$filename}) ---\n{$text}";
+        }
+
+        return "Các thông tin có thể liên quan (từ file đã upload, có thể tham khảo nếu phù hợp với câu hỏi):\n\n" . implode("\n\n", $formattedChunks);
     }
 }
 

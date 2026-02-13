@@ -9,6 +9,10 @@ use App\Models\AgentSystem;
 use App\Models\BrandAgent;
 use App\Models\Brand;
 use App\Models\SystemPrompt;
+use App\Models\UploadedFile;
+use App\Contracts\RagServiceInterface;
+use App\Services\VectorSearchService;
+use App\Services\CanopyRagService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +20,17 @@ use Illuminate\Support\Str;
 
 class GeminiChatController extends Controller
 {
+    private RagServiceInterface $ragService;
+    private VectorSearchService $vectorSearchService;
+    private CanopyRagService $canopyRagService;
+
+    public function __construct(RagServiceInterface $ragService, VectorSearchService $vectorSearchService, CanopyRagService $canopyRagService)
+    {
+        $this->ragService = $ragService;
+        $this->vectorSearchService = $vectorSearchService;
+        $this->canopyRagService = $canopyRagService;
+    }
+
     public function stream(Request $request)
     {
         $convId = $request->input('convId');
@@ -106,26 +121,31 @@ class GeminiChatController extends Controller
             }
         }
 
-        // --- RAG: Vector Store Search ---
+        // --- HYBRID RAG STRATEGY ---
+        // System Agent + Gemini: RAG local ở trên, OpenAI Vector Store ở dưới
+        // Brand Agent (canopy): Chỉ RAG local nếu có
+        $localRagContent = '';
+        $openaiRagContent = '';
         $vectorId = null;
 
-        // Lấy vector_id từ agent (BrandAgent hoặc AgentSystem)
-        if ($agentType === 'canopy' && isset($brandAgent) && $brandAgent) {
-            $vectorId = $brandAgent->vector_id ?? null;
-        } elseif (isset($agentConfig) && $agentConfig) {
-            $vectorId = $agentConfig->vector_id ?? null;
-        }
-
-        // Nếu có vector_id, gọi OpenAI Vector Store Search API
-        if (!empty($vectorId)) {
-            $ragContent = $this->searchVectorStore($vectorId, $userInput);
-            if (!empty($ragContent)) {
-                // Lấy prompt intro từ bảng system_prompts
-                $ragIntro = SystemPrompt::getPromptOrDefault('rag_context_intro', "\n\nCó thể tham khảo các tài liệu mẫu bên dưới, cho phép tự quyết định có sử dụng thông tin bên dưới hoặc không sử dụng tùy vào sự phù hợp. Các thông tin liên quan là:\n");
-                $prompt .= $ragIntro . $ragContent;
+        // Lấy vector_id từ agent
+        if ($agentType === 'canopy') {
+            // Brand Agent - lấy vector_id nếu có
+            if (isset($brandAgent) && $brandAgent) {
+                $vectorId = $brandAgent->vector_id ?? null;
+            }
+        } else {
+            // System Agent
+            if (isset($agentConfig) && $agentConfig) {
+                $vectorId = $agentConfig->vector_id ?? null;
             }
         }
-        // --- End RAG ---
+
+        // Nếu có vector_id (OpenAI Vector Store), gọi search
+        if (!empty($vectorId)) {
+            $openaiRagContent = $this->searchVectorStore($vectorId, $userInput);
+        }
+        // --- End HYBRID RAG ---
 
         // --- End Prompt Building Logic ---
 
@@ -141,7 +161,58 @@ class GeminiChatController extends Controller
             }
         }
 
-        // 2. Save User Message
+        // === Đính kèm nội dung file vào tin nhắn ===
+        // Đợi các file đang processing hoàn tất
+        $this->ragService->waitForPendingFiles('App\\Models\\Chat', $chat->id);
+
+        // Lấy toàn bộ text đã trích xuất từ file đính kèm
+        $attachedFiles = \App\Models\UploadedFile::forChat($chat->id)
+            ->completed()
+            ->get();
+
+        if ($attachedFiles->isNotEmpty()) {
+            $fileTexts = [];
+            foreach ($attachedFiles as $file) {
+                if ($file->isImage()) {
+                    // Hình: dùng mô tả từ Gemini Vision
+                    $desc = $file->image_description;
+                    if (!empty($desc)) {
+                        $fileTexts[] = "Nội dung của hình đính kèm \"{$file->filename}\" là: {$desc}";
+                    }
+                } else {
+                    // File khác: lấy text đã trích xuất
+                    $content = $file->original_content;
+                    if (!empty($content)) {
+                        $fileTexts[] = "Nội dung tài liệu \"{$file->filename}\":\n{$content}";
+                    }
+                }
+            }
+
+            if (!empty($fileTexts)) {
+                $userInput .= "\nĐây là các nội dung trong tài liệu đính kèm:\n" . implode("\n\n", $fileTexts);
+            }
+        }
+
+        // === RAG Agent-Level cho Canopy ===
+        // Nếu đang chat với canopy agent, kiểm tra agent có file đính kèm (uploaded_files)
+        // Nếu có → reformulate question + search chunks → nối vào $userInput
+        // (SONG SONG với chat-level file ở trên, không thay thế)
+        if ($agentType === 'canopy' && $agentId) {
+            $userInput = $this->canopyRagService->buildRagEnhancedInput(
+                $userInput,
+                (int) $agentId,
+                $chat->id
+            );
+        }
+
+        // === Inject OpenAI Vector Store cho System Agent ===
+        if ($agentType !== 'canopy' && !empty($openaiRagContent)) {
+            $ragIntro = SystemPrompt::getPromptOrDefault('rag_context_intro', "\n\nCác tài liệu tham khảo từ hệ thống (có thể sử dụng nếu phù hợp với câu hỏi):\n");
+            $prompt .= $ragIntro . $openaiRagContent;
+        }
+        // === End RAG ===
+
+        // Save User Message (bao gồm cả nội dung file đính kèm)
         Message::create([
             'chat_id' => $chat->id,
             'role' => 'user',
@@ -164,7 +235,64 @@ class GeminiChatController extends Controller
         }
 
         // 4. Stream Response from Gemini
-        return response()->stream(function () use ($chat, $prompt, $contents) {
+        // === LOGGING ===
+        $log = null;
+        $loggingService = null;
+        try {
+            if (config('app.enable_chat_logging') || env('ENABLE_CHAT_LOGGING')) {
+                $loggingService = new \App\Services\ChatLoggingService();
+
+                // Resolve Brand Name
+                $bName = null;
+                if ($brandId) {
+                    $b = \App\Models\Brand::find($brandId);
+                    $bName = $b?->name;
+                }
+
+                // Resolve Agent Name
+                $aName = null;
+                if (isset($brandAgent) && $brandAgent) {
+                    $aName = $brandAgent->name;
+                } elseif (isset($agentConfig) && $agentConfig) {
+                    $aName = $agentConfig->name;
+                }
+
+                // Get last user message content
+                $lastUserContent = '';
+                // User input was added to contents via loop over $messages?
+                // Or $request->input('message')?
+                // Check code: $messages = Message::where('chat_id', $chat->id)...
+                // If new message was saved before this?
+                // Let's assume passed $userInput or retrieve from create message logic
+                // If controller saves message first, then it's in DB.
+                // In ChatStreamController, $userInput was available.
+                // In GeminiChatController, let's use $messages collection or find last user message.
+                // Or just check $contents array end?
+                // $contents is built from $messages.
+                // If $contents has user role at end, take it.
+                $lastPart = end($contents);
+                if ($lastPart && $lastPart['role'] === 'user') {
+                    $lastUserContent = $lastPart['parts'][0]['text'] ?? '';
+                }
+
+                $log = $loggingService->log(
+                    $chat->id ?? null,
+                    $userId ?? null,
+                    $brandId,
+                    $bName,
+                    $agentId,
+                    $aName,
+                    $agentType,
+                    'gemini-1.5-flash', // or dynamic model
+                    $lastUserContent,
+                    $prompt ?? ''
+                );
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Gemini Chat Logging Failed: " . $e->getMessage());
+        }
+
+        return response()->stream(function () use ($chat, $prompt, $contents, $log, $loggingService) {
             // Disable output buffering
             while (ob_get_level()) {
                 ob_end_flush();
@@ -208,7 +336,12 @@ class GeminiChatController extends Controller
             $buffer = '';
             $hasError = false;
 
-            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) use (&$buffer, &$hasError) {
+            // For logging accumulation
+            $fullResponse = '';
+            $inputTokens = 0;
+            $outputTokens = 0;
+
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) use (&$buffer, &$hasError, &$fullResponse, &$inputTokens, &$outputTokens) {
                 $buffer .= $chunk;
 
                 // Process complete lines
@@ -238,9 +371,18 @@ class GeminiChatController extends Controller
                             continue;
                         }
 
+                        // Check usage metadata
+                        if (isset($data['usageMetadata'])) {
+                            $inputTokens = $data['usageMetadata']['promptTokenCount'] ?? 0;
+                            $outputTokens = $data['usageMetadata']['candidatesTokenCount'] ?? 0;
+                        }
+
                         // Extract text content
                         if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
                             $text = $data['candidates'][0]['content']['parts'][0]['text'];
+
+                            // Accumulate for log
+                            $fullResponse .= $text;
                             $outData = [
                                 'type' => 'response.output_text.delta',
                                 'delta' => $text
@@ -275,6 +417,11 @@ class GeminiChatController extends Controller
             }
 
             curl_close($ch);
+
+            // Update Log
+            if ($log && $loggingService) {
+                $loggingService->updateLog($log, $fullResponse, $inputTokens, $outputTokens);
+            }
 
         }, 200, [
             'Content-Type' => 'text/event-stream',
@@ -358,5 +505,30 @@ class GeminiChatController extends Controller
             Log::error('Vector Store Search Exception: ' . $e->getMessage());
             return '';
         }
+    }
+
+    /**
+     * Format RAG chunks từ MariaDB thành text để inject vào prompt
+     * Prompt: "Các thông tin có thể liên quan..."
+     * 
+     * @param array $chunks Mảng chunks từ VectorSearchService
+     * @return string Text đã format
+     */
+    private function formatRagChunks(array $chunks): string
+    {
+        if (empty($chunks)) {
+            return '';
+        }
+
+        $formattedChunks = [];
+        foreach ($chunks as $index => $chunk) {
+            $scorePercent = round(($chunk['score'] ?? 0) * 100, 1);
+            $filename = $chunk['filename'] ?? 'unknown';
+            $text = $chunk['chunk_text'] ?? '';
+
+            $formattedChunks[] = "--- Tài liệu " . ($index + 1) . " (Độ liên quan: {$scorePercent}%, File: {$filename}) ---\n{$text}";
+        }
+
+        return "Các thông tin có thể liên quan (từ file đã upload, có thể tham khảo nếu phù hợp với câu hỏi):\n\n" . implode("\n\n", $formattedChunks);
     }
 }

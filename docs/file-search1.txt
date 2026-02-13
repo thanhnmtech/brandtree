@@ -1,0 +1,643 @@
+File Search API cung cấp một dịch vụ trả lời câu hỏi được lưu trữ để tạo các hệ thống Tạo sinh tăng cường truy xuất (RAG) bằng cơ sở hạ tầng của Google.
+
+Phương thức: media.uploadToFileSearchStore
+Tải dữ liệu lên FileSearchStore, xử lý trước và chia thành các đoạn trước khi lưu trữ trong Tài liệu FileSearchStore.
+
+Điểm cuối
+URI tải lên, cho các yêu cầu tải nội dung đa phương tiện lên:
+post
+https://generativelanguage.googleapis.com/upload/v1beta/{fileSearchStoreName=fileSearchStores/*}:uploadToFileSearchStore
+URI siêu dữ liệu, cho các yêu cầu chỉ có siêu dữ liệu:
+post
+https://generativelanguage.googleapis.com/v1beta/{fileSearchStoreName=fileSearchStores/*}:uploadToFileSearchStore
+Tham số đường dẫn
+fileSearchStoreName
+string
+Bắt buộc. Không thể thay đổi. Tên của FileSearchStore để tải tệp lên. Ví dụ: fileSearchStores/my-file-search-store-123 Tên này có dạng fileSearchStores/{filesearchstore}.
+
+Nội dung yêu cầu
+Nội dung yêu cầu chứa dữ liệu với cấu trúc sau:
+
+Trường
+displayName
+string
+Không bắt buộc. Tên hiển thị của tài liệu đã tạo.
+
+customMetadata[]
+object (CustomMetadata)
+Siêu dữ liệu tuỳ chỉnh sẽ được liên kết với dữ liệu.
+
+chunkingConfig
+object (ChunkingConfig)
+Không bắt buộc. Cấu hình để cho dịch vụ biết cách phân chia dữ liệu thành các khối. Nếu bạn không cung cấp, dịch vụ sẽ sử dụng các thông số mặc định.
+
+mimeType
+string
+Không bắt buộc. Loại MIME của dữ liệu. Nếu bạn không cung cấp, hệ thống sẽ suy luận từ nội dung được tải lên.
+
+Nội dung phản hồi
+Nếu thành công, phần nội dung phản hồi sẽ chứa dữ liệu có cấu trúc sau:
+
+Trường
+name
+string
+Tên do máy chủ chỉ định, chỉ mang tính duy nhất trong cùng một dịch vụ ban đầu trả về tên đó. Nếu bạn sử dụng ánh xạ HTTP mặc định, name phải là tên tài nguyên kết thúc bằng operations/{unique_id}.
+
+metadata
+object
+Siêu dữ liệu dành riêng cho dịch vụ liên kết với thao tác. Thường thì siêu dữ liệu này chứa thông tin về tiến trình và siêu dữ liệu chung, chẳng hạn như thời gian tạo. Có thể một số dịch vụ sẽ không cung cấp siêu dữ liệu như vậy. Mọi phương thức có trả về một thao tác diễn ra trong thời gian dài đều phải ghi lại loại siêu dữ liệu (nếu có).
+
+Một đối tượng chứa các trường thuộc một loại tuỳ ý. Một trường bổ sung "@type" chứa một URI xác định loại. Ví dụ: { "id": 1234, "@type": "types.example.com/standard/id" }.
+
+done
+boolean
+Nếu giá trị là false, tức là thao tác vẫn đang diễn ra. Nếu true, thao tác đã hoàn tất và có thể dùng error hoặc response.
+
+result
+Union type
+Kết quả của thao tác, có thể là error hoặc response hợp lệ. Nếu done == false, thì error và response đều không được thiết lập. Nếu done == true, bạn chỉ có thể thiết lập một trong hai tham số error hoặc response. Có thể một số dịch vụ sẽ không cung cấp kết quả. result chỉ có thể là một trong những trạng thái sau:
+error
+object (Status)
+Kết quả chỉ thao tác bị lỗi trong trường hợp không thành công hoặc huỷ.
+
+response
+object
+Phản hồi bình thường, thao tác thành công. Nếu phương thức ban đầu không trả về dữ liệu khi thành công, chẳng hạn như Delete, thì phản hồi sẽ là google.protobuf.Empty. Nếu phương thức ban đầu là Get/Create/Update tiêu chuẩn, thì phản hồi phải là tài nguyên. Đối với các phương thức khác, phản hồi phải là loại XxxResponse, trong đó Xxx là tên phương thức ban đầu. Ví dụ: nếu tên phương thức ban đầu là TakeSnapshot(), thì suy ra loại phản hồi là TakeSnapshotResponse.
+
+Một đối tượng chứa các trường thuộc một loại tuỳ ý. Một trường bổ sung "@type" chứa một URI xác định loại. Ví dụ: { "id": 1234, "@type": "types.example.com/standard/id" }.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "name": string,
+  "metadata": {
+    "@type": string,
+    field1: ...,
+    ...
+  },
+  "done": boolean,
+
+  // result
+  "error": {
+    object (Status)
+  },
+  "response": {
+    "@type": string,
+    field1: ...,
+    ...
+  }
+  // Union type
+}
+Phương thức: fileSearchStores.create
+Tạo một FileSearchStore trống.
+
+Điểm cuối
+post
+https://generativelanguage.googleapis.com/v1beta/fileSearchStores
+
+Nội dung yêu cầu
+Nội dung yêu cầu chứa một bản sao của FileSearchStore.
+
+Trường
+displayName
+string
+Không bắt buộc. Tên hiển thị dễ đọc cho FileSearchStore. Tên hiển thị không được dài quá 512 ký tự, bao gồm cả dấu cách. Ví dụ: "Tài liệu về Trình truy xuất ngữ nghĩa"
+
+Nội dung phản hồi
+Nếu thành công, nội dung phản hồi sẽ chứa một thực thể mới tạo của FileSearchStore.
+
+Phương thức: fileSearchStores.delete
+Xoá FileSearchStore.
+
+Điểm cuối
+xoá
+https://generativelanguage.googleapis.com/v1beta/{name=fileSearchStores/*}
+
+Tham số đường dẫn
+name
+string
+Bắt buộc. Tên tài nguyên của FileSearchStore. Ví dụ: fileSearchStores/my-file-search-store-123 Tên này có dạng fileSearchStores/{filesearchstore}.
+
+Tham số truy vấn
+force
+boolean
+Không bắt buộc. Nếu bạn đặt thành true, mọi Document và đối tượng liên quan đến FileSearchStore này cũng sẽ bị xoá.
+
+Nếu là false (mặc định), lỗi FAILED_PRECONDITION sẽ được trả về nếu FileSearchStore chứa bất kỳ Document nào.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Nếu thành công, phần nội dung phản hồi sẽ là một đối tượng JSON trống.
+
+Phương thức: fileSearchStores.get
+Lấy thông tin về một FileSearchStore cụ thể.
+
+Điểm cuối
+get
+https://generativelanguage.googleapis.com/v1beta/{name=fileSearchStores/*}
+
+Tham số đường dẫn
+name
+string
+Bắt buộc. Tên của FileSearchStore. Ví dụ: fileSearchStores/my-file-search-store-123 Tên này có dạng fileSearchStores/{filesearchstore}.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Nếu thành công, nội dung phản hồi sẽ chứa một thực thể của FileSearchStore.
+
+Phương thức: fileSearchStores.list
+Liệt kê tất cả FileSearchStores mà người dùng sở hữu.
+
+Điểm cuối
+get
+https://generativelanguage.googleapis.com/v1beta/fileSearchStores
+
+Tham số truy vấn
+pageSize
+integer
+Không bắt buộc. Số lượng FileSearchStores tối đa cần trả về (trên mỗi trang). Dịch vụ có thể trả về ít FileSearchStores hơn.
+
+Nếu không chỉ định, tối đa 10 FileSearchStores sẽ được trả về. Giới hạn kích thước tối đa là 20 FileSearchStores mỗi trang.
+
+pageToken
+string
+Không bắt buộc. Mã thông báo trang nhận được từ một lệnh gọi fileSearchStores.list trước đó.
+
+Cung cấp nextPageToken được trả về trong phản hồi dưới dạng một đối số cho yêu cầu tiếp theo để truy xuất trang tiếp theo.
+
+Khi phân trang, tất cả các tham số khác được cung cấp cho fileSearchStores.list phải khớp với lệnh gọi đã cung cấp mã thông báo trang.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Phản hồi từ fileSearchStores.list chứa danh sách được phân trang của FileSearchStores. Kết quả được sắp xếp theo thứ tự tăng dần của fileSearchStore.create_time.
+
+Nếu thành công, phần nội dung phản hồi sẽ chứa dữ liệu có cấu trúc sau:
+
+Trường
+fileSearchStores[]
+object (FileSearchStore)
+rag_stores được trả về.
+
+nextPageToken
+string
+Một mã thông báo có thể được gửi dưới dạng pageToken để truy xuất trang tiếp theo. Nếu bạn bỏ qua trường này, thì sẽ không còn trang nào nữa.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "fileSearchStores": [
+    {
+      object (FileSearchStore)
+    }
+  ],
+  "nextPageToken": string
+}
+Phương thức: fileSearchStores.importFile
+Nhập File từ Dịch vụ tệp vào FileSearchStore.
+
+Điểm cuối
+post
+https://generativelanguage.googleapis.com/v1beta/{fileSearchStoreName=fileSearchStores/*}:importFile
+
+Tham số đường dẫn
+fileSearchStoreName
+string
+Bắt buộc. Không thể thay đổi. Tên của FileSearchStore để nhập tệp vào. Ví dụ: fileSearchStores/my-file-search-store-123 Tên này có dạng fileSearchStores/{filesearchstore}.
+
+Nội dung yêu cầu
+Nội dung yêu cầu chứa dữ liệu với cấu trúc sau:
+
+Trường
+fileName
+string
+Bắt buộc. Tên của File cần nhập. Ví dụ: files/abc-123
+
+customMetadata[]
+object (CustomMetadata)
+Siêu dữ liệu tuỳ chỉnh sẽ được liên kết với tệp.
+
+chunkingConfig
+object (ChunkingConfig)
+Không bắt buộc. Cấu hình để cho dịch vụ biết cách chia nhỏ tệp. Nếu bạn không cung cấp, dịch vụ sẽ sử dụng các thông số mặc định.
+
+Nội dung phản hồi
+Nếu thành công, nội dung phản hồi sẽ chứa một thực thể của Operation.
+
+Tài nguyên REST: fileSearchStores.operations
+Tài nguyên: Thao tác
+Tài nguyên này đại diện cho một thao tác diễn ra trong thời gian dài, là kết quả của một lệnh gọi API mạng.
+
+Trường
+name
+string
+Tên do máy chủ chỉ định, chỉ mang tính duy nhất trong cùng một dịch vụ ban đầu trả về tên đó. Nếu bạn sử dụng ánh xạ HTTP mặc định, name phải là tên tài nguyên kết thúc bằng operations/{unique_id}.
+
+metadata
+object
+Siêu dữ liệu dành riêng cho dịch vụ liên kết với thao tác. Thường thì siêu dữ liệu này chứa thông tin về tiến trình và siêu dữ liệu chung, chẳng hạn như thời gian tạo. Có thể một số dịch vụ sẽ không cung cấp siêu dữ liệu như vậy. Mọi phương thức có trả về một thao tác diễn ra trong thời gian dài đều phải ghi lại loại siêu dữ liệu (nếu có).
+
+Một đối tượng chứa các trường thuộc một loại tuỳ ý. Một trường bổ sung "@type" chứa một URI xác định loại. Ví dụ: { "id": 1234, "@type": "types.example.com/standard/id" }.
+
+done
+boolean
+Nếu giá trị là false, tức là thao tác vẫn đang diễn ra. Nếu true, thao tác đã hoàn tất và có thể dùng error hoặc response.
+
+result
+Union type
+Kết quả của thao tác, có thể là error hoặc response hợp lệ. Nếu done == false, thì error và response đều không được thiết lập. Nếu done == true, bạn chỉ có thể thiết lập một trong hai tham số error hoặc response. Có thể một số dịch vụ sẽ không cung cấp kết quả. result chỉ có thể là một trong những trạng thái sau:
+error
+object (Status)
+Kết quả chỉ thao tác bị lỗi trong trường hợp không thành công hoặc huỷ.
+
+response
+object
+Phản hồi bình thường, thao tác thành công. Nếu phương thức ban đầu không trả về dữ liệu khi thành công, chẳng hạn như Delete, thì phản hồi sẽ là google.protobuf.Empty. Nếu phương thức ban đầu là Get/Create/Update tiêu chuẩn, thì phản hồi phải là tài nguyên. Đối với các phương thức khác, phản hồi phải là loại XxxResponse, trong đó Xxx là tên phương thức ban đầu. Ví dụ: nếu tên phương thức ban đầu là TakeSnapshot(), thì suy ra loại phản hồi là TakeSnapshotResponse.
+
+Một đối tượng chứa các trường thuộc một loại tuỳ ý. Một trường bổ sung "@type" chứa một URI xác định loại. Ví dụ: { "id": 1234, "@type": "types.example.com/standard/id" }.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "name": string,
+  "metadata": {
+    "@type": string,
+    field1: ...,
+    ...
+  },
+  "done": boolean,
+
+  // result
+  "error": {
+    object (Status)
+  },
+  "response": {
+    "@type": string,
+    field1: ...,
+    ...
+  }
+  // Union type
+}
+Phương thức: fileSearchStores.operations.get
+Nhận trạng thái mới nhất của một thao tác diễn ra trong thời gian dài. Ứng dụng có thể dùng phương thức này để thăm dò kết quả của một thao tác theo khoảng thời gian do dịch vụ API đề xuất.
+
+Điểm cuối
+get
+https://generativelanguage.googleapis.com/v1beta/{name=fileSearchStores/*/operations/*}
+
+Tham số đường dẫn
+name
+string
+Tên của tài nguyên liên quan đến thao tác. Tên này có dạng fileSearchStores/{filesearchstore}/operations/{operation}.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Nếu thành công, nội dung phản hồi sẽ chứa một thực thể của Operation.
+
+Tài nguyên REST: fileSearchStores.upload.operations
+Tài nguyên: Thao tác
+Tài nguyên này đại diện cho một thao tác diễn ra trong thời gian dài, là kết quả của một lệnh gọi API mạng.
+
+Trường
+name
+string
+Tên do máy chủ chỉ định, chỉ mang tính duy nhất trong cùng một dịch vụ ban đầu trả về tên đó. Nếu bạn sử dụng ánh xạ HTTP mặc định, name phải là tên tài nguyên kết thúc bằng operations/{unique_id}.
+
+metadata
+object
+Siêu dữ liệu dành riêng cho dịch vụ liên kết với thao tác. Thường thì siêu dữ liệu này chứa thông tin về tiến trình và siêu dữ liệu chung, chẳng hạn như thời gian tạo. Có thể một số dịch vụ sẽ không cung cấp siêu dữ liệu như vậy. Mọi phương thức có trả về một thao tác diễn ra trong thời gian dài đều phải ghi lại loại siêu dữ liệu (nếu có).
+
+Một đối tượng chứa các trường thuộc một loại tuỳ ý. Một trường bổ sung "@type" chứa một URI xác định loại. Ví dụ: { "id": 1234, "@type": "types.example.com/standard/id" }.
+
+done
+boolean
+Nếu giá trị là false, tức là thao tác vẫn đang diễn ra. Nếu true, thao tác đã hoàn tất và có thể dùng error hoặc response.
+
+result
+Union type
+Kết quả của thao tác, có thể là error hoặc response hợp lệ. Nếu done == false, thì error và response đều không được thiết lập. Nếu done == true, bạn chỉ có thể thiết lập một trong hai tham số error hoặc response. Có thể một số dịch vụ sẽ không cung cấp kết quả. result chỉ có thể là một trong những trạng thái sau:
+error
+object (Status)
+Kết quả chỉ thao tác bị lỗi trong trường hợp không thành công hoặc huỷ.
+
+response
+object
+Phản hồi bình thường, thao tác thành công. Nếu phương thức ban đầu không trả về dữ liệu khi thành công, chẳng hạn như Delete, thì phản hồi sẽ là google.protobuf.Empty. Nếu phương thức ban đầu là Get/Create/Update tiêu chuẩn, thì phản hồi phải là tài nguyên. Đối với các phương thức khác, phản hồi phải là loại XxxResponse, trong đó Xxx là tên phương thức ban đầu. Ví dụ: nếu tên phương thức ban đầu là TakeSnapshot(), thì suy ra loại phản hồi là TakeSnapshotResponse.
+
+Một đối tượng chứa các trường thuộc một loại tuỳ ý. Một trường bổ sung "@type" chứa một URI xác định loại. Ví dụ: { "id": 1234, "@type": "types.example.com/standard/id" }.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "name": string,
+  "metadata": {
+    "@type": string,
+    field1: ...,
+    ...
+  },
+  "done": boolean,
+
+  // result
+  "error": {
+    object (Status)
+  },
+  "response": {
+    "@type": string,
+    field1: ...,
+    ...
+  }
+  // Union type
+}
+Phương thức: fileSearchStores.upload.operations.get
+Nhận trạng thái mới nhất của một thao tác diễn ra trong thời gian dài. Ứng dụng có thể dùng phương thức này để thăm dò kết quả của một thao tác theo khoảng thời gian do dịch vụ API đề xuất.
+
+Điểm cuối
+get
+https://generativelanguage.googleapis.com/v1beta/{name=fileSearchStores/*/upload/operations/*}
+
+Tham số đường dẫn
+name
+string
+Tên của tài nguyên liên quan đến thao tác. Tên này có dạng fileSearchStores/{filesearchstore}/upload/operations/{operation}.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Nếu thành công, nội dung phản hồi sẽ chứa một thực thể của Operation.
+
+Tài nguyên REST: fileSearchStores
+Tài nguyên: FileSearchStore
+FileSearchStore là một tập hợp các Document.
+
+Trường
+name
+string
+Chỉ có đầu ra. Không thể thay đổi. Giá trị nhận dạng. Tên tài nguyên FileSearchStore. Đây là một mã nhận dạng (tên không bao gồm tiền tố "fileSearchStores/") có thể chứa tối đa 40 ký tự là chữ và số viết thường hoặc dấu gạch ngang (-). Đây chỉ là đầu ra. Tên riêng biệt sẽ bắt nguồn từ displayName cùng với một hậu tố ngẫu nhiên gồm 12 ký tự. Ví dụ: fileSearchStores/my-awesome-file-search-store-123a456b789c Nếu bạn không cung cấp displayName, tên sẽ được tạo ngẫu nhiên.
+
+displayName
+string
+Không bắt buộc. Tên hiển thị dễ đọc cho FileSearchStore. Tên hiển thị không được dài quá 512 ký tự, bao gồm cả dấu cách. Ví dụ: "Tài liệu về Trình truy xuất ngữ nghĩa"
+
+createTime
+string (Timestamp format)
+Chỉ có đầu ra. Dấu thời gian cho biết thời điểm tạo FileSearchStore.
+
+Hãy dùng RFC 3339, trong đó dữ liệu đầu ra được tạo sẽ luôn được chuẩn hoá theo múi giờ và sử dụng 0, 3, 6 hoặc 9 chữ số thập phân. Các khoảng lệch khác ngoài "Z" cũng được chấp nhận. Ví dụ: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" hoặc "2014-10-02T15:01:23+05:30".
+
+updateTime
+string (Timestamp format)
+Chỉ có đầu ra. Dấu thời gian cho biết thời điểm FileSearchStore được cập nhật lần gần đây nhất.
+
+Hãy dùng RFC 3339, trong đó dữ liệu đầu ra được tạo sẽ luôn được chuẩn hoá theo múi giờ và sử dụng 0, 3, 6 hoặc 9 chữ số thập phân. Các khoảng lệch khác ngoài "Z" cũng được chấp nhận. Ví dụ: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" hoặc "2014-10-02T15:01:23+05:30".
+
+activeDocumentsCount
+string (int64 format)
+Chỉ có đầu ra. Số lượng tài liệu trong FileSearchStore đang hoạt động và sẵn sàng truy xuất.
+
+pendingDocumentsCount
+string (int64 format)
+Chỉ có đầu ra. Số lượng tài liệu trong FileSearchStore đang được xử lý.
+
+failedDocumentsCount
+string (int64 format)
+Chỉ có đầu ra. Số lượng tài liệu trong FileSearchStore không xử lý được.
+
+sizeBytes
+string (int64 format)
+Chỉ có đầu ra. Kích thước của các byte thô được truyền vào FileSearchStore. Đây là tổng kích thước của tất cả các tài liệu trong FileSearchStore.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "name": string,
+  "displayName": string,
+  "createTime": string,
+  "updateTime": string,
+  "activeDocumentsCount": string,
+  "pendingDocumentsCount": string,
+  "failedDocumentsCount": string,
+  "sizeBytes": string
+}
+File Search API tham chiếu các tệp nguồn thô hoặc tài liệu của bạn dưới dạng các đối tượng Tệp tạm thời.
+
+Phương thức: fileSearchStores.documents.delete
+Xoá một Document.
+
+Điểm cuối
+xoá
+https://generativelanguage.googleapis.com/v1beta/{name=fileSearchStores/*/documents/*}
+
+Tham số đường dẫn
+name
+string
+Bắt buộc. Tên tài nguyên của Document cần xoá. Ví dụ: fileSearchStores/my-file-search-store-123/documents/the-doc-abc Tên này có dạng fileSearchStores/{filesearchstore}/documents/{document}.
+
+Tham số truy vấn
+force
+boolean
+Không bắt buộc. Nếu bạn đặt thành true, mọi Chunk và đối tượng liên quan đến Document này cũng sẽ bị xoá.
+
+Nếu là false (mặc định), lỗi FAILED_PRECONDITION sẽ được trả về nếu Document chứa bất kỳ Chunk nào.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Nếu thành công, phần nội dung phản hồi sẽ là một đối tượng JSON trống.
+
+Phương thức: fileSearchStores.documents.get
+Lấy thông tin về một Document cụ thể.
+
+Điểm cuối
+get
+https://generativelanguage.googleapis.com/v1beta/{name=fileSearchStores/*/documents/*}
+
+Tham số đường dẫn
+name
+string
+Bắt buộc. Tên của Document cần truy xuất. Ví dụ: fileSearchStores/my-file-search-store-123/documents/the-doc-abc Tên này có dạng fileSearchStores/{filesearchstore}/documents/{document}.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Nếu thành công, nội dung phản hồi sẽ chứa một thực thể của Document.
+
+Phương thức: fileSearchStores.documents.list
+Liệt kê tất cả Document trong một Corpus.
+
+Điểm cuối
+get
+https://generativelanguage.googleapis.com/v1beta/{parent=fileSearchStores/*}/documents
+
+Tham số đường dẫn
+parent
+string
+Bắt buộc. Tên của FileSearchStore chứa các Document. Ví dụ: fileSearchStores/my-file-search-store-123 Tên này có dạng fileSearchStores/{filesearchstore}.
+
+Tham số truy vấn
+pageSize
+integer
+Không bắt buộc. Số lượng Document tối đa cần trả về (trên mỗi trang). Dịch vụ có thể trả về ít Document hơn.
+
+Nếu không chỉ định, tối đa 10 Document sẽ được trả về. Giới hạn kích thước tối đa là 20 Document cho mỗi trang.
+
+pageToken
+string
+Không bắt buộc. Mã thông báo trang nhận được từ một lệnh gọi documents.list trước đó.
+
+Cung cấp nextPageToken được trả về trong phản hồi dưới dạng một đối số cho yêu cầu tiếp theo để truy xuất trang tiếp theo.
+
+Khi phân trang, tất cả các tham số khác được cung cấp cho documents.list phải khớp với lệnh gọi đã cung cấp mã thông báo trang.
+
+Nội dung yêu cầu
+Nội dung yêu cầu phải trống.
+
+Nội dung phản hồi
+Phản hồi từ documents.list chứa danh sách được phân trang của Document. Các Document được sắp xếp theo document.create_time tăng dần.
+
+Nếu thành công, phần nội dung phản hồi sẽ chứa dữ liệu có cấu trúc sau:
+
+Trường
+documents[]
+object (Document)
+Document được trả về.
+
+nextPageToken
+string
+Một mã thông báo có thể được gửi dưới dạng pageToken để truy xuất trang tiếp theo. Nếu bạn bỏ qua trường này, thì sẽ không còn trang nào nữa.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "documents": [
+    {
+      object (Document)
+    }
+  ],
+  "nextPageToken": string
+}
+Tài nguyên REST: fileSearchStores.documents
+Tài nguyên: Tài liệu
+Document là một tập hợp các Chunk.
+
+Trường
+name
+string
+Không thể thay đổi. Giá trị nhận dạng. Tên tài nguyên Document. Mã nhận dạng (tên không bao gồm tiền tố "fileSearchStores/*/documents/") có thể chứa tối đa 40 ký tự là chữ và số viết thường hoặc dấu gạch ngang (-). Mã nhận dạng không được bắt đầu hoặc kết thúc bằng dấu gạch ngang. Nếu tên bị trống khi tạo, thì một tên duy nhất sẽ được lấy từ displayName cùng với một hậu tố ngẫu nhiên gồm 12 ký tự. Ví dụ: fileSearchStores/{file_search_store_id}/documents/my-awesome-doc-123a456b789c
+
+displayName
+string
+Không bắt buộc. Tên hiển thị dễ đọc cho Document. Tên hiển thị không được dài quá 512 ký tự, bao gồm cả dấu cách. Ví dụ: "Tài liệu về Trình truy xuất ngữ nghĩa"
+
+customMetadata[]
+object (CustomMetadata)
+Không bắt buộc. Siêu dữ liệu tuỳ chỉnh do người dùng cung cấp được lưu trữ dưới dạng các cặp khoá-giá trị dùng để truy vấn. Một Document có thể có tối đa 20 CustomMetadata.
+
+updateTime
+string (Timestamp format)
+Chỉ có đầu ra. Dấu thời gian cho biết thời điểm Document được cập nhật lần gần đây nhất.
+
+Hãy dùng RFC 3339, trong đó dữ liệu đầu ra được tạo sẽ luôn được chuẩn hoá theo múi giờ và sử dụng 0, 3, 6 hoặc 9 chữ số thập phân. Các khoảng lệch khác ngoài "Z" cũng được chấp nhận. Ví dụ: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" hoặc "2014-10-02T15:01:23+05:30".
+
+createTime
+string (Timestamp format)
+Chỉ có đầu ra. Dấu thời gian cho biết thời điểm tạo Document.
+
+Hãy dùng RFC 3339, trong đó dữ liệu đầu ra được tạo sẽ luôn được chuẩn hoá theo múi giờ và sử dụng 0, 3, 6 hoặc 9 chữ số thập phân. Các khoảng lệch khác ngoài "Z" cũng được chấp nhận. Ví dụ: "2014-10-02T15:01:23Z", "2014-10-02T15:01:23.045123456Z" hoặc "2014-10-02T15:01:23+05:30".
+
+state
+enum (State)
+Chỉ có đầu ra. Trạng thái hiện tại của Document.
+
+sizeBytes
+string (int64 format)
+Chỉ có đầu ra. Kích thước của các byte thô được nhập vào Tài liệu.
+
+mimeType
+string
+Chỉ có đầu ra. Loại MIME của Tài liệu.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "name": string,
+  "displayName": string,
+  "customMetadata": [
+    {
+      object (CustomMetadata)
+    }
+  ],
+  "updateTime": string,
+  "createTime": string,
+  "state": enum (State),
+  "sizeBytes": string,
+  "mimeType": string
+}
+CustomMetadata
+Siêu dữ liệu do người dùng cung cấp được lưu trữ dưới dạng các cặp khoá-giá trị.
+
+Trường
+key
+string
+Bắt buộc. Khoá của siêu dữ liệu cần lưu trữ.
+
+value
+Union type
+value chỉ có thể là một trong những trạng thái sau:
+stringValue
+string
+Giá trị kiểu chuỗi của siêu dữ liệu cần lưu trữ.
+
+stringListValue
+object (StringList)
+Giá trị StringList của siêu dữ liệu cần lưu trữ.
+
+numericValue
+number
+Giá trị số của siêu dữ liệu cần lưu trữ.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "key": string,
+
+  // value
+  "stringValue": string,
+  "stringListValue": {
+    object (StringList)
+  },
+  "numericValue": number
+  // Union type
+}
+StringList
+Giá trị chuỗi do người dùng cung cấp được chỉ định cho một khoá siêu dữ liệu duy nhất.
+
+Trường
+values[]
+string
+Giá trị chuỗi của siêu dữ liệu cần lưu trữ.
+
+Biểu diễn dưới dạng JSON
+
+{
+  "values": [
+    string
+  ]
+}
+Bang
+Các trạng thái cho vòng đời của một Document.
+
+Enum
+STATE_UNSPECIFIED	Giá trị mặc định. Giá trị này được dùng nếu bạn bỏ qua trạng thái.
+STATE_PENDING	Một số Chunks trong số Document đang được xử lý (nhúng và lưu trữ vectơ).
+STATE_ACTIVE	Tất cả Chunks của Document đều được xử lý và có thể truy vấn.
+STATE_FAILED	Không xử lý được một số Chunks của Document.
