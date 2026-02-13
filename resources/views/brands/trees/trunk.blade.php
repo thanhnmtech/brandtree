@@ -24,8 +24,7 @@
             </h1>
 
             <p class="tw-text-base tw-text-gray-600 tw-mt-3 tw-max-w-2xl tw-mx-auto">
-                Xây dựng nền tảng chiến lược vững chắc để thương hiệu tỏa sáng giá
-                trị...
+                Kiến tạo vóc dáng vững chãi từ nền tảng Gốc rễ. Định hình Bản sắc và Giọng nói riêng biệt để thương hiệu sẵn sàng vươn xa.
             </p>
         </div>
     </section>
