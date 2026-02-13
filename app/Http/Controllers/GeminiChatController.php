@@ -300,7 +300,7 @@ class GeminiChatController extends Controller
                     $agentId,
                     $aName,
                     $agentType,
-                    env('GEMINI_CHAT_MODEL', 'gemini-2.0-flash-exp'),
+                    config('services.gemini.chat_model'),
                     $lastUserContent,
                     $prompt ?? ''
                 );
@@ -309,8 +309,8 @@ class GeminiChatController extends Controller
             \Illuminate\Support\Facades\Log::error("Gemini Chat Logging Failed: " . $e->getMessage());
         }
 
-        $apiKey = env('GEMINI_API_KEY');
-        $model = env('GEMINI_CHAT_MODEL', 'gemini-2.0-flash-exp');
+        $apiKey = config('services.gemini.api_key');
+        $model = config('services.gemini.chat_model');
 
         return response()->stream(function () use ($chat, $prompt, $contents, $log, $loggingService, $apiKey, $model) {
             // Disable output buffering

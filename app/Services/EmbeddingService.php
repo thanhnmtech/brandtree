@@ -31,7 +31,7 @@ class EmbeddingService
      */
     public function embed(string $text): array
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key');
 
         if (empty($apiKey)) {
             throw new \Exception('GEMINI_API_KEY chưa được cấu hình trong .env');
@@ -85,7 +85,7 @@ class EmbeddingService
      */
     public function embedBatch(array $texts): array
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key');
 
         if (empty($apiKey)) {
             throw new \Exception('GEMINI_API_KEY chưa được cấu hình trong .env');
@@ -154,7 +154,7 @@ class EmbeddingService
      */
     public function embedQuery(string $query): array
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key');
 
         if (empty($apiKey)) {
             throw new \Exception('GEMINI_API_KEY chưa được cấu hình trong .env');

@@ -42,13 +42,23 @@ return [
     ],
 
     'sepay' => [
-        'api_key' => env('SEPAY_API_KEY',''),
-        'merchant_id' => env('SEPAY_MERCHANT_ID',''),
+        'api_key' => env('SEPAY_API_KEY', ''),
+        'merchant_id' => env('SEPAY_MERCHANT_ID', ''),
         'bank_account_number' => env('SEPAY_BANK_ACCOUNT_NUMBER'),
         'bank_name' => env('SEPAY_BANK_NAME', 'MB Bank'),
         'bank_account_name' => env('SEPAY_BANK_ACCOUNT_NAME'),
         'webhook_secret' => env('SEPAY_WEBHOOK_SECRET'),
         'base_url' => env('SEPAY_BASE_URL', 'https://my.sepay.vn/userapi'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'chat_model' => env('GEMINI_CHAT_MODEL', 'gemini-2.0-flash-exp'),
+    ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'chat_model' => env('OPENAI_CHAT_MODEL', 'gpt-4o'),
     ],
 
 ];

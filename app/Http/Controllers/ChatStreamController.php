@@ -41,7 +41,7 @@ class ChatStreamController extends Controller
         // Default values - Lấy từ bảng system_prompts
         $prompt = SystemPrompt::getPromptOrDefault('default_assistant', 'Bạn là trợ lý ảo.');
         $vectorStoreId = "";
-        $aiModel = env('OPENAI_CHAT_MODEL', 'gpt-4o');
+        $aiModel = config('services.openai.chat_model');
 
         if ($agentType === 'canopy') {
             // Handle Custom Brand Agent
@@ -249,7 +249,7 @@ class ChatStreamController extends Controller
         }
 
         return response()->stream(function () use (&$conversationId, $userInput, $chat, $prompt, $vectorStoreId, $aiModel, $log, $loggingService) {
-            $apiKey = env('OPENAI_API_KEY');
+            $apiKey = config('services.openai.api_key');
 
             // === Đảm bảo có OpenAI conversation ID hợp lệ ===
             // Nếu conversation_id chưa phải OpenAI format (ví dụ 'upload_xxx' từ file upload)
@@ -423,7 +423,7 @@ class ChatStreamController extends Controller
 
     private function createConversation($agentType, $agentId, $firstMessage, $brandId, $userId)
     {
-        $apiKey = env('OPENAI_API_KEY');
+        $apiKey = config('services.openai.api_key');
 
         $response = Http::withToken($apiKey)->withOptions(['verify' => false])->post('https://api.openai.com/v1/conversations', [
             'metadata' => [

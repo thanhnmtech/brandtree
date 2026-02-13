@@ -148,7 +148,7 @@ class FileExtractionService
      */
     private function describeImage(string $filePath, string $mimeType): string
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key');
 
         if (empty($apiKey)) {
             throw new \Exception('GEMINI_API_KEY chưa được cấu hình trong .env');
