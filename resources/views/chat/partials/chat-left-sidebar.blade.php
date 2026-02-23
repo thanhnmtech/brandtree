@@ -1,7 +1,7 @@
 <div class="tw-flex tw-flex-col tw-h-full">
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
     <div id="logo-sidebar">
-      <img src="{{ asset('assets/img/logo-sidebar.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
+      <img src="{{ !empty($brand->logo_path) ? Storage::url($brand->logo_path) : asset('assets/img/logo-sidebar.svg') }}" alt="{{ $brand->name }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain tw-rounded-full tw-bg-white" />
     </div>
     <div id="content-sidebar" class="tw-flex-1 tw-min-w-0">
       <div class="tw-font-bold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
