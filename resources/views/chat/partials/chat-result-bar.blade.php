@@ -27,6 +27,9 @@
     isSaving: false,
     saveStatus: '',
     data: @js($initialData),
+    briefData: @js($brand->root_brief_data ?? []),
+    briefDataTrunk: @js($brand->trunk_brief_data ?? []),
+    pollingTimers: {},
 
     init() {
         // Lắng nghe event khi analysis được save từ chat page
@@ -34,7 +37,61 @@
             const agentType = e.detail?.agentType;
             const content = e.detail?.content;
             
-            if (agentType && content) {this.data[agentType] = content;}});},
+            if (agentType && content) {
+                this.data[agentType] = content;
+                // Bắt đầu polling kiểm tra brief data
+                this.startPollingBrief(agentType);
+            }
+        });
+
+        // Lắng nghe event data-saved từ cả 2 luồng lưu
+        window.addEventListener('data-saved', () => {
+            const agentType = this.getAgentTypeFromUrl();
+            if (agentType) {
+                this.startPollingBrief(agentType);
+            }
+        });
+    },
+
+    // Polling kiểm tra brief data đã sẵn sàng chưa
+    startPollingBrief(agentType) {
+        // Dừng polling cũ nếu có
+        if (this.pollingTimers[agentType]) {
+            clearInterval(this.pollingTimers[agentType]);
+        }
+
+        let attempts = 0;
+        const maxAttempts = 20; // 20 x 3s = 60 giây tối đa
+
+        this.pollingTimers[agentType] = setInterval(async () => {
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(this.pollingTimers[agentType]);
+                delete this.pollingTimers[agentType];
+                return;
+            }
+
+            try {
+                const res = await fetch(`/brands/${this.brandSlug}/brief-status?key=${agentType}`);
+                const result = await res.json();
+
+                if (result.ready && result.content) {
+                    // Cập nhật brief data
+                    const rootTypes = ['root1', 'root2', 'root3'];
+                    if (rootTypes.includes(agentType)) {
+                        this.briefData[agentType] = result.content;
+                    } else {
+                        this.briefDataTrunk[agentType] = result.content;
+                    }
+                    // Dừng polling
+                    clearInterval(this.pollingTimers[agentType]);
+                    delete this.pollingTimers[agentType];
+                }
+            } catch (e) {
+                console.warn('Polling brief status error:', e);
+            }
+        }, 3000);
+    },
 
     getAgentTypeFromUrl() {
         const pathParts = window.location.pathname.split('/');
