@@ -29,6 +29,8 @@ class Brand extends Model
         'founded_year' => 'integer',
         'root_data' => 'array',
         'trunk_data' => 'array',
+        'root_brief_data' => 'array',   // Dữ liệu tóm tắt từ OpenAI cho root
+        'trunk_brief_data' => 'array',  // Dữ liệu tóm tắt từ OpenAI cho trunk
     ];
 
     /**

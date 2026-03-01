@@ -24,6 +24,7 @@ class AgentSystem extends Model
         'vector_id', // <-- MỚI: ID của Vector Store/Knowledge Base
         'model',     // <-- MỚI: Tên model AI (gpt-4o, gpt-3.5...)
         'prompt',
+        'brief_prompt', // Prompt dùng để gọi OpenAI tóm tắt nội dung phân tích
         'ui_display',
         'status',
         'step_order',
