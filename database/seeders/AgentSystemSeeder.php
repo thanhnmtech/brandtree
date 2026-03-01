@@ -158,6 +158,7 @@ Step 12.3 — Hoàn tất
 Đảm bảo kết quả cuối cùng chi tiết với ngôn từ tiếng Việt phù hợp, dễ hiểu, đúng bản chất, nếu cụm từ nào cần viết bằng tiếng anh thì cần mở ngoặc dịch ra tiếng Việt.
 
 ',
+                'brief_prompt' => 'Tóm tắt nội dung mô hình Culture Design Canvas (Mục đích, Giá trị cốt lõi, Hành vi, Biểu tượng) thành một bản tóm tắt văn hóa doanh nghiệp ngắn gọn (khoảng 300-400 từ), bao gồm: (1) Tóm tắt Mục đích & Giá trị cốt lõi (2) Hành vi & Nghi lễ chính (3) Điểm nổi bật của văn hóa. Giữ tone tính toán, chuyên nghiệp.',
             ],
             [
                 'agent_type' => 'root2',
