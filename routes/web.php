@@ -69,6 +69,10 @@ Route::post('/brands/{brand:slug}/update-section', [\App\Http\Controllers\BrandD
     ->middleware(['auth', 'brand.access'])
     ->name('brands.update_section');
 
+Route::get('/brands/{brand:slug}/brief-status', [\App\Http\Controllers\BrandDataController::class, 'getBriefStatus'])
+    ->middleware(['auth', 'brand.access'])
+    ->name('brands.brief_status');
+
 Route::post('/brands/{brand:slug}/agents', [\App\Http\Controllers\BrandAgentController::class, 'store'])
     ->middleware(['auth', 'brand.access'])
     ->name('brands.agents.store');
