@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('brands', function (Blueprint $table) {
-            $table->text('root_brief_content')->nullable()->after('root_data');
-            $table->text('trunk_brief_content')->nullable()->after('trunk_data');
+            $table->renameColumn('root_brief_content', 'root_brief_data');
+            $table->renameColumn('trunk_brief_content', 'trunk_brief_data');
         });
     }
 
@@ -23,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('brands', function (Blueprint $table) {
-            $table->dropColumn(['root_brief_content', 'trunk_brief_content']);
+            $table->renameColumn('root_brief_data', 'root_brief_content');
+            $table->renameColumn('trunk_brief_data', 'trunk_brief_content');
         });
     }
 };

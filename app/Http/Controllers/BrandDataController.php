@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use App\Models\AgentSystem;
+use App\Jobs\SummarizeBrandDataJob;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 
 class BrandDataController extends Controller
 {
@@ -64,6 +65,11 @@ class BrandDataController extends Controller
         $brand->$targetColumn = $currentData;
         $brand->save();
 
+        // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
+        if (!empty($refinedContent)) {
+            SummarizeBrandDataJob::dispatch($brand->id, $agentType, $refinedContent);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Đã lưu thành công vào thương hiệu.'
@@ -98,9 +104,14 @@ class BrandDataController extends Controller
         // Update value
         $currentData[$key] = $content;
 
-        // Save
+        // Lưu nội dung phân tích
         $brand->$targetColumn = $currentData;
         $brand->save();
+
+        // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
+        if (!empty($content)) {
+            SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
+        }
 
         // Tính toán lại trạng thái phases để cập nhật giao diện
         $phases = $brand->calculatePhaseStatuses();
@@ -122,6 +133,29 @@ class BrandDataController extends Controller
             'message' => 'Đã lưu thành công.',
             'next_step_html' => $nextStepHtml,
             'progress_header_html' => $progressHeaderHtml
+        ]);
+    }
+
+    /**
+     * API endpoint cho frontend polling kiểm tra brief data đã sẵn sàng chưa
+     */
+    public function getBriefStatus(Request $request, Brand $brand)
+    {
+        $key = $request->query('key');
+        if (!$key) {
+            return response()->json(['ready' => false]);
+        }
+
+        // Xác định cột brief
+        $rootTypes = ['root1', 'root2', 'root3'];
+        $briefColumn = in_array($key, $rootTypes) ? 'root_brief_data' : 'trunk_brief_data';
+
+        $briefData = $brand->$briefColumn ?? [];
+        $content = $briefData[$key] ?? null;
+
+        return response()->json([
+            'ready' => !empty($content),
+            'content' => $content,
         ]);
     }
 }
