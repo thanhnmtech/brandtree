@@ -73,7 +73,7 @@
         <div
             class="tw-flex tw-flex-row tw-items-center tw-gap-[12px] tw-mx-[26px] tw-mt-[13px] tw-mb-0 max-[900px]:tw-flex-col max-[900px]:tw-items-stretch tw-justify-end" id="filter_section">
             <!-- Search -->
-            <div class="tw-relative tw-w-[680px] tw-max-w-full">
+            <div class="tw-relative tw-w-full">
                 <input
                     data-brand-filter-target="search"
                     data-action="input->brand-filter#search"
@@ -89,7 +89,7 @@
                 class="tw-flex tw-flex-row tw-gap-[15px] max-[900px]:tw-w-full max-[900px]:tw-justify-between max-[640px]:tw-flex-col">
                 <!-- Status filter -->
                 <div
-                    class="tw-relative tw-h-[44px]  tw-w-[220px] tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
+                    class="tw-relative tw-h-[44px] tw-w-[220px] max-[900px]:tw-w-full tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
                     <img src="{{ asset('assets/img/filter-vector.svg') }}" alt="filter"
                         class="tw-absolute tw-left-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />
                     <select name="status"
@@ -107,7 +107,7 @@
 
                 <!-- Time filter -->
                 <div
-                    class="tw-relative tw-h-[44px] tw-w-[190px] tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
+                    class="tw-relative tw-h-[44px] tw-w-[220px] max-[900px]:tw-w-full tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
                     <select name="order_by"
                         data-brand-filter-target="orderBy"
                         data-action="change->brand-filter#filter"
@@ -123,7 +123,7 @@
             <!-- Button -->
             <div class="tw-relative">
                 <button data-action="click->brand-form#openAdd"
-                    class="tw-h-[44px] tw-w-[235px] tw-px-4 tw-rounded-[7px] tw-bg-[linear-gradient(180deg,#34b269_0%,#78d29e_100%)] tw-text-white tw-font-light tw-text-sm tw-shadow-sm tw-whitespace-nowrap hover:tw-scale-[1.02] hover:tw-shadow-md tw-transition">
+                    class="tw-h-[44px] tw-w-[220px] tw-px-4 tw-rounded-[7px] tw-bg-[linear-gradient(180deg,#34b269_0%,#78d29e_100%)] tw-text-white tw-font-light tw-text-sm tw-shadow-sm tw-whitespace-nowrap hover:tw-scale-[1.02] hover:tw-shadow-md tw-transition">
                     <img src="{{ asset('assets/img/add-vector.svg') }}" alt="add"
                         class="tw-absolute tw-left-[12px] tw-top-1/2 -tw-translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />
                     <div>{{ __('messages.dashboard.add_brand') }}</div>
