@@ -330,9 +330,41 @@ class Brand extends Model
         return $this->hasActiveSubscription();
     }
 
+    /**
+     * Tính tiến độ tổng hợp (root + trunk)
+     * Khi cả root và trunk hoàn thành hết → 100%
+     *
+     * @return int Phần trăm hoàn thành (0-100)
+     */
+    public function getOverallProgress(): int
+    {
+        // Lấy danh sách steps từ config
+        $rootSteps = array_keys(config('timeline_steps.root', []));
+        $trunkSteps = array_keys(config('timeline_steps.trunk', []));
+        $rootData = $this->root_data ?? [];
+        $trunkData = $this->trunk_data ?? [];
+
+        $totalSteps = count($rootSteps) + count($trunkSteps);
+        if ($totalSteps === 0) return 0;
+
+        // Đếm số steps đã hoàn thành (có dữ liệu)
+        $completedRoot = count(array_filter($rootSteps, fn($k) => !empty($rootData[$k])));
+        $completedTrunk = count(array_filter($trunkSteps, fn($k) => !empty($trunkData[$k])));
+
+        return (int) round(($completedRoot + $completedTrunk) / $totalSteps * 100);
+    }
+
     public function getProcessRoot()
     {
-        return rand(10, 100) . '%';
+        // Lấy danh sách steps root từ config
+        $rootSteps = array_keys(config('timeline_steps.root', []));
+        $rootData = $this->root_data ?? [];
+        $total = count($rootSteps);
+        if ($total === 0) return '0%';
+
+        // Đếm số steps đã hoàn thành (có dữ liệu)
+        $completed = count(array_filter($rootSteps, fn($k) => !empty($rootData[$k])));
+        return round(($completed / $total) * 100) . '%';
     }
 
     // ============================================
@@ -341,12 +373,40 @@ class Brand extends Model
 
     public function getProcessTrunk()
     {
-        return rand(10, 100) . '%';
+        // Lấy danh sách steps trunk từ config
+        $trunkSteps = array_keys(config('timeline_steps.trunk', []));
+        $trunkData = $this->trunk_data ?? [];
+        $total = count($trunkSteps);
+        if ($total === 0) return '0%';
+
+        // Đếm số steps đã hoàn thành (có dữ liệu)
+        $completed = count(array_filter($trunkSteps, fn($k) => !empty($trunkData[$k])));
+        return round(($completed / $total) * 100) . '%';
     }
 
     public function getNextProcess()
     {
-        return 'Cây cần hoàn thiện phân tích SWOT.';
+        $rootSteps = config('timeline_steps.root', []);
+        $trunkSteps = config('timeline_steps.trunk', []);
+        $rootData = $this->root_data ?? [];
+        $trunkData = $this->trunk_data ?? [];
+
+        // Tìm step root tiếp theo chưa hoàn thành
+        foreach ($rootSteps as $key => $step) {
+            if (empty($rootData[$key])) {
+                return 'Cây cần hoàn thành: ' . $step['label'];
+            }
+        }
+
+        // Root đã xong, tìm step trunk tiếp theo chưa hoàn thành
+        foreach ($trunkSteps as $key => $step) {
+            if (empty($trunkData[$key])) {
+                return 'Cây cần hoàn thành: ' . $step['label'];
+            }
+        }
+
+        // Tất cả các bước đã hoàn thành
+        return 'Tất cả các bước đã hoàn thành!';
     }
 
     /**
