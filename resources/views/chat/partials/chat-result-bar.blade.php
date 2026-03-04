@@ -36,6 +36,40 @@
     showToast: false,
     toastMessage: '',
     toastTimeout: null,
+    selectedItemKey: null,
+    expandedItem: null,
+    detailTags: {
+        'root1': [
+            { id: 'r1-core', label: 'Giá trị cốt lõi', icon: '💎' },
+            { id: 'r1-mission', label: 'Sứ mệnh', icon: '🎯' },
+            { id: 'r1-vision', label: 'Tầm nhìn', icon: '👁️' },
+            { id: 'r1-values', label: 'Giá trị dịch vụ', icon: '⭐' }
+        ],
+        'root2': [
+            { id: 'r2-customer', label: 'Đối tượng khách hàng', icon: '👥' },
+            { id: 'r2-needs', label: 'Nhu cầu thị trường', icon: '📊' },
+            { id: 'r2-trend', label: 'Xu hướng hiện tại', icon: '📈' },
+            { id: 'r2-insight', label: 'Insight thị trường', icon: '🔍' }
+        ],
+        'root3': [
+            { id: 'r3-solution', label: 'Giải pháp đề xuất', icon: '💡' },
+            { id: 'r3-benefits', label: 'Lợi ích nổi bật', icon: '✨' },
+            { id: 'r3-positioning', label: 'Định vị giải pháp', icon: '🎪' },
+            { id: 'r3-value-prop', label: 'Đề xuất giá trị', icon: '🏆' }
+        ],
+        'trunk1': [
+            { id: 't1-identity', label: 'Nhận diện thương hiệu', icon: '🏷️' },
+            { id: 't1-difference', label: 'Điểm khác biệt', icon: '🌟' },
+            { id: 't1-promise', label: 'Lời hứa thương hiệu', icon: '🤝' },
+            { id: 't1-personality', label: 'Tính cách thương hiệu', icon: '😊' }
+        ],
+        'trunk2': [
+            { id: 't2-tone', label: 'Giọng điệu', icon: '🎤' },
+            { id: 't2-message', label: 'Thông điệp chính', icon: '💬' },
+            { id: 't2-language', label: 'Ngôn ngữ sử dụng', icon: '📝' },
+            { id: 't2-story', label: 'Câu chuyện thương hiệu', icon: '📖' }
+        ]
+    },
 
     init() {
         // Lắng nghe event khi analysis được save từ chat page
@@ -57,14 +91,23 @@
                 this.startPollingBrief(agentType);
             }
         });
+
+        // Lắng nghe khi item được chọn từ sidebar
+        window.addEventListener('sidebarItemSelected', (e) => {
+            const itemKey = e.detail?.itemKey;
+            if (itemKey) {
+                this.selectedItemKey = itemKey;
+                this.expandedItem = itemKey;
+            }
+        });
     },
 
     // Polling kiểm tra brief data đã sẵn sàng chưa
     startPollingBrief(agentType) {
         // Mark as loading
-        this.loadingAgents[agentType] = true;
+        this.loadingAgents[agentType] = true;s
         
-        // Dừng polling cũ nếu có
+        // Dừng polling cũ nếu cós
         if (this.pollingTimers[agentType]) {
             clearInterval(this.pollingTimers[agentType]);
         }
@@ -305,6 +348,62 @@
 
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center">
     <div id="result-panel" class="tw-flex tw-flex-col tw-gap-3">
+      <!-- Selected Item Detail Tags - Hiển thị các thẻ chi tiết khi chọn item từ sidebar -->
+      <template x-if="selectedItemKey">
+        <div class="tw-bg-gradient-to-r tw-from-[#F0F9F5] tw-to-white tw-p-4 tw-rounded-lg tw-border tw-border-[#D9F2E2]">
+          <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
+            <h3 class="tw-font-semibold tw-text-gray-800">Chi tiết - <span x-text="getLevelLabel(selectedItemKey)" class="tw-text-[#1AA24C]"></span></h3>
+            <button @click="selectedItemKey = null" class="tw-text-gray-400 hover:tw-text-gray-600">
+              <i class="ri-close-line tw-text-xl"></i>
+            </button>
+          </div>
+          
+          <!-- Grid của detail tags -->
+          <div class="tw-flex tw-flex-wrap tw-gap-2">
+            <template x-for="tag in detailTags[selectedItemKey] || []" :key="tag.id">
+              <button @click="expandedItem = expandedItem === tag.id ? null : tag.id"
+                :class="expandedItem === tag.id ? 'tw-bg-[#1AA24C] tw-text-white tw-ring-2 tw-ring-[#45C974]' : 'tw-bg-white tw-text-gray-700 tw-border tw-border-[#1AA24C] hover:tw-bg-[#F0F9F5]'"
+                class="tw-px-3 tw-py-2 tw-rounded-lg tw-transition tw-duration-200 tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-cursor-pointer">
+                <span x-text="tag.icon"></span>
+                <span x-text="tag.label"></span>
+              </button>
+            </template>
+          </div>
+
+          <!-- Expanded tag detail -->
+          <template x-if="expandedItem">
+            <div x-transition class="tw-mt-3 tw-p-3 tw-bg-white tw-rounded-lg tw-border tw-border-[#E8F3EE]">
+              <p class="tw-text-xs tw-text-gray-600">
+                <span x-show="expandedItem === 'r1-core'">Những giá trị cốt lõi mà thương hiệu của bạn đại diện, là nền tảng của mọi quyết định chiến lược.</span>
+                <span x-show="expandedItem === 'r1-mission'">Sứ mệnh của công ty - mục đích cơ bản của sự tồn tại và hoạt động.</span>
+                <span x-show="expandedItem === 'r1-vision'">Tầm nhìn tương lai - nơi bạn muốn công ty đạt được trong 5-10 năm.</span>
+                <span x-show="expandedItem === 'r1-values'">Các giá trị dịch vụ liên quan đến cách bạn phục vụ khách hàng.</span>
+                
+                <span x-show="expandedItem === 'r2-customer'">Xác định rõ ràng ai là khách hàng lý tưởng của bạn.</span>
+                <span x-show="expandedItem === 'r2-needs'">Phân tích nhu cầu chính của thị trường mà bạn nhắm tới.</span>
+                <span x-show="expandedItem === 'r2-trend'">Các xu hướng hiện tại ảnh hưởng đến ngành và thị trường của bạn.</span>
+                <span x-show="expandedItem === 'r2-insight'">Những hiểu biết sâu sắc về hành vi và tâm lý của khách hàng.</span>
+
+                <span x-show="expandedItem === 'r3-solution'">Giải pháp cụ thể mà bạn đề xuất để giải quyết nhu cầu của thị trường.</span>
+                <span x-show="expandedItem === 'r3-benefits'">Những lợi ích nổi bật và tập trung nhất mà khách hàng sẽ nhận được.</span>
+                <span x-show="expandedItem === 'r3-positioning'">Cách bạn định vị giải pháp của mình so với các đối thủ cạnh tranh.</span>
+                <span x-show="expandedItem === 'r3-value-prop'">Đề xuất giá trị duy nhất - tại sao khách hàng nên chọn bạn.</span>
+
+                <span x-show="expandedItem === 't1-identity'">Nhận diện thương hiệu - tất cả những yếu tố trực quan và khái niệm định nghĩa thương hiệu.</span>
+                <span x-show="expandedItem === 't1-difference'">Những điểm khác biệt chính tạo nên sự độc đáo của thương hiệu bạn.</span>
+                <span x-show="expandedItem === 't1-promise'">Lời hứa thương hiệu - cam kết cơ bản mà bạn đưa ra cho khách hàng.</span>
+                <span x-show="expandedItem === 't1-personality'">Tính cách thương hiệu - nếu thương hiệu là một người, thì sẽ như thế nào.</span>
+
+                <span x-show="expandedItem === 't2-tone'">Giọng điệu nói chuyện - cách bạn giao tiếp với khách hàng qua tất cả các kênh.</span>
+                <span x-show="expandedItem === 't2-message'">Thông điệp chính - những câu nói quan trọng nhất cần được nhắc lại liên tục.</span>
+                <span x-show="expandedItem === 't2-language'">Ngôn ngữ sử dụng - từ vựng, cụm từ và cách phát biểu đặc trưng.</span>
+                <span x-show="expandedItem === 't2-story'">Câu chuyện thương hiệu - cách kể lại hành trình và giá trị của bạn.</span>
+              </p>
+            </div>
+          </template>
+        </div>
+      </template>
+
       <!-- Root1 Agent Output -->
       <button @click="openInfo(getLevelLabel('root1'), 'root1')"
           :disabled="!data['root1']"
