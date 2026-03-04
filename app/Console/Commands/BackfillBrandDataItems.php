@@ -1,12 +1,10 @@
 <?php
-
 // Thêm cái này vì mỗi lần chạy lại thì phải chạy backfill seeder trong db
 // ==> cảm thấy nó không có thực tế --> nên đã implement command này
 // sau này có thể setting để tự động backfill data mỗi lần update cái gì đó
 // vì khi tạo mới và render lại, nếu ko được backfill thì data của brand không chịu hiển thị lên
 
-// Note: đã thử dùng service nhưng hiện không có endpoint cho admin nên nghĩ là không nên làm theo cách này
-
+// Note: đã thử dùng service nhưng hiện không có endpoint cho admin nên nghĩ là không nên làm theo cách này 
 namespace App\Console\Commands;
 
 use App\Models\Brand;
