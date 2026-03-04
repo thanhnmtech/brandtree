@@ -319,7 +319,7 @@
           class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
           :class="data['root1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
           <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả của AI Thiết kế Văn Hóa Dịch Vụ</span>
+              <span class="tw-font-medium" :class="data['root1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Thiết kế Văn Hóa Dịch Vụ</span>
               <div class="tw-flex tw-items-center tw-gap-2">
                   <template x-if="loadingAgents['root1']">
                       <span class="tw-animate-spin tw-text-[#1AA24C]">
@@ -337,7 +337,7 @@
           class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
           :class="data['root2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
           <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả của AI Phân tích Thổ Nhưỡng</span>
+              <span class="tw-font-medium" :class="data['root2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Phân tích Thổ Nhưỡng</span>
               <div class="tw-flex tw-items-center tw-gap-2">
                   <template x-if="loadingAgents['root2']">
                       <span class="tw-animate-spin tw-text-[#1AA24C]">
@@ -355,7 +355,7 @@
           class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
           :class="data['root3'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
           <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root3'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả của AI Định vị Giá Trị Giải Pháp</span>
+              <span class="tw-font-medium" :class="data['root3'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Định vị Giá Trị Giải Pháp</span>
               <div class="tw-flex tw-items-center tw-gap-2">
                   <template x-if="loadingAgents['root3']">
                       <span class="tw-animate-spin tw-text-[#1AA24C]">
@@ -373,7 +373,7 @@
           class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
           :class="data['trunk1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
           <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['trunk1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả của AI Định vị Thương Hiệu</span>
+              <span class="tw-font-medium" :class="data['trunk1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Định vị Thương Hiệu</span>
               <div class="tw-flex tw-items-center tw-gap-2">
                   <template x-if="loadingAgents['trunk1']">
                       <span class="tw-animate-spin tw-text-[#1AA24C]">
@@ -391,7 +391,7 @@
           class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
           :class="data['trunk2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
           <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['trunk2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả của AI Nhận diện Ngôn ngữ</span>
+              <span class="tw-font-medium" :class="data['trunk2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Nhận diện Ngôn ngữ</span>
               <div class="tw-flex tw-items-center tw-gap-2">
                   <template x-if="loadingAgents['trunk2']">
                       <span class="tw-animate-spin tw-text-[#1AA24C]">
