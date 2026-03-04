@@ -44,6 +44,9 @@ Route::middleware('auth')->group(function () {
 // Chat Route (Standalone, No Localization Prefix)
 Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
 
+    // Đảm bảo dữ liệu items được parse (fallback cho những brand cũ)
+    $brand->ensureParsedDataItems();
+
     // Override agentId for System Agents
     $systemTypes = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
     if ($agentType && in_array($agentType, $systemTypes)) {
@@ -88,6 +91,9 @@ Route::delete('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\Bran
 Route::put('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'update'])
     ->middleware(['auth', 'brand.access'])
     ->name('brands.agents.update');
+
+Route::post('/brands/{brand:slug}/update-section', [\App\Http\Controllers\BrandDataController::class, 'updateSection'])->name('brands.update-section');
+Route::get('/brands/{brand:slug}/brief-status', [\App\Http\Controllers\BrandDataController::class, 'getBriefStatus'])->name('brands.brief-status');
 
 // TEMPORARY: Run migrations via link (For agent_type column)
 Route::get('/run-pending-migrations', function () {

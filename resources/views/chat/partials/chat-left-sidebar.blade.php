@@ -46,7 +46,7 @@
       </div>
     </button>
 
-    {{-- Danh sách các step Root và Trunk với expand/collapse --}}
+    {{-- Danh sách các step Root và Trunk --}}
     <ul id="dataPlatformMenu" class="tw-hidden tw-w-full tw-space-y-2 tw-text-sm" x-data="sidebarDataManager({
       brandSlug: '{{ $brand->slug }}',
       rootData: @js($brand->root_data ?? []),
@@ -64,7 +64,6 @@
         @php $hasData = !empty($rootData[$key]); @endphp
         <li class="tw-px-3 tw-py-2 tw-rounded-md {{ $hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60' }} tw-flex tw-flex-col tw-gap-2">
           
-          {{-- Item header --}}
           <div class="tw-flex tw-items-center tw-gap-2">
             @if($hasData)
               <button type="button"
@@ -74,14 +73,10 @@
                 <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
               </button>
               
-              {{-- Toggle button --}}
               <button type="button"
                 @click="toggleExpand('{{ $key }}')"
                 class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition tw-flex-shrink-0">
-                {{-- <svg :class="expandedItems['{{ $key }}'] ? 'tw-rotate-180' : ''" class="tw-w-4 tw-h-4 tw-transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                </svg> --}}
-                <i class="ri-arrow-right-s-line tw-text-gray-400 group-hover:tw-text-[#1AA24C]"></i>
+                <i class="ri-arrow-right-s-line"></i>
               </button>
             @else
               <span class="tw-flex-1 tw-font-semibold tw-text-gray-400">{{ $step['label'] }}</span>
@@ -111,7 +106,6 @@
         @php $hasData = !empty($trunkData[$key]); @endphp
         <li class="tw-px-3 tw-py-2 tw-rounded-md {{ $hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60' }} tw-flex tw-flex-col tw-gap-2">
           
-          {{-- Item header --}}
           <div class="tw-flex tw-items-center tw-gap-2">
             @if($hasData)
               <button type="button"
@@ -121,14 +115,10 @@
                 <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
               </button>
               
-              {{-- Toggle button --}}
               <button type="button"
                 @click="toggleExpand('{{ $key }}')"
                 class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition tw-flex-shrink-0">
-                {{-- <svg :class="expandedItems['{{ $key }}'] ? 'tw-rotate-180' : ''" class="tw-w-4 tw-h-4 tw-transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                </svg> --}}
-                <i class="ri-arrow-right-s-line tw-text-gray-400 group-hover:tw-text-[#1AA24C]"></i>
+                <i class="ri-arrow-right-s-line"></i>
               </button>
             @else
               <span class="tw-flex-1 tw-font-semibold tw-text-gray-400">{{ $step['label'] }}</span>
@@ -153,90 +143,95 @@
         </li>
       @endforeach
 
-      {{-- Sidebar Modal Popup --}}
-      <div x-show="openModal" style="display: none;"
+      {{-- POPUP MODAL - Tái sử dụng từ chat-result-bar --}}
+      <div x-show="showModal" style="display: none;"
           class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-bg-black/50 tw-backdrop-blur-sm"
-          x-transition:enter="tw-transition tw-ease-out tw-duration-300" x-transition:enter-start="tw-opacity-0"
-          x-transition:enter-end="tw-opacity-100" x-transition:leave="tw-transition tw-ease-in tw-duration-200"
-          x-transition:leave-start="tw-opacity-100" x-transition:leave-end="tw-opacity-0">
+          x-transition:enter="tw-transition tw-ease-out tw-duration-300" 
+          x-transition:enter-start="tw-opacity-0"
+          x-transition:enter-end="tw-opacity-100" 
+          x-transition:leave="tw-transition tw-ease-in tw-duration-200"
+          x-transition:leave-start="tw-opacity-100" 
+          x-transition:leave-end="tw-opacity-0">
 
-          <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-h-[600px] tw-flex tw-flex-col"
-              @click.away="openModal = false">
+        <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-h-[600px] tw-flex tw-flex-col"
+            @click.away="showModal = false">
 
-              <!-- Modal Header -->
-              <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
-                  <div class="tw-flex tw-items-center tw-gap-4">
-                      <h3 class="tw-text-xl tw-font-bold tw-text-gray-800" x-text="modalTitle"></h3>
+          <!-- Modal Header -->
+          <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
+            <div class="tw-flex tw-items-center tw-gap-4">
+              <h3 class="tw-text-xl tw-font-bold tw-text-gray-800" x-text="modalTitle"></h3>
+              
+              <a :href="getChatUrl()"
+                class="tw-inline-flex tw-items-center tw-gap-1 tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1.5 tw-rounded-full hover:tw-bg-[#15803d] tw-transition">
+                <i class="ri-chat-smile-3-line"></i>
+                Chat ngay với trợ lý AI
+              </a>
+            </div>
 
-                      <a :href="getChatUrl()"
-                          class="tw-inline-flex tw-items-center tw-gap-1 tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1.5 tw-rounded-full hover:tw-bg-[#15803d] tw-transition">
-                          <i class="ri-chat-smile-3-line"></i>
-                          Chat ngay với trợ lý AI
-                      </a>
+            <button @click="showModal = false" class="tw-text-gray-400 hover:tw-text-gray-600">
+              <i class="ri-close-line tw-text-2xl"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto tw-flex tw-flex-col tw-relative">
+            <!-- Tab Toggle - Luôn hiển thị vì sidebar modal luôn có brief data checking -->
+            <div class="tw-mb-4 tw-flex tw-gap-2 tw-border-b tw-border-gray-200">
+              <button @click="toggleBriefView()"
+                :disabled="!isBriefReady()"
+                :class="showingBrief ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold' : 'tw-text-gray-500 tw-font-medium'"
+                class="tw-px-4 tw-py-2 tw-transition"
+                :class="!isBriefReady() && !showingBrief ? 'tw-opacity-50 tw-cursor-not-allowed' : ''">
+                ✨ Nội dung tóm tắt
+              </button>
+              <button @click="toggleBriefView()"
+                :class="!showingBrief ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold' : 'tw-text-gray-500 tw-font-medium'"
+                class="tw-px-4 tw-py-2 tw-transition">
+                📄 Nội dung đầy đủ
+              </button>
+            </div>
+
+            <!-- Textarea with loading overlay -->
+            <div class="tw-relative tw-flex-1 tw-flex tw-flex-col">
+              <textarea
+                :disabled="showingBrief && !isBriefReady()"
+                class="tw-w-full tw-flex-1 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none disabled:tw-bg-gray-100 disabled:tw-opacity-60 disabled:tw-cursor-not-allowed tw-transition"
+                x-model="modalContent" 
+                spellcheck="false" 
+                placeholder="Chưa có thông tin..."></textarea>
+              
+              <!-- Loading Overlay -->
+              <template x-if="showingBrief && !isBriefReady() && loadingBrief">
+                <div class="tw-absolute tw-inset-0 tw-bg-white/80 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3">
+                  <div class="tw-animate-spin tw-text-[#1AA24C] tw-text-3xl">
+                    <i class="ri-loader-4-line"></i>
                   </div>
+                  <p class="tw-text-sm tw-font-medium tw-text-gray-600">Đang tóm tắt nội dung...</p>
+                </div>
+              </template>
+            </div>
 
-                  <button @click="openModal = false" class="tw-text-gray-400 hover:tw-text-gray-600">
-                      <i class="ri-close-line tw-text-2xl"></i>
-                  </button>
-              </div>
+            <!-- Footer Action -->
+            <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
+              <button @click="saveModalContent()" 
+                :disabled="isSavingModal || (showingBrief && !isBriefReady())"
+                class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
+                <span x-show="isSavingModal" class="tw-animate-spin">
+                  <i class="ri-loader-4-line"></i>
+                </span>
+                <span>Lưu</span>
+              </button>
 
-              <!-- Modal Body -->
-              <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto tw-flex tw-flex-col tw-relative">
-                  <!-- Tab Toggle - Chỉ hiển thị khi mở từ result-bar -->
-                  <template x-if="isFromResultBar">
-                      <div class="tw-mb-4 tw-flex tw-gap-2 tw-border-b tw-border-gray-200">
-                          <button @click="toggleBriefView()"
-                              :disabled="!isBriefReady(currentKey)"
-                              :class="showingBrief ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold' : 'tw-text-gray-500 tw-font-medium'"
-                              :class="!isBriefReady(currentKey) && !showingBrief ? 'tw-opacity-50 tw-cursor-not-allowed' : ''"
-                              class="tw-px-4 tw-py-2 tw-transition">
-                              Nội dung tóm tắt
-                          </button>
-                          <button @click="toggleBriefView()"
-                              :class="!showingBrief ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold' : 'tw-text-gray-500 tw-font-medium'"
-                              class="tw-px-4 tw-py-2 tw-transition">
-                              Nội dung đầy đủ
-                          </button>
-                      </div>
-                  </template>
-
-                  <!-- Textarea with loading overlay -->
-                  <div class="tw-relative tw-flex-1 tw-flex tw-flex-col">
-                      <textarea
-                          :disabled="showingBrief && !isBriefReady(currentKey)"
-                          class="tw-w-full tw-flex-1 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none disabled:tw-bg-gray-100 disabled:tw-opacity-60 disabled:tw-cursor-not-allowed tw-transition"
-                          x-model="modalContent" spellcheck="false" placeholder="Chưa có thông tin..."></textarea>
-                      
-                      <!-- Loading Overlay - show when brief is loading -->
-                      <template x-if="showingBrief && !isBriefReady(currentKey) && loadingAgents[currentKey]">
-                          <div class="tw-absolute tw-inset-0 tw-bg-white/80 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3">
-                              <div class="tw-animate-spin tw-text-[#1AA24C] tw-text-3xl">
-                                  <i class="ri-loader-4-line"></i>
-                              </div>
-                              <p class="tw-text-sm tw-font-medium tw-text-gray-600">Đang tóm tắt nội dung...</p>
-                          </div>
-                      </template>
-                  </div>
-
-                  <!-- Footer Action -->
-                  <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
-                      <button @click="saveInfo()" :disabled="isSaving || (showingBrief && !isBriefReady(currentKey))"
-                          class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
-                          <span x-show="isSaving" class="tw-animate-spin"><i class="ri-loader-4-line"></i></span>
-                          <span>Lưu</span>
-                      </button>
-
-                      <!-- Status Message -->
-                      <span x-show="saveStatus" x-text="saveStatus" class="tw-text-sm tw-font-medium"
-                          :class="saveStatus.includes('Lỗi') ? 'tw-text-red-600' : 'tw-text-[#1AA24C]'">
-                      </span>
-                  </div>
-              </div>
-          </div>s
+              <span x-show="saveStatus" x-text="saveStatus" class="tw-text-sm tw-font-medium"
+                :class="saveStatus.includes('Lỗi') ? 'tw-text-red-600' : 'tw-text-[#1AA24C]'">
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </ul>
 
-    {{-- Result Modal Component - để hiển thị popup kết quả phân tích (result-bar) --}}
+    {{-- Result Modal Component - giữ nguyên cho result-bar --}}
     <x-result-modal :brand="$brand" />
   </nav>
 
@@ -625,30 +620,24 @@
         this.currentKey = key;
         this.showModal = true;
         this.saveStatus = '';
-        
-        // Xác định loại content cần show
         this.showingBrief = isBrief;
         
-        // Emit event để result-bar biết item này được select
-        const event = new CustomEvent('sidebarItemSelected', {
-          detail: { itemKey: key }
-        });
-        window.dispatchEvent(event);
-        
-        // Load content
+        // Load content từ data của brand
         if (isBrief) {
-          // Kiểm tra xem brief content đã có chưa
-          if (this.briefContent[key]) {
-            this.modalContent = this.briefContent[key];
+          // Kiểm tra brief content
+          const isRoot = key.startsWith('root');
+          if (isRoot && this.briefDataRoot[key]) {
+            this.modalContent = this.briefDataRoot[key];
+          } else if (!isRoot && this.briefDataTrunk[key]) {
+            this.modalContent = this.briefDataTrunk[key];
           } else {
             this.modalContent = '';
             this.loadBriefContent(key);
           }
         } else {
-          // Show full content
+          // Load full content từ rootData hoặc trunkData
           const isRoot = key.startsWith('root');
-          this.modalContent = isRoot ? this.rootData[key] || '' : this.trunkData[key] || '';
-          this.fullContent[key] = this.modalContent;
+          this.modalContent = isRoot ? (this.rootData[key] || '') : (this.trunkData[key] || '');
         }
       },
 
@@ -671,7 +660,43 @@
       },
 
       isBriefReady() {
-        return !!(this.briefContent[this.currentKey] && this.briefContent[this.currentKey].length > 0);
+        const isRoot = this.currentKey.startsWith('root');
+        if (isRoot) {
+          return !!(this.briefDataRoot[this.currentKey] && this.briefDataRoot[this.currentKey].length > 0);
+        } else {
+          return !!(this.briefDataTrunk[this.currentKey] && this.briefDataTrunk[this.currentKey].length > 0);
+        }
+      },
+
+      toggleBriefView() {
+        const isRoot = this.currentKey.startsWith('root');
+        this.showingBrief = !this.showingBrief;
+        
+        if (this.showingBrief) {
+          if (!this.isBriefReady()) {
+            this.showingBrief = false;
+            return;
+          }
+          this.modalContent = isRoot ? (this.briefDataRoot[this.currentKey] || '') : (this.briefDataTrunk[this.currentKey] || '');
+        } else {
+          this.modalContent = isRoot ? (this.rootData[this.currentKey] || '') : (this.trunkData[this.currentKey] || '');
+        }
+      },
+
+      getChatUrl() {
+        let agentType = this.currentKey;
+        let agentId = 1;
+        
+        switch(agentType) {
+          case 'root1': agentId = 1; break;
+          case 'root2': agentId = 2; break;
+          case 'root3': agentId = 3; break;
+          case 'trunk1': agentId = 4; break;
+          case 'trunk2': agentId = 5; break;
+          default: agentId = 1;
+        }
+
+        return `/brands/${this.brandSlug}/chat/${agentType}/${agentId}/new`;
       },
 
       async saveModalContent() {
@@ -695,13 +720,24 @@
 
           if (result.status === 'success') {
             this.saveStatus = '✓ Đã lưu thành công';
+            
+            // Update local state
             const isRoot = this.currentKey.startsWith('root');
             if (isRoot) {
               this.rootData[this.currentKey] = this.modalContent;
             } else {
               this.trunkData[this.currentKey] = this.modalContent;
             }
-            this.fullContent[this.currentKey] = this.modalContent;
+            
+            // Dispatch event for result-bar to sync updated data items
+            if (result.data_items) {
+              window.dispatchEvent(new CustomEvent('brandDataItemsUpdated', {
+                detail: {
+                  agentType: this.currentKey,
+                  dataItems: result.data_items
+                }
+              }));
+            }
           } else {
             this.saveStatus = 'Lỗi: ' + (result.message || 'Không thể lưu');
           }
