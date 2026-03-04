@@ -141,6 +141,13 @@
         }
     },
 
+    // Tính tiến độ hoàn thành thương hiệu (root + trunk = 5 steps)
+    get brandProgress() {
+        const allKeys = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+        const completed = allKeys.filter(k => this.data[k] && this.data[k].length > 0).length;
+        return Math.round((completed / allKeys.length) * 100);
+    },
+
     getAgentTypeFromUrl() {
         const pathParts = window.location.pathname.split('/');
         const chatIndex = pathParts.indexOf('chat');
@@ -284,20 +291,21 @@
       class="tw-w-full tw-px-3 tw-py-2 tw-bg-[#F7F8F9] tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-flex tw-flex-col">
       <div class="tw-flex-1 tw-min-w-0">
         <div class="tw-text-sm tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-          Tiến độ hoàn thành phần gốc
+          Tiến độ hoàn thành thương hiệu
         </div>
       </div>
 
       <div>
         <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
           <div class="tw-h-full tw-bg-[linear-gradient(90deg,#329C59_-83.33%,#45C974_80.61%)] tw-rounded-l-full"
-            style="width: 15%"></div>
+            :style="`width: ${brandProgress}%`"
+            :class="{ 'tw-rounded-full': brandProgress >= 100 }"></div>
         </div>
       </div>
 
       <div>
-        <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-          15% hoàn thành
+        <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap"
+          x-text="brandProgress + '% hoàn thành'">
         </div>
       </div>
     </div>

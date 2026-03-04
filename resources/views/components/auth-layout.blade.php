@@ -42,7 +42,7 @@
     <!-- MAIN CONTAINER -->
     <div class="tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] lg:tw-bg-none tw-flex tw-flex-col lg:tw-flex-row tw-pt-[70px] tw-min-h-screen tw-bg-white">
         <!-- LEFT SECTION (Form) -->
-        <div class="tw-order-2 lg:tw-order-1 tw-w-full lg:tw-w-1/2 tw-flex tw-flex-col tw-px-6 md:tw-px-14 tw-py-0 md:tw-py-2 lg:tw-py-10 tw-shadow-md lg:tw-shadow-md">
+        <div class="tw-order-2 lg:tw-order-1 tw-w-full lg:tw-w-1/2 tw-flex tw-flex-col tw-px-6 md:tw-px-14 tw-py-0 md:tw-py-2 lg:tw-py-10 tw-shadow-md lg:tw-shadow-md tw-items-center tw-justify-center">
             <div class="tw-flex tw-justify-center tw-w-full tw-mt-4 md:tw-mt-6">
                 <div class="tw-w-full tw-max-w-[600px] tw-space-y-6">
                     {{ $slot }}
@@ -52,7 +52,7 @@
 
         <!-- RIGHT SECTION (Hero) -->
         <div class="tw-order-1 lg:tw-order-2 tw-w-full lg:tw-w-1/2 tw-bg-gradient-to-br tw-from-[#fffaf1] tw-to-[#f5fff8] tw-px-6 md:tw-px-14 tw-py-2 tw-flex tw-items-start tw-justify-center">
-            <div class="tw-max-w-[700px] tw-w-full sm:tw-scale-[1] md:tw-scale-[1] lg:tw-scale-[0.73] xl:tw-scale-[0.77] tw-origin-top">
+            <div class="tw-max-w-[700px] tw-w-full sm:tw-scale-[1] md:tw-scale-[1] lg:tw-scale-[0.73] xl:tw-scale-[0.77] tw-origin-center">
                 <h2 class="tw-text-[30px] md:tw-text-[40px] lg:tw-text-[60px] tw-font-bold tw-leading-[36px] md:tw-leading-[48px] lg:tw-leading-[68px] tw-mt-4 md:tw-mt-4 lg:tw-mt-2">
                     {{ __('auth.hero_heading_1') }} <br />
                     <span class="tw-text-transparent tw-bg-clip-text tw-bg-gradient-to-b tw-from-green-600 tw-to-yellow-500">
