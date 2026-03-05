@@ -1,4 +1,4 @@
-@php
+f@php
     // Extract agentType from URL: /brands/{slug}/chat/{agentType}/{agentId}/{convId}
     $agentType = request()->segment(4) ?? 'root1';
     
@@ -141,9 +141,9 @@
     // Polling kiểm tra brief data đã sẵn sàng chưa
     startPollingBrief(agentType) {
         // Mark as loading
-        this.loadingAgents[agentType] = true;s
+        this.loadingAgents[agentType] = true;
         
-        // Dừng polling cũ nếu cós
+        // Dừng polling cũ nếu có
         if (this.pollingTimers[agentType]) {
             clearInterval(this.pollingTimers[agentType]);
         }
