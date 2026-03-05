@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Brand;
 use App\Models\AgentSystem;
 use App\Jobs\SummarizeBrandDataJob;
+use App\Services\BrandContentParser;
 use Illuminate\Support\Facades\Log;
 
 class BrandDataController extends Controller
@@ -63,6 +64,12 @@ class BrandDataController extends Controller
 
         // Save back
         $brand->$targetColumn = $currentData;
+
+        // 5. Parse content into structured items
+        $parsedItems = BrandContentParser::parseContent($agentType, $refinedContent);
+        $itemsColumn = "{$agentType}_data_items";
+        $brand->$itemsColumn = $parsedItems;
+
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
@@ -72,7 +79,8 @@ class BrandDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Đã lưu thành công vào thương hiệu.'
+            'message' => 'Đã lưu thành công vào thương hiệu.',
+            'data_items' => $parsedItems
         ]);
     }
     /**
@@ -106,6 +114,12 @@ class BrandDataController extends Controller
 
         // Lưu nội dung phân tích
         $brand->$targetColumn = $currentData;
+        
+        // Parse content into structured items
+        $parsedItems = BrandContentParser::parseContent($key, $content);
+        $itemsColumn = "{$key}_data_items";
+        $brand->$itemsColumn = $parsedItems;
+
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
@@ -132,7 +146,8 @@ class BrandDataController extends Controller
             'status' => 'success',
             'message' => 'Đã lưu thành công.',
             'next_step_html' => $nextStepHtml,
-            'progress_header_html' => $progressHeaderHtml
+            'progress_header_html' => $progressHeaderHtml,
+            'data_items' => $parsedItems
         ]);
     }
 

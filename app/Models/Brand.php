@@ -31,6 +31,18 @@ class Brand extends Model
         'trunk_data' => 'array',
         'root_brief_data' => 'array',   // Dữ liệu tóm tắt từ OpenAI cho root
         'trunk_brief_data' => 'array',  // Dữ liệu tóm tắt từ OpenAI cho trunk
+        // Structured items from parser
+        'root1_data_items' => 'array',
+        'root2_data_items' => 'array',
+        'root3_data_items' => 'array',
+        'trunk1_data_items' => 'array',
+        'trunk2_data_items' => 'array',
+        // Brief items from OpenAI summarization
+        'root1_brief_items' => 'array',
+        'root2_brief_items' => 'array',
+        'root3_brief_items' => 'array',
+        'trunk1_brief_items' => 'array',
+        'trunk2_brief_items' => 'array',
     ];
 
     /**
@@ -75,6 +87,35 @@ class Brand extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * Ensure data items are parsed (with fallback for existing data)
+     * Được gọi trước khi render view để đảm bảo items luôn có
+     */
+    public function ensureParsedDataItems(): void
+    {
+        $rootTypes = ['root1', 'root2', 'root3'];
+        $trunkTypes = ['trunk1', 'trunk2'];
+        $agentTypes = array_merge($rootTypes, $trunkTypes);
+
+        foreach ($agentTypes as $agentType) {
+            $itemsColumn = "{$agentType}_data_items";
+            $existingItems = $this->$itemsColumn ?? [];
+
+            // Nếu items trống nhưng có full content, parse ngay
+            if (empty($existingItems) || !is_array($existingItems)) {
+                $targetColumn = in_array($agentType, $rootTypes) ? 'root_data' : 'trunk_data';
+                $fullData = $this->$targetColumn ?? [];
+                $content = $fullData[$agentType] ?? '';
+
+                if (!empty($content)) {
+                    // Parse ngay mà không save (để tránh race condition)
+                    $parsed = \App\Services\BrandContentParser::parseContent($agentType, $content);
+                    $this->$itemsColumn = $parsed;
+                }
+            }
+        }
     }
 
     /**

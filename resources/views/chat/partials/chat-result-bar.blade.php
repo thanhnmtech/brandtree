@@ -1,4 +1,4 @@
-@php
+f@php
     // Extract agentType from URL: /brands/{slug}/chat/{agentType}/{agentId}/{convId}
     $agentType = request()->segment(4) ?? 'root1';
     
@@ -7,6 +7,19 @@
     
     $rootData = $brand->root_data ?? [];
     $trunkData = $brand->trunk_data ?? [];
+
+    // Structured items
+    $root1Items = $brand->root1_data_items ?? [];
+    $root2Items = $brand->root2_data_items ?? [];
+    $root3Items = $brand->root3_data_items ?? [];
+    $trunk1Items = $brand->trunk1_data_items ?? [];
+    $trunk2Items = $brand->trunk2_data_items ?? [];
+
+    $root1BriefItems = $brand->root1_brief_items ?? [];
+    $root2BriefItems = $brand->root2_brief_items ?? [];
+    $root3BriefItems = $brand->root3_brief_items ?? [];
+    $trunk1BriefItems = $brand->trunk1_brief_items ?? [];
+    $trunk2BriefItems = $brand->trunk2_brief_items ?? [];
 
     // Normalize data to ensure keys exist for JS object
     $initialData = [
@@ -20,15 +33,38 @@
 
 <div class="tw-flex tw-flex-col" x-data="{
     openModal: false,
+    itemModal: false,
     modalTitle: '',
     modalContent: '',
     currentKey: '',
+    currentItemKey: '',
     brandSlug: '{{ $brand->slug }}',
     isSaving: false,
     saveStatus: '',
     data: @js($initialData),
     briefData: @js($brand->root_brief_data ?? []),
     briefDataTrunk: @js($brand->trunk_brief_data ?? []),
+    dataItems: @js([
+        'root1' => $root1Items,
+        'root2' => $root2Items,
+        'root3' => $root3Items,
+        'trunk1' => $trunk1Items,
+        'trunk2' => $trunk2Items
+    ]),
+    briefItems: @js([
+        'root1' => $root1BriefItems,
+        'root2' => $root2BriefItems,
+        'root3' => $root3BriefItems,
+        'trunk1' => $trunk1BriefItems,
+        'trunk2' => $trunk2BriefItems
+    ]),
+    expandedSections: {
+        'root1': false,
+        'root2': false,
+        'root3': false,
+        'trunk1': false,
+        'trunk2': false,
+    },
     pollingTimers: {},
     loadingAgents: {},
     showingBrief: false,
@@ -36,6 +72,40 @@
     showToast: false,
     toastMessage: '',
     toastTimeout: null,
+    selectedItemKey: null,
+    expandedItem: null,
+    detailTags: {
+        'root1': [
+            { id: 'r1-core', label: 'Giá trị cốt lõi', icon: '💎' },
+            { id: 'r1-mission', label: 'Sứ mệnh', icon: '🎯' },
+            { id: 'r1-vision', label: 'Tầm nhìn', icon: '👁️' },
+            { id: 'r1-values', label: 'Giá trị dịch vụ', icon: '⭐' }
+        ],
+        'root2': [
+            { id: 'r2-customer', label: 'Đối tượng khách hàng', icon: '👥' },
+            { id: 'r2-needs', label: 'Nhu cầu thị trường', icon: '📊' },
+            { id: 'r2-trend', label: 'Xu hướng hiện tại', icon: '📈' },
+            { id: 'r2-insight', label: 'Insight thị trường', icon: '🔍' }
+        ],
+        'root3': [
+            { id: 'r3-solution', label: 'Giải pháp đề xuất', icon: '💡' },
+            { id: 'r3-benefits', label: 'Lợi ích nổi bật', icon: '✨' },
+            { id: 'r3-positioning', label: 'Định vị giải pháp', icon: '🎪' },
+            { id: 'r3-value-prop', label: 'Đề xuất giá trị', icon: '🏆' }
+        ],
+        'trunk1': [
+            { id: 't1-identity', label: 'Nhận diện thương hiệu', icon: '🏷️' },
+            { id: 't1-difference', label: 'Điểm khác biệt', icon: '🌟' },
+            { id: 't1-promise', label: 'Lời hứa thương hiệu', icon: '🤝' },
+            { id: 't1-personality', label: 'Tính cách thương hiệu', icon: '😊' }
+        ],
+        'trunk2': [
+            { id: 't2-tone', label: 'Giọng điệu', icon: '🎤' },
+            { id: 't2-message', label: 'Thông điệp chính', icon: '💬' },
+            { id: 't2-language', label: 'Ngôn ngữ sử dụng', icon: '📝' },
+            { id: 't2-story', label: 'Câu chuyện thương hiệu', icon: '📖' }
+        ]
+    },
 
     init() {
         // Lắng nghe event khi analysis được save từ chat page
@@ -55,6 +125,15 @@
             const agentType = this.getAgentTypeFromUrl();
             if (agentType) {
                 this.startPollingBrief(agentType);
+            }
+        });
+
+        // Lắng nghe khi item được chọn từ sidebar
+        window.addEventListener('sidebarItemSelected', (e) => {
+            const itemKey = e.detail?.itemKey;
+            if (itemKey) {
+                this.selectedItemKey = itemKey;
+                this.expandedItem = itemKey;
             }
         });
     },
@@ -221,6 +300,25 @@
         }
     },
 
+    // Mở modal để xem chi tiết item cụ thể
+    openItemModal(itemKey, agentType) {
+        this.currentKey = agentType;
+        this.currentItemKey = itemKey;
+        this.isFromResultBar = false;  // Don't show tab toggle for individual items
+        this.showingBrief = false;
+        this.saveStatus = '';
+        
+        // Load full content của item
+        if (this.dataItems[agentType] && this.dataItems[agentType][itemKey]) {
+            this.modalContent = this.dataItems[agentType][itemKey] || '';
+        } else {
+            this.modalContent = '';
+        }
+        
+        this.modalTitle = `${itemKey} - ${this.getLevelLabel(agentType)}`;
+        this.openModal = true;
+    },
+
     getChatUrl() {
         let agentType = this.currentKey; 
         let agentId = 1;
@@ -270,8 +368,20 @@
         } finally {
             this.isSaving = false;
         }
+    },
+
+    // Initialize event listeners for real-time sync
+    init() {
+        // Listen for data items updates from sidebar
+        window.addEventListener('brandDataItemsUpdated', (event) => {
+            const { agentType, dataItems } = event.detail;
+            if (dataItems) {
+                this.dataItems[agentType] = dataItems;
+                console.log(`✓ Updated dataItems for ${agentType}:`, dataItems);
+            }
+        });
     }
-}">
+}" @init="init()">
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
     <div>
       <img src="{{ asset('assets/img/logo-resultbar.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
@@ -313,95 +423,181 @@
 
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center">
     <div id="result-panel" class="tw-flex tw-flex-col tw-gap-3">
-      <!-- Root1 Agent Output -->
-      <button @click="openInfo(getLevelLabel('root1'), 'root1')"
-          :disabled="!data['root1']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
-          :class="data['root1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Thiết kế Văn Hóa Dịch Vụ</span>
-              <div class="tw-flex tw-items-center tw-gap-2">
-                  <template x-if="loadingAgents['root1']">
-                      <span class="tw-animate-spin tw-text-[#1AA24C]">
-                          <i class="ri-loader-4-line"></i>
-                      </span>
-                  </template>
-                  <i class="ri-arrow-right-s-line" :class="data['root1'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-              </div>
+      <!-- Selected Item Detail Tags - Hiển thị các thẻ chi tiết khi chọn item từ sidebar -->
+      <template x-if="selectedItemKey">
+        <div class="tw-bg-gradient-to-r tw-from-[#F0F9F5] tw-to-white tw-p-4 tw-rounded-lg tw-border tw-border-[#D9F2E2]">
+          <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
+            <h3 class="tw-font-semibold tw-text-gray-800">Chi tiết - <span x-text="getLevelLabel(selectedItemKey)" class="tw-text-[#1AA24C]"></span></h3>
+            <button @click="selectedItemKey = null" class="tw-text-gray-400 hover:tw-text-gray-600">
+              <i class="ri-close-line tw-text-xl"></i>
+            </button>
           </div>
-      </button>
+          
+          <!-- Grid của detail tags -->
+          <div class="tw-flex tw-flex-wrap tw-gap-2">
+            <template x-for="tag in detailTags[selectedItemKey] || []" :key="tag.id">
+              <button @click="expandedItem = expandedItem === tag.id ? null : tag.id"
+                :class="expandedItem === tag.id ? 'tw-bg-[#1AA24C] tw-text-white tw-ring-2 tw-ring-[#45C974]' : 'tw-bg-white tw-text-gray-700 tw-border tw-border-[#1AA24C] hover:tw-bg-[#F0F9F5]'"
+                class="tw-px-3 tw-py-2 tw-rounded-lg tw-transition tw-duration-200 tw-text-sm tw-font-medium tw-flex tw-items-center tw-gap-2 tw-cursor-pointer">
+                <span x-text="tag.icon"></span>
+                <span x-text="tag.label"></span>
+              </button>
+            </template>
+          </div>
 
-      <!-- Root2 Agent Output -->
-      <button @click="openInfo(getLevelLabel('root2'), 'root2')"
-          :disabled="!data['root2']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
-          :class="data['root2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Phân tích Thổ Nhưỡng</span>
-              <div class="tw-flex tw-items-center tw-gap-2">
-                  <template x-if="loadingAgents['root2']">
-                      <span class="tw-animate-spin tw-text-[#1AA24C]">
-                          <i class="ri-loader-4-line"></i>
-                      </span>
-                  </template>
-                  <i class="ri-arrow-right-s-line" :class="data['root2'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-              </div>
-          </div>
-      </button>
+          <!-- Expanded tag detail -->
+          <template x-if="expandedItem">
+            <div x-transition class="tw-mt-3 tw-p-3 tw-bg-white tw-rounded-lg tw-border tw-border-[#E8F3EE]">
+              <p class="tw-text-xs tw-text-gray-600">
+                <span x-show="expandedItem === 'r1-core'">Những giá trị cốt lõi mà thương hiệu của bạn đại diện, là nền tảng của mọi quyết định chiến lược.</span>
+                <span x-show="expandedItem === 'r1-mission'">Sứ mệnh của công ty - mục đích cơ bản của sự tồn tại và hoạt động.</span>
+                <span x-show="expandedItem === 'r1-vision'">Tầm nhìn tương lai - nơi bạn muốn công ty đạt được trong 5-10 năm.</span>
+                <span x-show="expandedItem === 'r1-values'">Các giá trị dịch vụ liên quan đến cách bạn phục vụ khách hàng.</span>
+                
+                <span x-show="expandedItem === 'r2-customer'">Xác định rõ ràng ai là khách hàng lý tưởng của bạn.</span>
+                <span x-show="expandedItem === 'r2-needs'">Phân tích nhu cầu chính của thị trường mà bạn nhắm tới.</span>
+                <span x-show="expandedItem === 'r2-trend'">Các xu hướng hiện tại ảnh hưởng đến ngành và thị trường của bạn.</span>
+                <span x-show="expandedItem === 'r2-insight'">Những hiểu biết sâu sắc về hành vi và tâm lý của khách hàng.</span>
 
-      <!-- Root3 Agent Output -->
-      <button @click="openInfo(getLevelLabel('root3'), 'root3')"
-          :disabled="!data['root3']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
-          :class="data['root3'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root3'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Định vị Giá Trị Giải Pháp</span>
-              <div class="tw-flex tw-items-center tw-gap-2">
-                  <template x-if="loadingAgents['root3']">
-                      <span class="tw-animate-spin tw-text-[#1AA24C]">
-                          <i class="ri-loader-4-line"></i>
-                      </span>
-                  </template>
-                  <i class="ri-arrow-right-s-line" :class="data['root3'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-              </div>
-          </div>
-      </button>
+                <span x-show="expandedItem === 'r3-solution'">Giải pháp cụ thể mà bạn đề xuất để giải quyết nhu cầu của thị trường.</span>
+                <span x-show="expandedItem === 'r3-benefits'">Những lợi ích nổi bật và tập trung nhất mà khách hàng sẽ nhận được.</span>
+                <span x-show="expandedItem === 'r3-positioning'">Cách bạn định vị giải pháp của mình so với các đối thủ cạnh tranh.</span>
+                <span x-show="expandedItem === 'r3-value-prop'">Đề xuất giá trị duy nhất - tại sao khách hàng nên chọn bạn.</span>
 
-      <!-- Trunk1 Agent Output -->
-      <button @click="openInfo(getLevelLabel('trunk1'), 'trunk1')"
-          :disabled="!data['trunk1']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
-          :class="data['trunk1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['trunk1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Định vị Thương Hiệu</span>
-              <div class="tw-flex tw-items-center tw-gap-2">
-                  <template x-if="loadingAgents['trunk1']">
-                      <span class="tw-animate-spin tw-text-[#1AA24C]">
-                          <i class="ri-loader-4-line"></i>
-                      </span>
-                  </template>
-                  <i class="ri-arrow-right-s-line" :class="data['trunk1'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-              </div>
-          </div>
-      </button>
+                <span x-show="expandedItem === 't1-identity'">Nhận diện thương hiệu - tất cả những yếu tố trực quan và khái niệm định nghĩa thương hiệu.</span>
+                <span x-show="expandedItem === 't1-difference'">Những điểm khác biệt chính tạo nên sự độc đáo của thương hiệu bạn.</span>
+                <span x-show="expandedItem === 't1-promise'">Lời hứa thương hiệu - cam kết cơ bản mà bạn đưa ra cho khách hàng.</span>
+                <span x-show="expandedItem === 't1-personality'">Tính cách thương hiệu - nếu thương hiệu là một người, thì sẽ như thế nào.</span>
 
-      <!-- Trunk2 Agent Output -->
-      <button @click="openInfo(getLevelLabel('trunk2'), 'trunk2')"
-          :disabled="!data['trunk2']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
-          :class="data['trunk2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['trunk2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Kết quả Nhận diện Ngôn ngữ</span>
-              <div class="tw-flex tw-items-center tw-gap-2">
-                  <template x-if="loadingAgents['trunk2']">
-                      <span class="tw-animate-spin tw-text-[#1AA24C]">
-                          <i class="ri-loader-4-line"></i>
-                      </span>
-                  </template>
-                  <i class="ri-arrow-right-s-line" :class="data['trunk2'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
+                <span x-show="expandedItem === 't2-tone'">Giọng điệu nói chuyện - cách bạn giao tiếp với khách hàng qua tất cả các kênh.</span>
+                <span x-show="expandedItem === 't2-message'">Thông điệp chính - những câu nói quan trọng nhất cần được nhắc lại liên tục.</span>
+                <span x-show="expandedItem === 't2-language'">Ngôn ngữ sử dụng - từ vựng, cụm từ và cách phát biểu đặc trưng.</span>
+                <span x-show="expandedItem === 't2-story'">Câu chuyện thương hiệu - cách kể lại hành trình và giá trị của bạn.</span>
+              </p>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <!-- Root1 Items Grid -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden">
+          <button @click="expandedSections['root1'] = !expandedSections['root1']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Thiết kế Văn Hóa Dịch Vụ</span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['root1'] }"></i>
+          </button>
+          <template x-if="expandedSections['root1']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-3">
+                  <div class="tw-grid tw-grid-cols-2 tw-gap-2">
+                      <template x-for="(value, key) in dataItems.root1" :key="key">
+                          <button @click="openItemModal(key, 'root1')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + '...'"></div>
+                          </button>
+                      </template>
+                  </div>
               </div>
-          </div>
-      </button>
+          </template>
+      </div>
+
+      <!-- Root2 Items Grid -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+          <button @click="expandedSections['root2'] = !expandedSections['root2']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Phân tích Thổ Nhưỡng</span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['root2'] }"></i>
+          </button>
+          <template x-if="expandedSections['root2']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-3">
+                  <div class="tw-grid tw-grid-cols-2 tw-gap-2">
+                      <template x-for="(value, key) in dataItems.root2" :key="key">
+                          <button @click="openItemModal(key, 'root2')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + '...'"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Root3 Items Grid -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+          <button @click="expandedSections['root3'] = !expandedSections['root3']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Định vị Giá Trị Giải Pháp</span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['root3'] }"></i>
+          </button>
+          <template x-if="expandedSections['root3']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-3">
+                  <div class="tw-grid tw-grid-cols-2 tw-gap-2">
+                      <template x-for="(value, key) in dataItems.root3" :key="key">
+                          <button @click="openItemModal(key, 'root3')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + '...'"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Trunk1 Items Grid -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+          <button @click="expandedSections['trunk1'] = !expandedSections['trunk1']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Định vị Thương Hiệu</span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['trunk1'] }"></i>
+          </button>
+          <template x-if="expandedSections['trunk1']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-3">
+                  <div class="tw-grid tw-grid-cols-2 tw-gap-2">
+                      <template x-for="(value, key) in dataItems.trunk1" :key="key">
+                          <button @click="openItemModal(key, 'trunk1')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + '...'"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Trunk2 Items Grid -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+          <button @click="expandedSections['trunk2'] = !expandedSections['trunk2']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Nhận diện Ngôn ngữ</span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['trunk2'] }"></i>
+          </button>
+          <template x-if="expandedSections['trunk2']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-3">
+                  <div class="tw-grid tw-grid-cols-2 tw-gap-2">
+                      <template x-for="(value, key) in dataItems.trunk2" :key="key">
+                          <button @click="openItemModal(key, 'trunk2')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + '...'"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
 
       <!-- Modal -->
       <div x-show="openModal" style="display: none;"
@@ -453,7 +649,7 @@
                   <!-- Textarea with loading overlay -->
                   <div class="tw-relative tw-flex-1 tw-flex tw-flex-col">
                       <textarea
-                          :disabled="showingBrief && !isBriefReady(currentKey)"
+                          :disabled="currentItemKey || (showingBrief && !isBriefReady(currentKey))"
                           class="tw-w-full tw-flex-1 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none disabled:tw-bg-gray-100 disabled:tw-opacity-60 disabled:tw-cursor-not-allowed tw-transition"
                           x-model="modalContent" spellcheck="false" placeholder="Chưa có thông tin..."></textarea>
                       
@@ -470,11 +666,14 @@
 
                   <!-- Footer Action -->
                   <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
-                      <button @click="saveInfo()" :disabled="isSaving || (showingBrief && !isBriefReady(currentKey))"
-                          class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
-                          <span x-show="isSaving" class="tw-animate-spin"><i class="ri-loader-4-line"></i></span>
-                          <span>Lưu</span>
-                      </button>
+                      <!-- Save Button - Hidden when viewing individual items -->
+                      <template x-if="!currentItemKey">
+                          <button @click="saveInfo()" :disabled="isSaving || (showingBrief && !isBriefReady(currentKey))"
+                              class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
+                              <span x-show="isSaving" class="tw-animate-spin"><i class="ri-loader-4-line"></i></span>
+                              <span>Lưu</span>
+                          </button>
+                      </template>
 
                       <!-- Status Message -->
                       <span x-show="saveStatus" x-text="saveStatus" class="tw-text-sm tw-font-medium"
