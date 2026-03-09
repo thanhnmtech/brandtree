@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Brand;
-use App\Models\AgentSystem;
 use App\Jobs\SummarizeBrandDataJob;
-use App\Services\BrandContentParser;
-use Illuminate\Support\Facades\Log;
+use App\Models\Brand;
+use Illuminate\Http\Request;
+use App\Services\BriefContentParser;
 
 class BrandDataController extends Controller
 {
@@ -36,7 +34,7 @@ class BrandDataController extends Controller
         } else {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid agentType'
+                'message' => 'Invalid agentType',
             ], 400);
         }
 
@@ -64,25 +62,19 @@ class BrandDataController extends Controller
 
         // Save back
         $brand->$targetColumn = $currentData;
-
-        // 5. Parse content into structured items
-        $parsedItems = BrandContentParser::parseContent($agentType, $refinedContent);
-        $itemsColumn = "{$agentType}_data_items";
-        $brand->$itemsColumn = $parsedItems;
-
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (!empty($refinedContent)) {
+        if (! empty($refinedContent)) {
             SummarizeBrandDataJob::dispatch($brand->id, $agentType, $refinedContent);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Đã lưu thành công vào thương hiệu.',
-            'data_items' => $parsedItems
         ]);
     }
+
     /**
      * Update specific section content directly (No AI Refinement)
      */
@@ -114,32 +106,26 @@ class BrandDataController extends Controller
 
         // Lưu nội dung phân tích
         $brand->$targetColumn = $currentData;
-        
-        // Parse content into structured items
-        $parsedItems = BrandContentParser::parseContent($key, $content);
-        $itemsColumn = "{$key}_data_items";
-        $brand->$itemsColumn = $parsedItems;
-
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (!empty($content)) {
+        if (! empty($content)) {
             SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
         }
 
         // Tính toán lại trạng thái phases để cập nhật giao diện
         $phases = $brand->calculatePhaseStatuses();
-        
+
         // Render HTML cho phần Next Step
         $nextStepHtml = view('brands.partials.next-step', [
             'brand' => $brand,
-            'phases' => $phases
+            'phases' => $phases,
         ])->render();
 
         // Render HTML cho phần Progress Header (các card tiến trình)
         $progressHeaderHtml = view('brands.partials.progress-header', [
             'brand' => $brand,
-            'phases' => $phases
+            'phases' => $phases,
         ])->render();
 
         return response()->json([
@@ -147,7 +133,6 @@ class BrandDataController extends Controller
             'message' => 'Đã lưu thành công.',
             'next_step_html' => $nextStepHtml,
             'progress_header_html' => $progressHeaderHtml,
-            'data_items' => $parsedItems
         ]);
     }
 
@@ -157,7 +142,7 @@ class BrandDataController extends Controller
     public function getBriefStatus(Request $request, Brand $brand)
     {
         $key = $request->query('key');
-        if (!$key) {
+        if (! $key) {
             return response()->json(['ready' => false]);
         }
 
@@ -169,7 +154,7 @@ class BrandDataController extends Controller
         $content = $briefData[$key] ?? null;
 
         return response()->json([
-            'ready' => !empty($content),
+            'ready' => ! empty($content),
             'content' => $content,
         ]);
     }

@@ -80,6 +80,7 @@ class BrandContentParser
                 $extracted = trim($matches[1]);
                 // Xóa các ký tự dư thừa
                 $extracted = trim($extracted, "\n\t ");
+
                 return $extracted;
             }
         }

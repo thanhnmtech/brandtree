@@ -3,6 +3,7 @@
         agentType: @entangle('agentType'),
         agentId: @entangle('agentId'),
         brandId: @entangle('brandId'),
+        brandData: @entangle('brandData'),
         messages: @entangle('messages'),
         chatModel: '{{ $chatModel }}',
         isModelLocked: {{ $isModelLocked ? 'true' : 'false' }}
@@ -426,6 +427,13 @@
             },
 
             navigateToNextStep() {
+                // Check if current agent type has data before navigating
+                if (!this.agentType || !this.brandData[this.agentType]) {
+                    alert('❌ Vui lòng hoàn thành bước hiện tại trước khi qua bước tiếp theo!');
+                    console.log('Navigation blocked - current step', this.agentType, 'has no data');
+                    return;
+                }
+
                 const pathParts = window.location.pathname.split('/');
                 const brandSlug = pathParts[2];
                 let nextUrl = '';

@@ -64,6 +64,12 @@
         'root3': false,
         'trunk1': false,
         'trunk2': false,
+        // Brief items sections
+        'root1_brief': false,
+        'root2_brief': false,
+        'root3_brief': false,
+        'trunk1_brief': false,
+        'trunk2_brief': false,
     },
     pollingTimers: {},
     loadingAgents: {},
@@ -130,10 +136,15 @@
 
         // Lắng nghe khi item được chọn từ sidebar
         window.addEventListener('sidebarItemSelected', (e) => {
+            const agentType = e.detail?.agentType;
             const itemKey = e.detail?.itemKey;
-            if (itemKey) {
-                this.selectedItemKey = itemKey;
-                this.expandedItem = itemKey;
+            if (agentType && itemKey) {
+                // Expand brief section tương ứng ở result-bar
+                const briefSectionKey = `${agentType}_brief`;
+                this.expandedSections[briefSectionKey] = true;
+                
+                // Log selection cho debug
+                console.log('Sidebar item selected:', agentType, itemKey);
             }
         });
     },
@@ -319,6 +330,27 @@
         this.openModal = true;
     },
 
+    // ✅ Mở modal để xem chi tiết brief item
+    openBriefItemModal(itemKey, agentType) {
+        this.currentKey = agentType;
+        this.currentItemKey = itemKey;
+        this.isFromResultBar = false;
+        this.showingBrief = false;
+        this.saveStatus = '';
+        
+        // Load brief item content
+        if (this.briefItems[agentType] && this.briefItems[agentType][itemKey]) {
+            this.modalContent = this.briefItems[agentType][itemKey] || '';
+        } else {
+            this.modalContent = '';
+        }
+        
+        // Format title: convert key to readable format (e.g., 'market_overview' -> 'MARKET_OVERVIEW')
+        const readableKey = itemKey.replace(/_/g, ' ').toUpperCase();
+        this.modalTitle = `${readableKey} - ${this.getLevelLabel(agentType)}`;
+        this.openModal = true;
+    },
+
     getChatUrl() {
         let agentType = this.currentKey; 
         let agentId = 1;
@@ -480,7 +512,7 @@
       </template>
 
       <!-- Root1 Items Grid -->
-      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden">
+      {{-- <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden">
           <button @click="expandedSections['root1'] = !expandedSections['root1']"
               class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
               <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Thiết kế Văn Hóa Dịch Vụ</span>
@@ -501,10 +533,10 @@
                   </div>
               </div>
           </template>
-      </div>
+      </div> --}}
 
       <!-- Root2 Items Grid -->
-      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+      {{-- <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
           <button @click="expandedSections['root2'] = !expandedSections['root2']"
               class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
               <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Phân tích Thổ Nhưỡng</span>
@@ -525,10 +557,10 @@
                   </div>
               </div>
           </template>
-      </div>
+      </div> --}}
 
       <!-- Root3 Items Grid -->
-      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+      {{-- <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
           <button @click="expandedSections['root3'] = !expandedSections['root3']"
               class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
               <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Định vị Giá Trị Giải Pháp</span>
@@ -549,10 +581,10 @@
                   </div>
               </div>
           </template>
-      </div>
+      </div> --}}
 
       <!-- Trunk1 Items Grid -->
-      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+      {{-- <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
           <button @click="expandedSections['trunk1'] = !expandedSections['trunk1']"
               class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
               <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Định vị Thương Hiệu</span>
@@ -573,10 +605,10 @@
                   </div>
               </div>
           </template>
-      </div>
+      </div> --}}
 
       <!-- Trunk2 Items Grid -->
-      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
+      {{-- <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2">
           <button @click="expandedSections['trunk2'] = !expandedSections['trunk2']"
               class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
               <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Nhận diện Ngôn ngữ</span>
@@ -592,6 +624,127 @@
                               class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
                               <div class="tw-font-medium tw-text-gray-700" x-text="key"></div>
                               <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + '...'"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div> --}}
+
+      <!-- BRIEF ITEMS SECTIONS -->
+      <!-- Root1 Brief Items -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-4 tw-bg-blue-50">
+          <button @click="expandedSections['root1_brief'] = !expandedSections['root1_brief']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Thiết kế Văn Hóa Dịch Vụ <span class="tw-text-xs tw-font-normal">(Tóm tắt)</span></span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['root1_brief'] }"></i>
+          </button>
+          <template x-if="expandedSections['root1_brief']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-2">
+                  <div class="tw-grid tw-grid-cols-2 gap-2">
+                      <template x-for="(value, key) in briefItems.root1" :key="key">
+                          <button @click="openBriefItemModal(key, 'root1')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-blue-50 hover:tw-border-blue-400 tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key.replace(/_/g, ' ').toUpperCase()"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + (value && value.length > 60 ? '...' : '')"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Root2 Brief Items -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2 tw-bg-blue-50">
+          <button @click="expandedSections['root2_brief'] = !expandedSections['root2_brief']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Phân tích Thổ Nhưỡng <span class="tw-text-xs tw-font-normal">(Tóm tắt)</span></span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['root2_brief'] }"></i>
+          </button>
+          <template x-if="expandedSections['root2_brief']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-2">
+                  <div class="tw-grid tw-grid-cols-2 gap-2">
+                      <template x-for="(value, key) in briefItems.root2" :key="key">
+                          <button @click="openBriefItemModal(key, 'root2')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-blue-50 hover:tw-border-blue-400 tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key.replace(/_/g, ' ').toUpperCase()"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + (value && value.length > 60 ? '...' : '')"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Root3 Brief Items -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2 tw-bg-blue-50">
+          <button @click="expandedSections['root3_brief'] = !expandedSections['root3_brief']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Định vị Giá Trị Giải Pháp <span class="tw-text-xs tw-font-normal">(Tóm tắt)</span></span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['root3_brief'] }"></i>
+          </button>
+          <template x-if="expandedSections['root3_brief']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-2">
+                  <div class="tw-grid tw-grid-cols-2 gap-2">
+                      <template x-for="(value, key) in briefItems.root3" :key="key">
+                          <button @click="openBriefItemModal(key, 'root3')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-blue-50 hover:tw-border-blue-400 tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key.replace(/_/g, ' ').toUpperCase()"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + (value && value.length > 60 ? '...' : '')"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Trunk1 Brief Items -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2 tw-bg-blue-50">
+          <button @click="expandedSections['trunk1_brief'] = !expandedSections['trunk1_brief']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Định vị Thương Hiệu <span class="tw-text-xs tw-font-normal">(Tóm tắt)</span></span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['trunk1_brief'] }"></i>
+          </button>
+          <template x-if="expandedSections['trunk1_brief']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-2">
+                  <div class="tw-grid tw-grid-cols-2 gap-2">
+                      <template x-for="(value, key) in briefItems.trunk1" :key="key">
+                          <button @click="openBriefItemModal(key, 'trunk1')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-blue-50 hover:tw-border-blue-400 tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key.replace(/_/g, ' ').toUpperCase()"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + (value && value.length > 60 ? '...' : '')"></div>
+                          </button>
+                      </template>
+                  </div>
+              </div>
+          </template>
+      </div>
+
+      <!-- Trunk2 Brief Items -->
+      <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-overflow-hidden tw-mt-2 tw-bg-blue-50">
+          <button @click="expandedSections['trunk2_brief'] = !expandedSections['trunk2_brief']"
+              class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] hover:tw-bg-[#E6F6EC] tw-border-b tw-border-gray-200 tw-transition tw-flex tw-items-center tw-justify-between tw-group">
+              <span class="tw-font-medium tw-text-gray-700 group-hover:tw-text-[#1AA24C]">Nhận diện Ngôn ngữ <span class="tw-text-xs tw-font-normal">(Tóm tắt)</span></span>
+              <i class="ri-arrow-down-s-line tw-transition" :class="{ 'tw-rotate-180': expandedSections['trunk2_brief'] }"></i>
+          </button>
+          <template x-if="expandedSections['trunk2_brief']">
+              <div class="tw-p-4 tw-bg-white tw-space-y-2">
+                  <div class="tw-grid tw-grid-cols-2 gap-2">
+                      <template x-for="(value, key) in briefItems.trunk2" :key="key">
+                          <button @click="openBriefItemModal(key, 'trunk2')"
+                              :disabled="!value"
+                              :class="value ? 'hover:tw-bg-blue-50 hover:tw-border-blue-400 tw-cursor-pointer' : 'tw-bg-gray-100 tw-opacity-50 tw-cursor-not-allowed'"
+                              class="tw-text-left tw-px-3 tw-py-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-transition tw-text-sm">
+                              <div class="tw-font-medium tw-text-gray-700" x-text="key.replace(/_/g, ' ').toUpperCase()"></div>
+                              <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2" x-text="(value || '').substring(0, 60) + (value && value.length > 60 ? '...' : '')"></div>
                           </button>
                       </template>
                   </div>

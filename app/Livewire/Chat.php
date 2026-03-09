@@ -15,6 +15,7 @@ class Chat extends Component
     public $agentId;
     public $convId;
     public $brandId;
+    public $brandData = []; // Track which agents have data
     public $messages = [];
     public $newMessage = '';
 

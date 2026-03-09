@@ -83,19 +83,21 @@
             @endif
           </div>
 
-          {{-- Sub-items (buttons nhỏ) --}}
+          {{-- Sub-items: Danh sách items khi expand --}}
           @if($hasData)
             <div x-show="expandedItems['{{ $key }}']" x-transition class="tw-flex tw-flex-wrap tw-gap-1 tw-ml-2">
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Nội dung đầy đủ', '{{ $key }}', false)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                📄 Nội dung đầy đủ
-              </button>
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Tóm tắt', '{{ $key }}', true)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                ✨ Tóm tắt
-              </button>
+              @php
+                // Get keywords cho agent type này từ $agentKeywords
+                $itemKeys = array_keys($agentKeywords[$key] ?? []);
+              @endphp
+              
+              @foreach($itemKeys as $itemKey)
+                <button type="button"
+                  @click="selectItemFromSidebar('{{ $key }}', '{{ $itemKey }}')"
+                  class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
+                  {{ str_replace(['_', ' '], ' ', $itemKey) }}
+                </button>
+              @endforeach
             </div>
           @endif
         </li>
@@ -125,19 +127,21 @@
             @endif
           </div>
 
-          {{-- Sub-items (buttons nhỏ) --}}
+          {{-- Sub-items: Danh sách items khi expand --}}
           @if($hasData)
             <div x-show="expandedItems['{{ $key }}']" x-transition class="tw-flex tw-flex-wrap tw-gap-1 tw-ml-2">
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Nội dung đầy đủ', '{{ $key }}', false)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                📄 Nội dung đầy đủ
-              </button>
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Tóm tắt', '{{ $key }}', true)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                ✨ Tóm tắt
-              </button>
+              @php
+                // Get keywords cho agent type này từ $agentKeywords
+                $itemKeys = array_keys($agentKeywords[$key] ?? []);
+              @endphp
+              
+              @foreach($itemKeys as $itemKey)
+                <button type="button"
+                  @click="selectItemFromSidebar('{{ $key }}', '{{ $itemKey }}')"
+                  class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
+                  {{ str_replace(['_', ' '], ' ', $itemKey) }}
+                </button>
+              @endforeach
             </div>
           @endif
         </li>
@@ -593,7 +597,13 @@
   // Sidebar Data Manager - Quản lý modal popup cho dataPlatformMenu
   function sidebarDataManager(config) {
     return {
-      expandedItems: {},
+      expandedItems: {
+        'root1': false,
+        'root2': false,
+        'root3': false,
+        'trunk1': false,
+        'trunk2': false
+      },
       showModal: false,
       modalTitle: '',
       modalContent: '',
@@ -613,6 +623,21 @@
 
       toggleExpand(key) {
         this.expandedItems[key] = !this.expandedItems[key];
+      },
+
+      selectItemFromSidebar(agentType, itemKey) {
+        // Collapse expand section first
+        this.expandedItems[agentType] = false;
+        this.$nextTick(() => {
+          // Dispatch event để result-bar lắng nghe và expand brief section tương ứng
+          window.dispatchEvent(new CustomEvent('sidebarItemSelected', {
+            detail: {
+              agentType: agentType,
+              itemKey: itemKey
+            }
+          }));
+          console.log('Dispatched sidebarItemSelected:', agentType, itemKey);
+        });
       },
 
       openModal(title, key, isBrief = false) {

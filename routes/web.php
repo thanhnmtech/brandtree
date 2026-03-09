@@ -61,7 +61,10 @@ Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', functi
     //Lấy menu items cho agent type hiện tại
     $dataPlatformMenuItems = config("data_platform_menus.{$agentType}", []);
 
-    return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId', 'dataPlatformMenuItems'));
+    // Get keywords từ BrandContentParser cho sidebar
+    $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
+
+    return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId', 'dataPlatformMenuItems', 'agentKeywords'));
 })->middleware(['auth', 'brand.access'])->name('chat');
 
 Route::post('/brands/{brand:slug}/chat/save-data', [\App\Http\Controllers\BrandDataController::class, 'store'])

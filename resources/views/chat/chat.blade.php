@@ -21,7 +21,7 @@
         id="chat-area"
         class="tw-flex-1 md:tw-flex-1 tw-bg-white tw-border tw-border-gray-200 tw-flex tw-flex-col tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300"
       >
-         <livewire:chat :agentType="$agentType" :agentId="$agentId" :convId="$convId" :brandId="$brand->id" />
+         <livewire:chat :agentType="$agentType" :agentId="$agentId" :convId="$convId" :brandId="$brand->id" :brandData="['root1' => !empty($brand->root_data['root1']), 'root2' => !empty($brand->root_data['root2']), 'root3' => !empty($brand->root_data['root3']), 'trunk1' => !empty($brand->trunk_data['trunk1']), 'trunk2' => !empty($brand->trunk_data['trunk2'])]" />
       </div>
 
       <!-- RESULT PANEL -->
