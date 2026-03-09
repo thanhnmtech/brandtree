@@ -106,6 +106,15 @@ class BrandDataController extends Controller
 
         // Lưu nội dung phân tích
         $brand->$targetColumn = $currentData;
+
+        // Re-parse content thành keyword items
+        $parsedItems = [];
+        if (! empty($content)) {
+            $parsedItems = \App\Services\BrandContentParser::parseContent($key, $content);
+            $itemsColumn = "{$key}_data_items";
+            $brand->$itemsColumn = $parsedItems;
+        }
+
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
@@ -131,6 +140,7 @@ class BrandDataController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Đã lưu thành công.',
+            'data_items' => $parsedItems,
             'next_step_html' => $nextStepHtml,
             'progress_header_html' => $progressHeaderHtml,
         ]);

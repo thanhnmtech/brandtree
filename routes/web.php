@@ -41,62 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/brands/{brand}/agents/{agent}/files', [App\Http\Controllers\FileUploadController::class, 'uploadForAgent'])->name('api.agents.files.upload');
 });
 
-// Chat Route (Standalone, No Localization Prefix)
-Route::get('/brands/{brand:slug}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
 
-    // Đảm bảo dữ liệu items được parse (fallback cho những brand cũ)
-    $brand->ensureParsedDataItems();
-
-    // Override agentId for System Agents
-    $systemTypes = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
-    if ($agentType && in_array($agentType, $systemTypes)) {
-        $systemAgent = \App\Models\AgentSystem::where('agent_type', $agentType)
-            ->latest()
-            ->first();
-        if ($systemAgent) {
-            $agentId = $systemAgent->id;
-        }
-    }
-    
-    //Lấy menu items cho agent type hiện tại
-    $dataPlatformMenuItems = config("data_platform_menus.{$agentType}", []);
-
-    // Get keywords từ BrandContentParser cho sidebar
-    $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
-
-    return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId', 'dataPlatformMenuItems', 'agentKeywords'));
-})->middleware(['auth', 'brand.access'])->name('chat');
-
-Route::post('/brands/{brand:slug}/chat/save-data', [\App\Http\Controllers\BrandDataController::class, 'store'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.chat.save');
-
-Route::post('/brands/{brand:slug}/update-section', [\App\Http\Controllers\BrandDataController::class, 'updateSection'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.update_section');
-
-Route::get('/brands/{brand:slug}/brief-status', [\App\Http\Controllers\BrandDataController::class, 'getBriefStatus'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.brief_status');
-
-Route::post('/brands/{brand:slug}/agents', [\App\Http\Controllers\BrandAgentController::class, 'store'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.agents.store');
-
-Route::post('/brands/{brand:slug}/agents/from-template', [\App\Http\Controllers\BrandAgentController::class, 'storeFromTemplate'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.agents.store-from-template');
-
-Route::delete('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'destroy'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.agents.destroy');
-
-Route::put('/brands/{brand:slug}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'update'])
-    ->middleware(['auth', 'brand.access'])
-    ->name('brands.agents.update');
-
-Route::post('/brands/{brand:slug}/update-section', [\App\Http\Controllers\BrandDataController::class, 'updateSection'])->name('brands.update-section');
-Route::get('/brands/{brand:slug}/brief-status', [\App\Http\Controllers\BrandDataController::class, 'getBriefStatus'])->name('brands.brief-status');
 
 // TEMPORARY: Run migrations via link (For agent_type column)
 Route::get('/run-pending-migrations', function () {
@@ -114,13 +59,7 @@ Route::get('/debug/rag-logs', function () {
 });
 
 Route::get('/debug/chat-ai-logs', [App\Http\Controllers\LogViewerController::class, 'index'])->middleware('auth');
-
-
-
-
-
-
-
+\Illuminate\Support\Facades\Log::info("Registering localized routes. Request URI: " . request()->getRequestUri() . ", Prefix: " . LaravelLocalization::setLocale());
 Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -143,6 +82,61 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
 
         // Brand resource routes (index, create, store don't need brand.access)
         Route::resource('brands', BrandController::class)->only(['store']);
+
+        // Chat Route (Localization Prefix)
+        Route::get('/brands/{brand}/chat/{agentType?}/{agentId?}/{convId?}', function (App\Models\Brand $brand, $agentType = null, $agentId = null, $convId = null) {
+
+            // Đảm bảo dữ liệu items được parse (fallback cho những brand cũ)
+            $brand->ensureParsedDataItems();
+
+            // Override agentId for System Agents
+            $systemTypes = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+            if ($agentType && in_array($agentType, $systemTypes)) {
+                $systemAgent = \App\Models\AgentSystem::where('agent_type', $agentType)
+                    ->latest()
+                    ->first();
+                if ($systemAgent) {
+                    $agentId = $systemAgent->id;
+                }
+            }
+
+            //Lấy menu items cho agent type hiện tại
+            $dataPlatformMenuItems = config("data_platform_menus.{$agentType}", []);
+
+            // Get keywords từ BrandContentParser cho sidebar
+            // $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
+            $agentKeywords = (new \App\Services\BrandContentParser())::$AGENT_KEYWORDS;
+
+            return view('chat.chat', compact('brand', 'agentType', 'agentId', 'convId', 'dataPlatformMenuItems', 'agentKeywords'));
+        })->middleware(['brand.access'])->name('chat');
+
+        Route::post('/brands/{brand}/chat/save-data', [\App\Http\Controllers\BrandDataController::class, 'store'])
+            ->middleware(['brand.access'])
+            ->name('brands.chat.save');
+
+        Route::post('/brands/{brand}/update-section', [\App\Http\Controllers\BrandDataController::class, 'updateSection'])
+            ->middleware(['brand.access'])
+            ->name('brands.update_section');
+
+        Route::get('/brands/{brand}/brief-status', [\App\Http\Controllers\BrandDataController::class, 'getBriefStatus'])
+            ->middleware(['brand.access'])
+            ->name('brands.brief_status');
+
+        Route::post('/brands/{brand}/agents', [\App\Http\Controllers\BrandAgentController::class, 'store'])
+            ->middleware(['brand.access'])
+            ->name('brands.agents.store');
+
+        Route::post('/brands/{brand}/agents/from-template', [\App\Http\Controllers\BrandAgentController::class, 'storeFromTemplate'])
+            ->middleware(['brand.access'])
+            ->name('brands.agents.store-from-template');
+
+        Route::delete('/brands/{brand}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'destroy'])
+            ->middleware(['brand.access'])
+            ->name('brands.agents.destroy');
+
+        Route::put('/brands/{brand}/agents/{agent}', [\App\Http\Controllers\BrandAgentController::class, 'update'])
+            ->middleware(['brand.access'])
+            ->name('brands.agents.update');
 
         // Routes that require brand access check
         Route::prefix('brands/{brand}')
