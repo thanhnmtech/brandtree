@@ -41,14 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/brands/{brand}/agents/{agent}/files', [App\Http\Controllers\FileUploadController::class, 'uploadForAgent'])->name('api.agents.files.upload');
 });
 
-
-
-// TEMPORARY: Run migrations via link (For agent_type column)
-Route::get('/run-pending-migrations', function () {
-    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    return "Migrations run successfully (Check DB): " . \Illuminate\Support\Facades\Artisan::output();
-});
-
 Route::get('/debug/rag-logs', function () {
     $path = storage_path('logs/rag_debug.log');
     if (!file_exists($path)) {
