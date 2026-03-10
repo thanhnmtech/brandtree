@@ -5,8 +5,8 @@ namespace App\Models;
 use App\Services\CreditService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -23,6 +23,10 @@ class Brand extends Model
         'description',
         'logo_path',
         'created_by',
+        'root_data',
+        'trunk_data',
+        'root_brief_data',
+        'trunk_brief_data',
     ];
 
     protected $casts = [
@@ -49,7 +53,7 @@ class Brand extends Model
 
         // Regenerate slug when name changes (optional)
         static::updating(function (Brand $brand) {
-            if ($brand->isDirty('name') && !$brand->isDirty('slug')) {
+            if ($brand->isDirty('name') && ! $brand->isDirty('slug')) {
                 $brand->slug = static::generateUniqueSlug($brand->name);
             }
         });
@@ -70,7 +74,7 @@ class Brand extends Model
         $counter = 1;
 
         while (static::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
@@ -171,7 +175,7 @@ class Brand extends Model
      */
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
+        return $this->logo_path ? asset('storage/'.$this->logo_path) : null;
     }
 
     // ============================================
@@ -226,7 +230,7 @@ class Brand extends Model
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return false;
         }
         $actionType = 'chat';
@@ -250,7 +254,7 @@ class Brand extends Model
     ): bool {
         $user = $user ?? auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -330,9 +334,46 @@ class Brand extends Model
         return $this->hasActiveSubscription();
     }
 
+    /**
+     * Tính tiến độ tổng hợp (root + trunk)
+     * Khi cả root và trunk hoàn thành hết → 100%
+     *
+     * @return int Phần trăm hoàn thành (0-100)
+     */
+    public function getOverallProgress(): int
+    {
+        // Lấy danh sách steps từ config
+        $rootSteps = array_keys(config('timeline_steps.root', []));
+        $trunkSteps = array_keys(config('timeline_steps.trunk', []));
+        $rootData = $this->root_data ?? [];
+        $trunkData = $this->trunk_data ?? [];
+
+        $totalSteps = count($rootSteps) + count($trunkSteps);
+        if ($totalSteps === 0) {
+            return 0;
+        }
+
+        // Đếm số steps đã hoàn thành (có dữ liệu)
+        $completedRoot = count(array_filter($rootSteps, fn ($k) => ! empty($rootData[$k])));
+        $completedTrunk = count(array_filter($trunkSteps, fn ($k) => ! empty($trunkData[$k])));
+
+        return (int) round(($completedRoot + $completedTrunk) / $totalSteps * 100);
+    }
+
     public function getProcessRoot()
     {
-        return rand(10, 100) . '%';
+        // Lấy danh sách steps root từ config
+        $rootSteps = array_keys(config('timeline_steps.root', []));
+        $rootData = $this->root_data ?? [];
+        $total = count($rootSteps);
+        if ($total === 0) {
+            return '0%';
+        }
+
+        // Đếm số steps đã hoàn thành (có dữ liệu)
+        $completed = count(array_filter($rootSteps, fn ($k) => ! empty($rootData[$k])));
+
+        return round(($completed / $total) * 100).'%';
     }
 
     // ============================================
@@ -341,19 +382,48 @@ class Brand extends Model
 
     public function getProcessTrunk()
     {
-        return rand(10, 100) . '%';
+        // Lấy danh sách steps trunk từ config
+        $trunkSteps = array_keys(config('timeline_steps.trunk', []));
+        $trunkData = $this->trunk_data ?? [];
+        $total = count($trunkSteps);
+        if ($total === 0) {
+            return '0%';
+        }
+
+        // Đếm số steps đã hoàn thành (có dữ liệu)
+        $completed = count(array_filter($trunkSteps, fn ($k) => ! empty($trunkData[$k])));
+
+        return round(($completed / $total) * 100).'%';
     }
 
     public function getNextProcess()
     {
-        return 'Cây cần hoàn thiện phân tích SWOT.';
+        $rootSteps = config('timeline_steps.root', []);
+        $trunkSteps = config('timeline_steps.trunk', []);
+        $rootData = $this->root_data ?? [];
+        $trunkData = $this->trunk_data ?? [];
+
+        // Tìm step root tiếp theo chưa hoàn thành
+        foreach ($rootSteps as $key => $step) {
+            if (empty($rootData[$key])) {
+                return 'Cây cần hoàn thành: '.$step['label'];
+            }
+        }
+
+        // Root đã xong, tìm step trunk tiếp theo chưa hoàn thành
+        foreach ($trunkSteps as $key => $step) {
+            if (empty($trunkData[$key])) {
+                return 'Cây cần hoàn thành: '.$step['label'];
+            }
+        }
+
+        // Tất cả các bước đã hoàn thành
+        return 'Tất cả các bước đã hoàn thành!';
     }
 
     /**
      * Tính toán trạng thái của 3 phase: Root, Trunk, Canopy
      * Lấy danh sách steps từ config/timeline_steps.php
-     * 
-     * @return array
      */
     public function calculatePhaseStatuses(): array
     {
@@ -368,8 +438,8 @@ class Brand extends Model
         $trunkTotal = count($trunkSteps);
 
         // Đếm số steps đã hoàn thành
-        $rootCompleted = count(array_filter($rootSteps, fn($k) => !empty($rootData[$k])));
-        $trunkCompleted = count(array_filter($trunkSteps, fn($k) => !empty($trunkData[$k])));
+        $rootCompleted = count(array_filter($rootSteps, fn ($k) => ! empty($rootData[$k])));
+        $trunkCompleted = count(array_filter($trunkSteps, fn ($k) => ! empty($trunkData[$k])));
 
         $isRootFinished = $rootTotal > 0 && $rootCompleted === $rootTotal;
         $isTrunkFinished = $trunkTotal > 0 && $trunkCompleted === $trunkTotal;
@@ -381,7 +451,7 @@ class Brand extends Model
                 'progress' => $rootTotal > 0 ? round(($rootCompleted / $rootTotal) * 100) : 0,
                 'url' => $isRootFinished ? route('brands.root.show', $this) : route('chat', [
                     'brand' => $this->slug,
-                    'agentType' => $this->getNextStep($rootData, $rootSteps)
+                    'agentType' => $this->getNextStep($rootData, $rootSteps),
                 ]),
             ],
             'trunk' => [
@@ -392,7 +462,7 @@ class Brand extends Model
                     : ($isRootFinished
                         ? route('chat', [
                             'brand' => $this->slug,
-                            'agentType' => $this->getNextStep($trunkData, $trunkSteps)
+                            'agentType' => $this->getNextStep($trunkData, $trunkSteps),
                         ])
                         : null),
             ],
@@ -408,10 +478,9 @@ class Brand extends Model
 
     /**
      * Lấy step tiếp theo cần hoàn thành
-     * 
-     * @param array $data Dữ liệu hiện tại (root_data hoặc trunk_data)
-     * @param array $steps Danh sách steps cần hoàn thành
-     * @return string
+     *
+     * @param  array  $data  Dữ liệu hiện tại (root_data hoặc trunk_data)
+     * @param  array  $steps  Danh sách steps cần hoàn thành
      */
     private function getNextStep(array $data, array $steps): string
     {
@@ -420,6 +489,7 @@ class Brand extends Model
                 return $step;
             }
         }
+
         return $steps[0]; // Fallback
     }
 }

@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Brand;
-use App\Models\AgentSystem;
 use App\Jobs\SummarizeBrandDataJob;
-use Illuminate\Support\Facades\Log;
+use App\Models\Brand;
+use Illuminate\Http\Request;
 
 class BrandDataController extends Controller
 {
@@ -35,7 +33,7 @@ class BrandDataController extends Controller
         } else {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid agentType'
+                'message' => 'Invalid agentType',
             ], 400);
         }
 
@@ -66,19 +64,20 @@ class BrandDataController extends Controller
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (!empty($refinedContent)) {
+        if (! empty($refinedContent)) {
             SummarizeBrandDataJob::dispatch($brand->id, $agentType, $refinedContent);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Đã lưu thành công vào thương hiệu.'
+            'message' => 'Đã lưu thành công vào thương hiệu.',
         ]);
     }
+
     /**
      * Update specific section content directly (No AI Refinement)
      */
-    public function updateSection(Request $request, Brand $brand)
+    public function updateSection_legacy(Request $request, Brand $brand)
     {
         $validated = $request->validate([
             'key' => 'required|string',
@@ -109,30 +108,100 @@ class BrandDataController extends Controller
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (!empty($content)) {
+        if (! empty($content)) {
             SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
         }
 
         // Tính toán lại trạng thái phases để cập nhật giao diện
         $phases = $brand->calculatePhaseStatuses();
-        
+
         // Render HTML cho phần Next Step
         $nextStepHtml = view('brands.partials.next-step', [
             'brand' => $brand,
-            'phases' => $phases
+            'phases' => $phases,
         ])->render();
 
         // Render HTML cho phần Progress Header (các card tiến trình)
         $progressHeaderHtml = view('brands.partials.progress-header', [
             'brand' => $brand,
-            'phases' => $phases
+            'phases' => $phases,
         ])->render();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Đã lưu thành công.',
             'next_step_html' => $nextStepHtml,
-            'progress_header_html' => $progressHeaderHtml
+            'progress_header_html' => $progressHeaderHtml,
+        ]);
+    }
+
+    public function updateSection(Request $request, Brand $brand)
+    {
+        $validated = $request->validate([
+            'key' => 'required|string',
+            'content' => 'nullable|string',
+            'type' => 'required|in:data,brief',
+        ]);
+
+        $key = $validated['key'];
+        $content = $validated['content'] ?? '';
+        $type = $validated['type'];
+
+        // Xác định prefix (root / trunk)
+        if (str_starts_with($key, 'root')) {
+            $prefix = 'root';
+        } elseif (str_starts_with($key, 'trunk')) {
+            $prefix = 'trunk';
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid key',
+            ], 400);
+        }
+
+        // Xác định column cần update
+        $targetColumn = $type === 'brief'
+            ? "{$prefix}_brief_data"
+            : "{$prefix}_data";
+
+        // Lấy dữ liệu hiện tại
+        $currentData = $brand->$targetColumn;
+
+        if (! is_array($currentData)) {
+            $currentData = [];
+        }
+
+        // Update section
+        $currentData[$key] = $content;
+
+        // Save
+        $brand->$targetColumn = $currentData;
+        $brand->save();
+
+        // Dispatch job nếu là data (không phải brief)
+        if ($type === 'data' && ! empty($content)) {
+            SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
+        }
+
+        // Update phase status
+        $phases = $brand->calculatePhaseStatuses();
+
+        // Render partials
+        $nextStepHtml = view('brands.partials.next-step', [
+            'brand' => $brand,
+            'phases' => $phases,
+        ])->render();
+
+        $progressHeaderHtml = view('brands.partials.progress-header', [
+            'brand' => $brand,
+            'phases' => $phases,
+        ])->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã lưu thành công.',
+            'next_step_html' => $nextStepHtml,
+            'progress_header_html' => $progressHeaderHtml,
         ]);
     }
 
@@ -142,7 +211,7 @@ class BrandDataController extends Controller
     public function getBriefStatus(Request $request, Brand $brand)
     {
         $key = $request->query('key');
-        if (!$key) {
+        if (! $key) {
             return response()->json(['ready' => false]);
         }
 
@@ -154,7 +223,7 @@ class BrandDataController extends Controller
         $content = $briefData[$key] ?? null;
 
         return response()->json([
-            'ready' => !empty($content),
+            'ready' => ! empty($content),
             'content' => $content,
         ]);
     }

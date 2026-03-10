@@ -1,10 +1,10 @@
 @php
     // Extract agentType from URL: /brands/{slug}/chat/{agentType}/{agentId}/{convId}
     $agentType = request()->segment(4) ?? 'root1';
-    
+
     // Get brand slug - ensure $brand is available
     $brandSlug = $brand->slug ?? request()->segment(2) ?? '';
-    
+
     $rootData = $brand->root_data ?? [];
     $trunkData = $brand->trunk_data ?? [];
 
@@ -30,6 +30,12 @@
     briefData: @js($brand->root_brief_data ?? []),
     briefDataTrunk: @js($brand->trunk_brief_data ?? []),
     pollingTimers: {},
+    loadingAgents: {},
+    showingBrief: false,
+    isFromResultBar: false,
+    showToast: false,
+    toastMessage: '',
+    toastTimeout: null,
 
     init() {
         // Lắng nghe event khi analysis được save từ chat page
@@ -55,6 +61,9 @@
 
     // Polling kiểm tra brief data đã sẵn sàng chưa
     startPollingBrief(agentType) {
+        // Mark as loading
+        this.loadingAgents[agentType] = true;
+        
         // Dừng polling cũ nếu có
         if (this.pollingTimers[agentType]) {
             clearInterval(this.pollingTimers[agentType]);
@@ -68,6 +77,7 @@
             if (attempts > maxAttempts) {
                 clearInterval(this.pollingTimers[agentType]);
                 delete this.pollingTimers[agentType];
+                this.loadingAgents[agentType] = false;
                 return;
             }
 
@@ -83,14 +93,59 @@
                     } else {
                         this.briefDataTrunk[agentType] = result.content;
                     }
+                    
                     // Dừng polling
                     clearInterval(this.pollingTimers[agentType]);
                     delete this.pollingTimers[agentType];
+                    this.loadingAgents[agentType] = false;
+                    
+                    // Auto-update modal content nếu nó đang open và showing brief
+                    if (this.openModal && this.currentKey === agentType && this.showingBrief && this.isFromResultBar) {
+                        if (rootTypes.includes(agentType)) {
+                            this.modalContent = this.briefData[agentType] || '';
+                        } else {
+                            this.modalContent = this.briefDataTrunk[agentType] || '';
+                        }
+                    }
+                    
+                    // Show toast notification
+                    this.showToastNotification(`✓ Đã hoàn tất tóm tắt ${this.getLevelLabel(agentType)}`);
                 }
             } catch (e) {
                 console.warn('Polling brief status error:', e);
             }
         }, 3000);
+    },
+
+    showToastNotification(message) {
+        this.toastMessage = message;
+        this.showToast = true;
+        
+        // Clear previous timeout if any
+        if (this.toastTimeout) {
+            clearTimeout(this.toastTimeout);
+        }
+        
+        // Auto-dismiss after 5 seconds
+        this.toastTimeout = setTimeout(() => {
+            this.showToast = false;
+            this.toastTimeout = null;
+        }, 5000);
+    },
+
+    closeToast() {
+        this.showToast = false;
+        if (this.toastTimeout) {
+            clearTimeout(this.toastTimeout);
+            this.toastTimeout = null;
+        }
+    },
+
+    // Tính tiến độ hoàn thành thương hiệu (root + trunk = 5 steps)
+    get brandProgress() {
+        const allKeys = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+        const completed = allKeys.filter(k => this.data[k] && this.data[k].length > 0).length;
+        return Math.round((completed / allKeys.length) * 100);
     },
 
     getAgentTypeFromUrl() {
@@ -110,13 +165,60 @@
         return labels[agentType] || 'Không xác định';
     },
 
-    openInfo(title, key) {
+    openInfo(title, key, isFromResultBar = true) {
         this.modalTitle = title;
         this.currentKey = key;
-        // Load content from central data state
-        this.modalContent = this.data[key] || '';
-        this.openModal = true;
+        this.isFromResultBar = isFromResultBar;
         this.saveStatus = '';
+        
+        const rootTypes = ['root1', 'root2', 'root3'];
+        
+        if (isFromResultBar) {
+            // Mở từ result-bar: mặc định show brief content
+            if (rootTypes.includes(key)) {
+                this.modalContent = this.briefData[key] || '';
+            } else {
+                this.modalContent = this.briefDataTrunk[key] || '';
+            }
+            this.showingBrief = true;
+        } else {
+            // Mở từ dataPlatformMenu: show full content only
+            this.modalContent = this.data[key] || '';
+            this.showingBrief = false;
+        }
+        
+        this.openModal = true;
+    },
+
+    isBriefReady(key) {
+        const rootTypes = ['root1', 'root2', 'root3'];
+        if (rootTypes.includes(key)) {
+            return !!(this.briefData[key] && this.briefData[key].length > 0);
+        } else {
+            return !!(this.briefDataTrunk[key] && this.briefDataTrunk[key].length > 0);
+        }
+    },
+
+    toggleBriefView() {
+        const rootTypes = ['root1', 'root2', 'root3'];
+        this.showingBrief = !this.showingBrief;
+        const key = this.currentKey;
+        
+        if (this.showingBrief) {
+            // Switching to brief
+            if (!this.isBriefReady(key)) {
+                // Brief not ready yet, revert and don't toggle
+                this.showingBrief = false;
+                return;
+            }
+            if (rootTypes.includes(key)) {
+                this.modalContent = this.briefData[key] || '';
+            } else {
+                this.modalContent = this.briefDataTrunk[key] || '';
+            }
+        } else {
+            this.modalContent = this.data[key] || '';
+        }
     },
 
     getChatUrl() {
@@ -148,7 +250,8 @@
                 },
                 body: JSON.stringify({
                     key: this.currentKey,
-                    content: this.modalContent
+                    content: this.modalContent,
+                    type: this.showingBrief ? 'brief' : 'data'
                 })
             });
 
@@ -170,188 +273,280 @@
         }
     }
 }">
-  <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
-    <div>
-      <img src="{{ asset('assets/img/logo-resultbar.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
-    </div>
-    <div class="tw-flex-1 tw-min-w-0">
-      <div class="tw-font-bold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-        Kết quả phân tích
-      </div>
-      <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-        Dữ liệu đã được AI xử lý và trực quan hóa
-      </div>
-    </div>
-  </div>
-
-  <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center tw-gap-3">
-    <div
-      class="tw-w-full tw-px-3 tw-py-2 tw-bg-[#F7F8F9] tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-flex tw-flex-col">
-      <div class="tw-flex-1 tw-min-w-0">
-        <div class="tw-text-sm tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-          Tiến độ hoàn thành phần gốc
+    <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
+        <div>
+            <img src="{{ asset('assets/img/logo-resultbar.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
         </div>
-      </div>
-
-      <div>
-        <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
-          <div class="tw-h-full tw-bg-[linear-gradient(90deg,#329C59_-83.33%,#45C974_80.61%)] tw-rounded-l-full"
-            style="width: 15%"></div>
+        <div class="tw-flex-1 tw-min-w-0">
+            <div class="tw-font-bold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+                Kết quả phân tích
+            </div>
+            <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+                Dữ liệu đã được AI xử lý và trực quan hóa
+            </div>
         </div>
-      </div>
+    </div>
 
-      <div>
-        <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-          15% hoàn thành
+    <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center tw-gap-3">
+        <div
+            class="tw-w-full tw-px-3 tw-py-2 tw-bg-[#F7F8F9] tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-flex tw-flex-col">
+            <div class="tw-flex-1 tw-min-w-0">
+                <div class="tw-text-sm tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+                    Tiến độ hoàn thành thương hiệu
+                </div>
+            </div>
+
+            <div>
+                <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
+                    <div class="tw-h-full tw-bg-[linear-gradient(90deg,#329C59_-83.33%,#45C974_80.61%)] tw-rounded-l-full"
+                        :style="`width: ${brandProgress}%`" :class="{ 'tw-rounded-full': brandProgress >= 100 }"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap"
+                    x-text="brandProgress + '% hoàn thành'">
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center">
-    <div id="result-panel" class="tw-flex tw-flex-col tw-gap-3">
-      <!-- Root1 Agent Output -->
-      <button @click="openInfo(getLevelLabel('root1'), 'root1')"
-          :disabled="!data['root1']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group"
-          :class="data['root1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Output của AI Thiết kế Văn Hóa Dịch Vụ</span>
-              <i class="ri-arrow-right-s-line" :class="data['root1'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-          </div>
-      </button>
+    <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center">
+        <div id="result-panel" class="tw-flex tw-flex-col tw-gap-3">
+            <!-- Root1 Agent Output -->
+            <button @click="openInfo(getLevelLabel('root1'), 'root1')" :disabled="!data['root1']"
+                class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
+                :class="data['root1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
+                <div class="tw-flex tw-items-center tw-justify-between">
+                    <span class="tw-font-medium"
+                        :class="data['root1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Thiết
+                        kế Văn Hóa Dịch Vụ</span>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                        <template x-if="loadingAgents['root1']">
+                            <span class="tw-animate-spin tw-text-[#1AA24C]">
+                                <i class="ri-loader-4-line"></i>
+                            </span>
+                        </template>
+                        <i class="ri-arrow-right-s-line"
+                            :class="data['root1'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
+                    </div>
+                </div>
+            </button>
 
-      <!-- Root2 Agent Output -->
-      <button @click="openInfo(getLevelLabel('root2'), 'root2')"
-          :disabled="!data['root2']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group"
-          :class="data['root2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Output của AI Phân tích Thổ Nhưỡng</span>
-              <i class="ri-arrow-right-s-line" :class="data['root2'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-          </div>
-      </button>
+            <!-- Root2 Agent Output -->
+            <button @click="openInfo(getLevelLabel('root2'), 'root2')" :disabled="!data['root2']"
+                class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
+                :class="data['root2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
+                <div class="tw-flex tw-items-center tw-justify-between">
+                    <span class="tw-font-medium"
+                        :class="data['root2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Phân
+                        tích Thổ Nhưỡng</span>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                        <template x-if="loadingAgents['root2']">
+                            <span class="tw-animate-spin tw-text-[#1AA24C]">
+                                <i class="ri-loader-4-line"></i>
+                            </span>
+                        </template>
+                        <i class="ri-arrow-right-s-line"
+                            :class="data['root2'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
+                    </div>
+                </div>
+            </button>
 
-      <!-- Root3 Agent Output -->
-      <button @click="openInfo(getLevelLabel('root3'), 'root3')"
-          :disabled="!data['root3']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group"
-          :class="data['root3'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['root3'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Output của AI Định vị Giá Trị Giải Pháp</span>
-              <i class="ri-arrow-right-s-line" :class="data['root3'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-          </div>
-      </button>
+            <!-- Root3 Agent Output -->
+            <button @click="openInfo(getLevelLabel('root3'), 'root3')" :disabled="!data['root3']"
+                class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
+                :class="data['root3'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
+                <div class="tw-flex tw-items-center tw-justify-between">
+                    <span class="tw-font-medium"
+                        :class="data['root3'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Định
+                        vị Giá Trị Giải Pháp</span>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                        <template x-if="loadingAgents['root3']">
+                            <span class="tw-animate-spin tw-text-[#1AA24C]">
+                                <i class="ri-loader-4-line"></i>
+                            </span>
+                        </template>
+                        <i class="ri-arrow-right-s-line"
+                            :class="data['root3'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
+                    </div>
+                </div>
+            </button>
 
-      <!-- Trunk1 Agent Output -->
-      <button @click="openInfo(getLevelLabel('trunk1'), 'trunk1')"
-          :disabled="!data['trunk1']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group"
-          :class="data['trunk1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['trunk1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Output của AI Định vị Thương Hiệu</span>
-              <i class="ri-arrow-right-s-line" :class="data['trunk1'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-          </div>
-      </button>
+            <!-- Trunk1 Agent Output -->
+            <button @click="openInfo(getLevelLabel('trunk1'), 'trunk1')" :disabled="!data['trunk1']"
+                class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
+                :class="data['trunk1'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
+                <div class="tw-flex tw-items-center tw-justify-between">
+                    <span class="tw-font-medium"
+                        :class="data['trunk1'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Định
+                        vị Thương Hiệu</span>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                        <template x-if="loadingAgents['trunk1']">
+                            <span class="tw-animate-spin tw-text-[#1AA24C]">
+                                <i class="ri-loader-4-line"></i>
+                            </span>
+                        </template>
+                        <i class="ri-arrow-right-s-line"
+                            :class="data['trunk1'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
+                    </div>
+                </div>
+            </button>
 
-      <!-- Trunk2 Agent Output -->
-      <button @click="openInfo(getLevelLabel('trunk2'), 'trunk2')"
-          :disabled="!data['trunk2']"
-          class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group"
-          :class="data['trunk2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
-          <div class="tw-flex tw-items-center tw-justify-between">
-              <span class="tw-font-medium" :class="data['trunk2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Output của AI Nhận diện Ngôn ngữ</span>
-              <i class="ri-arrow-right-s-line" :class="data['trunk2'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
-          </div>
-      </button>
+            <!-- Trunk2 Agent Output -->
+            <button @click="openInfo(getLevelLabel('trunk2'), 'trunk2')" :disabled="!data['trunk2']"
+                class="tw-w-full tw-text-left tw-px-4 tw-py-3 tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-rounded-lg tw-transition tw-group tw-relative"
+                :class="data['trunk2'] ? 'hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] cursor-pointer' : 'tw-opacity-50 tw-cursor-not-allowed'">
+                <div class="tw-flex tw-items-center tw-justify-between">
+                    <span class="tw-font-medium"
+                        :class="data['trunk2'] ? 'tw-text-gray-700 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-400'">Nhận
+                        diện Ngôn ngữ</span>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                        <template x-if="loadingAgents['trunk2']">
+                            <span class="tw-animate-spin tw-text-[#1AA24C]">
+                                <i class="ri-loader-4-line"></i>
+                            </span>
+                        </template>
+                        <i class="ri-arrow-right-s-line"
+                            :class="data['trunk2'] ? 'tw-text-gray-400 group-hover:tw-text-[#1AA24C]' : 'tw-text-gray-300'"></i>
+                    </div>
+                </div>
+            </button>
 
-      <!-- Modal -->
-      <div x-show="openModal" style="display: none;"
-          class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-bg-black/50 tw-backdrop-blur-sm"
-          x-transition:enter="tw-transition tw-ease-out tw-duration-300" x-transition:enter-start="tw-opacity-0"
-          x-transition:enter-end="tw-opacity-100" x-transition:leave="tw-transition tw-ease-in tw-duration-200"
-          x-transition:leave-start="tw-opacity-100" x-transition:leave-end="tw-opacity-0">
+            <!-- Modal -->
+            <div x-show="openModal" style="display: none;"
+                class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-bg-black/50 tw-backdrop-blur-sm"
+                x-transition:enter="tw-transition tw-ease-out tw-duration-300" x-transition:enter-start="tw-opacity-0"
+                x-transition:enter-end="tw-opacity-100" x-transition:leave="tw-transition tw-ease-in tw-duration-200"
+                x-transition:leave-start="tw-opacity-100" x-transition:leave-end="tw-opacity-0">
 
-          <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-max-h-[90vh] tw-flex tw-flex-col"
-              @click.away="openModal = false">
+                <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-h-[600px] tw-flex tw-flex-col"
+                    @click.away="openModal = false">
 
-              <!-- Modal Header -->
-              <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
-                  <div class="tw-flex tw-items-center tw-gap-4">
-                      <h3 class="tw-text-xl tw-font-bold tw-text-gray-800" x-text="modalTitle"></h3>
+                    <!-- Modal Header -->
+                    <div
+                        class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
+                        <div class="tw-flex tw-items-center tw-gap-4">
+                            <h3 class="tw-text-xl tw-font-bold tw-text-gray-800" x-text="modalTitle"></h3>
 
-                      <a :href="getChatUrl()"
-                          class="tw-inline-flex tw-items-center tw-gap-1 tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1.5 tw-rounded-full hover:tw-bg-[#15803d] tw-transition">
-                          <i class="ri-chat-smile-3-line"></i>
-                          Chat ngay với trợ lý AI
-                      </a>
-                  </div>
+                            <a :href="getChatUrl()"
+                                class="tw-inline-flex tw-items-center tw-gap-1 tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1.5 tw-rounded-full hover:tw-bg-[#15803d] tw-transition">
+                                <i class="ri-chat-smile-3-line"></i>
+                                Chat ngay với trợ lý AI
+                            </a>
+                        </div>
 
-                  <button @click="openModal = false" class="tw-text-gray-400 hover:tw-text-gray-600">
-                      <i class="ri-close-line tw-text-2xl"></i>
-                  </button>
-              </div>
+                        <button @click="openModal = false" class="tw-text-gray-400 hover:tw-text-gray-600">
+                            <i class="ri-close-line tw-text-2xl"></i>
+                        </button>
+                    </div>
 
-              <!-- Modal Body -->
-              <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto">
-                  <textarea
-                      class="tw-w-full tw-h-[400px] tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none"
-                      x-model="modalContent" spellcheck="false" placeholder="Chưa có thông tin..."></textarea>
+                    <!-- Modal Body -->
+                    <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto tw-flex tw-flex-col tw-relative">
+                        <!-- Tab Toggle - Chỉ hiển thị khi mở từ result-bar -->
+                        <template x-if="isFromResultBar">
+                            <div class="tw-mb-4 tw-flex tw-gap-2 tw-border-b tw-border-gray-200">
+                                <button @click="showingBrief = true" {{-- :disabled="!isBriefReady(currentKey)" --}}
+                                    :class="showingBrief 
+                                    ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold'
+                                    : 'tw-text-gray-500 tw-font-medium'" class="tw-px-4 tw-py-2 tw-transition">
+                                    Nội dung tóm tắt
+                                </button>
+                            </div>
+                        </template>
 
-                  <!-- Footer Action -->
-                  <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
-                      <button @click="saveInfo()" :disabled="isSaving"
-                          class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
-                          <span x-show="isSaving" class="tw-animate-spin"><i class="ri-loader-4-line"></i></span>
-                          <span>Lưu</span>
-                      </button>
+                        <!-- Textarea with loading overlay -->
+                        <div class="tw-relative tw-flex-1 tw-flex tw-flex-col">
+                            <textarea :disabled="showingBrief && !isBriefReady(currentKey)"
+                                class="tw-w-full tw-flex-1 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none disabled:tw-bg-gray-100 disabled:tw-opacity-60 disabled:tw-cursor-not-allowed tw-transition"
+                                x-model="modalContent" spellcheck="false" placeholder="Chưa có thông tin..."></textarea>
 
-                      <!-- Status Message -->
-                      <span x-show="saveStatus" x-text="saveStatus" class="tw-text-sm tw-font-medium"
-                          :class="saveStatus.includes('Lỗi') ? 'tw-text-red-600' : 'tw-text-[#1AA24C]'">
-                      </span>
-                  </div>
-              </div>
-          </div>
-      </div>
+                            <!-- Loading Overlay - show when brief is loading -->
+                            <template x-if="showingBrief && !isBriefReady(currentKey) && loadingAgents[currentKey]">
+                                <div
+                                    class="tw-absolute tw-inset-0 tw-bg-white/80 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3">
+                                    <div class="tw-animate-spin tw-text-[#1AA24C] tw-text-3xl">
+                                        <i class="ri-loader-4-line"></i>
+                                    </div>
+                                    <p class="tw-text-sm tw-font-medium tw-text-gray-600">Đang tóm tắt nội dung...</p>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Footer Action -->
+                        <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
+                            <button @click="saveInfo()"
+                                :disabled="isSaving || (showingBrief && !isBriefReady(currentKey))"
+                                class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
+                                <span x-show="isSaving" class="tw-animate-spin"><i class="ri-loader-4-line"></i></span>
+                                <span>Lưu</span>
+                            </button>
+
+                            <!-- Status Message -->
+                            <span x-show="saveStatus" x-text="saveStatus" class="tw-text-sm tw-font-medium"
+                                :class="saveStatus.includes('Lỗi') ? 'tw-text-red-600' : 'tw-text-[#1AA24C]'">
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  @php
-    $nextUrl = '#';
+    <!-- Toast Notification -->
+    <template x-if="showToast">
+        <div class="tw-fixed tw-bottom-4 tw-right-4 tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-3 tw-rounded-lg tw-shadow-lg tw-flex tw-items-center tw-gap-3 tw-max-w-md tw-animate-fade-in tw-z-[10000]"
+            x-transition:enter="tw-transition tw-duration-300" x-transition:enter-start="tw-opacity-0 tw-translate-y-2"
+            x-transition:enter-end="tw-opacity-100 tw-translate-y-0" x-transition:leave="tw-transition tw-duration-300"
+            x-transition:leave-start="tw-opacity-100 tw-translate-y-0"
+            x-transition:leave-end="tw-opacity-0 tw-translate-y-2">
+            <div class="tw-text-lg">
+                <i class="ri-check-circle-line"></i>
+            </div>
+            <span class="tw-flex-1 tw-text-sm tw-font-medium" x-text="toastMessage"></span>
+            <button @click="closeToast()" class="tw-text-white/70 hover:tw-text-white tw-transition">
+                <i class="ri-close-line tw-text-lg"></i>
+            </button>
+        </div>
+    </template>
 
-    switch ($agentType) {
-      case 'root1':
-        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root2', 'agentId' => 2, 'convId' => 'new']);
-        break;
-      case 'root2':
-        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root3', 'agentId' => 3, 'convId' => 'new']);
-        break;
-      case 'root3':
-        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk1', 'agentId' => 4, 'convId' => 'new']);
-        break;
-      case 'trunk1':
-        $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk2', 'agentId' => 5, 'convId' => 'new']);
-        break;
-      case 'trunk2':
-        $nextUrl = route('brands.canopy.show', ['brand' => $brandSlug]);
-        break;
-      default:
-        $nextUrl = '#'; // Or hide the button
-        break;
-    }
-  @endphp
+    @php
+        $nextUrl = '#';
 
-  @if($nextUrl !== '#')
-    <div class="tw-p-4 tw-mt-auto">
-      <a href="{{ $nextUrl }}"
-        class="tw-flex tw-items-center tw-justify-center tw-w-full tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-white tw-bg-[#16a34a] tw-rounded-lg hover:tw-bg-[#15803d] tw-transition-colors">
-        <span>Bước tiếp theo</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="tw-w-4 tw-h-4 tw-ml-2" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
-      </a>
-    </div>
-  @endif
+        switch ($agentType) {
+            case 'root1':
+                $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root2', 'agentId' => 2, 'convId' => 'new']);
+                break;
+            case 'root2':
+                $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root3', 'agentId' => 3, 'convId' => 'new']);
+                break;
+            case 'root3':
+                $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk1', 'agentId' => 4, 'convId' => 'new']);
+                break;
+            case 'trunk1':
+                $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk2', 'agentId' => 5, 'convId' => 'new']);
+                break;
+            case 'trunk2':
+                $nextUrl = route('brands.canopy.show', ['brand' => $brandSlug]);
+                break;
+            default:
+                $nextUrl = '#'; // Or hide the button
+                break;
+        }
+      @endphp
+
+    @if($nextUrl !== '#')
+        <div class="tw-p-4 tw-mt-auto">
+            <a :href="data['{{ $agentType }}'] ? '{{ $nextUrl }}' : 'javascript:void(0)'" :class="data['{{ $agentType }}'] 
+              ? 'tw-bg-[#16a34a] hover:tw-bg-[#15803d] tw-text-white tw-cursor-pointer' 
+              : 'tw-bg-gray-200 tw-text-gray-400 tw-cursor-not-allowed tw-pointer-events-none'"
+                class="tw-flex tw-items-center tw-justify-center tw-w-full tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-rounded-lg tw-transition-colors">
+                <span>Bước tiếp theo</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="tw-w-4 tw-h-4 tw-ml-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </a>
+        </div>
+    @endif
 </div>

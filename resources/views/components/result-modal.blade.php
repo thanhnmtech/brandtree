@@ -1,4 +1,4 @@
-@props(['brand'])
+@props(['brand', 'type'])  {{-- type có thể là 'data' hoặc 'brief' để xác định lưu vào cột dữ liệu raw hay sau tóm tăts --}}
 
 {{-- 
     Result Modal Component (Dumb View)
@@ -47,6 +47,7 @@
                 <button 
                     data-result-modal-target="saveBtn"
                     data-action="result-modal#save"
+                    data-result-modal-type-value="data" {{-- hardcode với type = data để lưu vào cột root/trunk_data  --}}
                     class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
                     <span>Lưu</span>
                 </button>

@@ -45,11 +45,13 @@
             <!-- Vertical progress indicators (right) -->
             <div class="tw-w-[110px] tw-relative tw-flex tw-flex-col tw-items-end tw-gap-3">
                 <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
-                    <div class="progress-root tw-h-full tw-bg-[#269063] tw-rounded-l-full"
+                    {{-- Thanh tiến độ gốc: bo tròn 2 đầu khi đạt 100% --}}
+                    <div class="progress-root tw-h-full tw-bg-[#269063] {{ $process_root === '100%' ? 'tw-rounded-full' : 'tw-rounded-l-full' }}"
                         style="width: {{ $process_root }};"></div>
                 </div>
                 <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
-                    <div class="progress-stem tw-h-full tw-bg-[#269063] tw-rounded-l-full"
+                    {{-- Thanh tiến độ thân: bo tròn 2 đầu khi đạt 100% --}}
+                    <div class="progress-stem tw-h-full tw-bg-[#269063] {{ $process_trunk === '100%' ? 'tw-rounded-full' : 'tw-rounded-l-full' }}"
                         style="width: {{ $process_trunk }};"></div>
                 </div>
             </div>

@@ -10,6 +10,11 @@
             'trunk1' => $trunkData['trunk1'] ?? '',
             'trunk2' => $trunkData['trunk2'] ?? '',
         ];
+
+        // Tính tiến độ tổng hợp root + trunk cho vòng tròn SVG
+        $overallProgress = $brand->getOverallProgress();
+        $circumference = 2 * M_PI * 52; // Chu vi vòng tròn (2πr với r=52)
+        $dashOffset = $circumference * (1 - $overallProgress / 100);
     @endphp
     <div data-controller="brand-form result-modal brand-info" 
         data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
@@ -107,12 +112,12 @@
                         <svg class="tw-w-full tw-h-full tw-absolute tw-top-0 tw-left-0 tw-rotate-[-90deg]"
                             viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="52" stroke="#1AA24C" stroke-width="8" stroke-linecap="round"
-                                fill="none" stroke-dasharray="326" stroke-dashoffset="153" />
+                                fill="none" stroke-dasharray="{{ round($circumference, 2) }}" stroke-dashoffset="{{ round($dashOffset, 2) }}" />
                         </svg>
 
                         <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
                             <div class="tw-text-center">
-                                <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">53%</p>
+                                <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">{{ $overallProgress }}%</p>
                                 <p class="tw-text-sm tw-text-gray-500 tw-mt-1">{{ __('messages.brand_show.completed') }}</p>
                             </div>
                         </div>
@@ -217,6 +222,16 @@
                             </p>
                         </div>
 
+                        @php
+                            // Tính tiến độ riêng cho root (Positioning) và trunk (Identity)
+                            $rootProgress = $brand->getProcessRoot();
+                            $trunkProgress = $brand->getProcessTrunk();
+                            // Lấy giá trị số từ chuỗi "60%" → 60
+                            $rootProgressNum = (int) rtrim($rootProgress, '%');
+                            $trunkProgressNum = (int) rtrim($trunkProgress, '%');
+                        @endphp
+
+                        {{-- Thanh tiến độ Root (Positioning) --}}
                         <div>
                             <div class="tw-flex tw-justify-between tw-text-sm tw-text-gray-700">
                                 <span class="tw-flex tw-items-center tw-gap-1">
@@ -224,37 +239,45 @@
                                         class="tw-w-[14px] tw-h-[14px]" />
                                     {{ __('messages.brand_show.positioning') }}
                                 </span>
-                                <span class="tw-text-[#1AA24C] tw-font-semibold">100%</span>
+                                <span class="tw-text-[#1AA24C] tw-font-semibold">{{ $rootProgress }}</span>
                             </div>
                             <div class="tw-w-full tw-h-2 tw-rounded-full tw-bg-[#E8EDEB] tw-overflow-hidden tw-mt-1">
-                                <div class="tw-h-full tw-bg-[#1AA24C]" style="width: 100%"></div>
+                                <div class="tw-h-full tw-bg-[#1AA24C]" style="width: {{ $rootProgressNum }}%"></div>
                             </div>
                         </div>
 
+                        {{-- Thanh tiến độ Trunk (Identity) --}}
                         <div>
                             <div class="tw-flex tw-justify-between tw-text-sm tw-text-gray-700">
                                 <span class="tw-flex tw-items-center tw-gap-1">
                                     <i class="ri-brush-fill tw-text-[#F59F0A]"></i>
                                     {{ __('messages.brand_show.identity') }}
                                 </span>
-                                <span class="tw-text-[#F59F0A] tw-font-semibold">60%</span>
+                                <span class="tw-text-[#F59F0A] tw-font-semibold">{{ $trunkProgress }}</span>
                             </div>
                             <div class="tw-w-full tw-h-2 tw-rounded-full tw-bg-[#E8EDEB] tw-overflow-hidden tw-mt-1">
-                                <div class="tw-h-full tw-bg-[#F59F0A]" style="width: 60%"></div>
+                                <div class="tw-h-full tw-bg-[#F59F0A]" style="width: {{ $trunkProgressNum }}%"></div>
                             </div>
                         </div>
 
+                        {{-- Overall Score --}}
                         <div
                             class="tw-w-full tw-bg-[linear-gradient(90deg,#E7F2E7_0%,#F8F1E0_100%)] tw-border tw-border-[#E0EAE6] tw-rounded-lg tw-py-5 tw-px-10 tw-shadow-sm tw-flex tw-items-center tw-justify-between">
                             <div>
                                 <p class="tw-text-gray-500 tw-text-md">{{ __('messages.brand_show.overall_score') }}</p>
                                 <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">
-                                    53 <span class="tw-text-gray-400 tw-text-xl">/100</span>
+                                    {{ $overallProgress }} <span class="tw-text-gray-400 tw-text-xl">/100</span>
                                 </p>
                             </div>
                             <span
                                 class="tw-inline-block tw-mt-2 tw-text-sm tw-font-semibold tw-bg-vlbcgreen tw-text-white tw-px-3 tw-py-1 tw-rounded-full">
-                                {{ __('messages.brand_show.developing') }}
+                                @if($overallProgress >= 100)
+                                    {{ __('messages.brand_show.completed') }}
+                                @elseif($overallProgress >= 50)
+                                    {{ __('messages.brand_show.developing') }}
+                                @else
+                                    {{ __('messages.brand_show.developing') }}
+                                @endif
                             </span>
                         </div>
                     </div>
@@ -269,12 +292,12 @@
                             <svg class="tw-w-full tw-h-full tw-absolute tw-top-0 tw-left-0 tw-rotate-[-90deg]"
                                 viewBox="0 0 120 120">
                                 <circle cx="60" cy="60" r="52" stroke="#1AA24C" stroke-width="8" stroke-linecap="round"
-                                    fill="none" stroke-dasharray="326" stroke-dashoffset="153" />
+                                    fill="none" stroke-dasharray="{{ round($circumference, 2) }}" stroke-dashoffset="{{ round($dashOffset, 2) }}" />
                             </svg>
 
                             <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
                                 <div class="tw-text-center">
-                                    <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">53%</p>
+                                    <p class="tw-text-3xl tw-font-bold tw-text-[#1AA24C]">{{ $overallProgress }}%</p>
                                     <p class="tw-text-sm tw-text-gray-500 tw-mt-1">{{ __('messages.brand_show.completion') }}</p>
                                 </div>
                             </div>
