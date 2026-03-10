@@ -538,7 +538,7 @@
         <div id="result-panel" class="tw-flex tw-flex-col tw-gap-3">
 
             {{-- ===== BRIEF ITEMS (Tóm tắt) — CHỈ HIỂN THỊ AGENT HIỆN TẠI ===== --}}
-            @php
+            <!-- @php
                 $allAgents = [
                     'root1' => 'Thiết kế Văn Hóa Dịch Vụ',
                     'root2' => 'Phân tích Thổ Nhưỡng',
@@ -601,6 +601,33 @@
                             </template>
                         </div>
                     </div>
+                </template>
+            </div> -->
+
+            <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+                <template x-for="(label, key) in briefItemLabels['{{ $agentType }}']" :key="key">
+                    <button
+                        @click="briefItems['{{ $agentType }}'] && briefItems['{{ $agentType }}'][key] ? openBriefItemModal(key, '{{ $agentType }}') : null"
+                        :disabled="!briefItems['{{ $agentType }}'] || !briefItems['{{ $agentType }}'][key]"
+                        :class="(briefItems['{{ $agentType }}'] && briefItems['{{ $agentType }}'][key])
+                                                        ? 'tw-bg-white tw-border-green-200 hover:tw-bg-green-50 hover:tw-border-green-400 tw-cursor-pointer'
+                                                        : 'tw-bg-gray-50 tw-border-gray-200 tw-opacity-50 tw-cursor-not-allowed'"
+                        class="tw-text-left tw-px-3 tw-py-2.5 tw-border tw-rounded-lg tw-transition tw-text-sm">
+                        <div class="tw-flex tw-items-center tw-gap-2">
+                            <div class="tw-w-2 tw-h-2 tw-rounded-full tw-flex-shrink-0"
+                                :class="(briefItems['{{ $agentType }}'] && briefItems['{{ $agentType }}'][key]) ? 'tw-bg-green-500' : 'tw-bg-gray-300'">
+                            </div>
+                            <span class="tw-font-medium tw-truncate"
+                                :class="(briefItems['{{ $agentType }}'] && briefItems['{{ $agentType }}'][key]) ? 'tw-text-gray-700' : 'tw-text-gray-400'"
+                                x-text="label">
+                            </span>
+                        </div>
+                        <template x-if="briefItems['{{ $agentType }}'] && briefItems['{{ $agentType }}'][key]">
+                            <div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2 tw-mt-1 tw-ml-4"
+                                x-text="briefItems['{{ $agentType }}'][key].substring(0, 80) + (briefItems['{{ $agentType }}'][key].length > 80 ? '...' : '')">
+                            </div>
+                        </template>
+                    </button>
                 </template>
             </div>
 
