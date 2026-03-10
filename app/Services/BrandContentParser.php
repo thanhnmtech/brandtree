@@ -7,40 +7,40 @@ class BrandContentParser
     // map keyword cho từng output của AI
     public static $AGENT_KEYWORDS = [
         'root1' => [
-            'Purpose' => 'Purpose \(Mục đích\)',
-            'Core Values' => 'Core Values \(Giá trị cốt lõi\)',
-            'Expected Behaviors' => 'Expected Behaviors \(Hành vi kỳ vọng\)',
-            'Symbols' => 'Symbols \(Biểu tượng\)',
-            'Rules/Decisions' => 'Rules\/Decisions \(Quy tắc & Quyết định\)',
+            'Mục đích của thương hiệu' => 'Purpose \(Mục đích của thương hiệu\)',
+            'Giá trị cốt lõi' => 'Core Values \(Giá trị cốt lõi\)',
+            'Hành vi' => 'Behaviors \(Hành vi\)',
+            'Biểu tượng' => 'Symbols \(Biểu tượng\)',
+            'Các quy tắc của thương hiệu' => 'Rules \(Các quy tắc của thương hiệu\)',
         ],
         'root2' => [
             'Tổng quan Thị trường' => 'Tổng quan Thị trường',
             'Chân dung & Insight' => 'Chân dung & Insight khách hàng',
-            'Đối thủ & Khoảng trống' => 'Đối thủ & Khoảng trống',
+            'Phân tích đối thủ & Khoảng trống cạnh tranh' => 'Phân tích đối thủ & Khoảng trống cạnh tranh',
             'Cơ hội Tăng trưởng' => 'Cơ hội Tăng trưởng',
             'Định hướng Tiếp theo' => 'Định hướng Tiếp theo',
         ],
         'root3' => [
-            'Customer Profile' => 'Hồ sơ Khách hàng \(Customer Profile\)',
-            'Value Map' => 'Bản đồ giá trị \(Value Map\)',
-            'Value Proposition' => 'Tuyên bố giá trị \(Value Proposition Statements\)',
+            'Chân dung Khách hàng' => 'Chân dung Khách hàng \(Customer Profile\)',
+            'Bản đồ giá trị Giải pháp' => 'Bản đồ giá trị Giải pháp \(Value Map\)',
+            'Tuyên bố giá trị' => 'Tuyên bố giá trị \(Value Proposition Statements\)',
         ],
         'trunk1' => [
-            'Brand Name' => 'Tên thương hiệu \(Brand Name\)',
-            'Tagline' => 'Khẩu hiệu|Tagline',
-            'Positioning Statement' => 'Tuyên bố Định vị',
-            'Reasons to Believe' => 'Lý do tin tưởng \(Reasons to Believe\)',
-            'Brand Personality' => 'Tính cách thương hiệu \(Brand Personality\)',
-            'Tone of Voice' => 'Giọng điệu \(Tone of Voice\)',
-            'Brand Promise' => 'Lời hứa thương hiệu \(Brand Promise\)',
+            'Tên thương hiệu' => 'Tên thương hiệu \(Brand Name\)',
+            'Khẩu hiệu' => 'Khẩu hiệu \(Tagline)',
+            'Tuyên bố Định vị' => 'Tuyên bố Định vị \(Positioning Statement)',
+            'Lý do để người dùng tin tưởng thương hiệu' => 'Lý do để người dùng tin tưởng thương hiệu \(Reasons to Believe\)',
+            'Tính cách thương hiệu' => 'Tính cách thương hiệu \(Brand Personality\)',
+            'Giọng điệu Thương hiệu' => 'Giọng điệu Thương hiệu \(Tone of Voice\)',
+            'Lời hứa thương hiệu' => 'Lời hứa thương hiệu \(Brand Promise\)',
         ],
         'trunk2' => [
-            'Định nghĩa giọng nói' => 'Định nghĩa|Nomenclature',
-            'Đặc điểm giọng điệu' => 'Kho tàng Từ vựng \(Lexicon\)',
-            'Giọng nói nên tránh' => 'Blacklist|cấm kỵ',
-            'Cách ứng dụng' => 'Quy tắc Cú pháp & Giao diện',
-            'Tone map' => 'Mẫu thực chiến',
-            'Ví dụ cụ thể' => 'Caption|Phản hồi',
+            'Định nghĩa giọng nói' => 'Định nghĩa giọng nói \(Nomenclature)',
+            'Đặc điểm giọng điệu' => 'Đặc điểm giọng điệu',
+            'Giọng nói Thương hiệu nên tránh' => 'Giọng nói Thương hiệu nên tránh',
+            'Cách ứng dụng' => 'Cách ứng dụng',
+            'Tone map' => 'Tone map',
+            'Ví dụ cụ thể' => 'Ví dụ cụ thể',
         ],
     ];
 
@@ -53,7 +53,7 @@ class BrandContentParser
      */
     public static function parseContent(string $agentType, string $content): array
     {
-        if (! isset(self::$AGENT_KEYWORDS[$agentType])) {
+        if (!isset(self::$AGENT_KEYWORDS[$agentType])) {
             return ['full_content' => $content];
         }
 
@@ -74,12 +74,13 @@ class BrandContentParser
     private static function extractByKeyword(string $content, string $pattern): string
     {
         // Tìm pattern trong content - with safer matching
-        if (preg_match('/'.$pattern.'[:\s]+(.+?)(?=\n\n|\n[A-Z]|$)/is', $content, $matches)) {
+        if (preg_match('/' . $pattern . '[:\s]+(.+?)(?=\n\n|\n[A-Z]|$)/is', $content, $matches)) {
             // Safer access to matches array
             if (isset($matches[1])) {
                 $extracted = trim($matches[1]);
                 // Xóa các ký tự dư thừa
                 $extracted = trim($extracted, "\n\t ");
+
                 return $extracted;
             }
         }
@@ -92,13 +93,13 @@ class BrandContentParser
      */
     public static function rebuildContent(string $agentType, array $items): string
     {
-        if (! isset(self::$AGENT_KEYWORDS[$agentType])) {
+        if (!isset(self::$AGENT_KEYWORDS[$agentType])) {
             return $items['full_content'] ?? '';
         }
 
         $content = '';
         foreach ($items as $key => $value) {
-            if (! empty($value)) {
+            if (!empty($value)) {
                 $content .= "\n\n**{$key}:**\n{$value}";
             }
         }

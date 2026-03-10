@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\AgentSystem;
 use App\Models\Brand;
 use App\Services\BrandContentParser;
+use App\Services\BriefContentParser;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -85,8 +86,8 @@ class SummarizeBrandDataJob implements ShouldQueue
         $briefData[$this->agentType] = $summary;
         $brand->$briefColumn = $briefData;
 
-        // Parse brief items từ summary
-        $briefItems = BrandContentParser::parseContent($this->agentType, $summary);
+        // ✅ Parse brief items từ summary theo keywords (sử dụng BriefContentParser)
+        $briefItems = BriefContentParser::parseBriefContent($this->agentType, $summary);
         $briefItemsColumn = "{$this->agentType}_brief_items";
         $brand->$briefItemsColumn = $briefItems;
 

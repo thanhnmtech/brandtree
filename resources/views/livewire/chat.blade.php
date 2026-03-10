@@ -3,6 +3,8 @@
         agentType: @entangle('agentType'),
         agentId: @entangle('agentId'),
         brandId: @entangle('brandId'),
+        brandSlug: '{{ request()->route('brand') ? request()->route('brand')->slug : (in_array(request()->segment(1), ['vi', 'en']) ? request()->segment(4) : request()->segment(3)) }}',
+        brandData: @entangle('brandData'),
         messages: @entangle('messages'),
         chatModel: '{{ $chatModel }}',
         isModelLocked: {{ $isModelLocked ? 'true' : 'false' }}
@@ -282,6 +284,7 @@
             agentType: params.agentType,
             agentId: params.agentId,
             brandId: params.brandId,
+            brandSlug: params.brandSlug || '',
             messages: params.messages,
 
             // Model Selection
@@ -385,12 +388,11 @@
             async saveAnalysis() {
                 this.isSaving = true;
 
-                // Get slug from URL 
-                const pathParts = window.location.pathname.split('/');
-                const brandSlug = pathParts[2]; // assuming /brands/{slug}/...
+                const brandSlug = this.brandSlug;
+                const localePrefix = window.location.pathname.startsWith('/vi') ? '/vi' : (window.location.pathname.startsWith('/en') ? '/en' : '');
 
                 try {
-                    const response = await fetch(`/brands/${brandSlug}/chat/save-data`, {
+                    const response = await fetch(`${localePrefix}/brands/${brandSlug}/chat/save-data`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -426,27 +428,34 @@
             },
 
             navigateToNextStep() {
-                const pathParts = window.location.pathname.split('/');
-                const brandSlug = pathParts[2];
+                // Check if current agent type has data before navigating
+                if (!this.agentType || !this.brandData[this.agentType]) {
+                    alert('❌ Vui lòng hoàn thành bước hiện tại trước khi qua bước tiếp theo!');
+                    console.log('Navigation blocked - current step', this.agentType, 'has no data');
+                    return;
+                }
+
+                const brandSlug = this.brandSlug;
+                const localePrefix = window.location.pathname.startsWith('/vi') ? '/vi' : (window.location.pathname.startsWith('/en') ? '/en' : '');
                 let nextUrl = '';
 
                 // IDs are hardcoded as per user request (2, 3, 4, 5, etc.) but should ideally be dynamic.
                 // Request: root1 -> root2/2, root2 -> root3/3, root3 -> trunk1/4, trunk1 -> trunk2/5, trunk2 -> canopy
                 switch (this.agentType) {
                     case 'root1':
-                        nextUrl = `/brands/${brandSlug}/chat/root2/2/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/root2/2/new`;
                         break;
                     case 'root2':
-                        nextUrl = `/brands/${brandSlug}/chat/root3/3/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/root3/3/new`;
                         break;
                     case 'root3':
-                        nextUrl = `/brands/${brandSlug}/chat/trunk1/4/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/trunk1/4/new`;
                         break;
                     case 'trunk1':
-                        nextUrl = `/brands/${brandSlug}/chat/trunk2/5/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/trunk2/5/new`;
                         break;
                     case 'trunk2':
-                        nextUrl = `/brands/${brandSlug}/canopy`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/canopy`;
                         break;
                     default:
                         // Fallback or stay

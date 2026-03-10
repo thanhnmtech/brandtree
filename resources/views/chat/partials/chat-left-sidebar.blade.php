@@ -1,7 +1,13 @@
+@php
+$agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
+@endphp
+
 <div class="tw-flex tw-flex-col tw-h-full">
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
     <div id="logo-sidebar">
-      <img src="{{ !empty($brand->logo_path) ? Storage::url($brand->logo_path) : asset('assets/img/logo-sidebar.svg') }}" alt="{{ $brand->name }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain tw-rounded-full tw-bg-white" />
+      <img
+        src="{{ !empty($brand->logo_path) ? Storage::url($brand->logo_path) : asset('assets/img/logo-sidebar.svg') }}"
+        alt="{{ $brand->name }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain tw-rounded-full tw-bg-white" />
     </div>
     <div id="content-sidebar" class="tw-flex-1 tw-min-w-0">
       <div class="tw-font-bold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
@@ -20,11 +26,9 @@
 
   {{-- Section Nền Tảng Dữ Liệu - Hiển thị danh sách root/trunk steps --}}
   {{-- Bọc bằng result-modal controller để có thể mở modal xem kết quả --}}
-  <nav id="dataPlatformSection"
-    data-controller="result-modal"
-    data-result-modal-brand-slug-value="{{ $brand->slug }}"
+  <nav id="dataPlatformSection" data-controller="result-modal" data-result-modal-brand-slug-value="{{ $brand->slug }}"
     data-result-modal-data-value='@json(array_merge($brand->root_data ?? [], $brand->trunk_data ?? []))'
-    class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2">
+    >
     <button onclick="toggleMenu('dataPlatformMenu', 'dataArrow')"
       class="tw-w-full tw-px-3 tw-py-2 tw-bg-[linear-gradient(90deg,#0E642D_0%,#16A048_100%)] tw-rounded-md tw-flex tw-items-center tw-gap-3 tw-text-left">
       <div>
@@ -46,121 +50,139 @@
       </div>
     </button>
 
+    <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2 tw-overflow-y-scroll tw-max-h-[40vh]">
     {{-- Danh sách các step Root và Trunk --}}
-    <ul id="dataPlatformMenu" class="tw-hidden tw-w-full tw-space-y-2 tw-text-sm" x-data="sidebarDataManager({
+    <ul id="dataPlatformMenu" class="tw-w-full tw-space-y-2 tw-text-sm" x-data="sidebarDataManager({
       brandSlug: '{{ $brand->slug }}',
       rootData: @js($brand->root_data ?? []),
       trunkData: @js($brand->trunk_data ?? []),
       briefDataRoot: @js($brand->root_brief_data ?? []),
       briefDataTrunk: @js($brand->trunk_brief_data ?? [])
     })">
-      @php
-        $rootData = $brand->root_data ?? [];
-        $trunkData = $brand->trunk_data ?? [];
-      @endphp
-
+      @php $rootData = $brand->root_data ?? []; $trunkData = $brand->trunk_data ?? []; @endphp
       {{-- Các step Root (root1, root2, root3) --}}
       @foreach(config('timeline_steps.root') as $key => $step)
-        @php $hasData = !empty($rootData[$key]); @endphp
-        <li class="tw-px-3 tw-py-2 tw-rounded-md {{ $hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60' }} tw-flex tw-flex-col tw-gap-2">
-          
-          <div class="tw-flex tw-items-center tw-gap-2">
+        @php
+          $hasData = !empty($rootData[$key]);
+          $isActive = ($agentType === $key);
+          $agentContent = $hasData ? $rootData[$key] : '';
+          $parsedItems = $hasData ? \App\Services\BrandContentParser::parseContent($key, $agentContent) : [];
+        @endphp
+        <li class="tw-rounded-md tw-flex tw-flex-col tw-overflow-hidden
+                {{ $isActive ? 'tw-bg-[#E8F5ED] tw-border-l-[3px] tw-border-l-[#1AA24C]' : '' }}
+                {{ !$isActive && $hasData ? 'tw-bg-[#F4FCF7]' : '' }}
+                {{ !$isActive && !$hasData ? 'tw-bg-transparent tw-opacity-50' : '' }}">
+
+          <button type="button" @click="toggleExpand('{{ $key }}')"
+            class="tw-w-full tw-text-left tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-2 hover:tw-bg-[#d9f2e2]/40 tw-transition tw-border-none tw-bg-transparent">
+            <span
+              class="tw-text-sm {{ $isActive ? 'tw-text-[#1AA24C]' : ($hasData ? 'tw-text-gray-500' : 'tw-text-gray-400') }}">⊙</span>
+            <span
+              class="tw-flex-1 tw-text-sm tw-font-semibold {{ $isActive ? 'tw-text-[#1AA24C]' : ($hasData ? 'tw-text-[#1AA24C]' : 'tw-text-gray-400') }}">{{ $step['label'] }}</span>
+          </button>
+
+          {{-- Sub-items: keyword list --}}
+          <div x-show="expandedItems['{{ $key }}']" x-transition class="tw-px-3 tw-pb-2">
+            @php
+              $itemKeys = array_keys($agentKeywords[$key] ?? []);
+            @endphp
+            <ul class="tw-list-none tw-p-0 tw-m-0 tw-space-y-1 tw-ml-2">
+              @foreach($itemKeys as $itemKey)
+                @php
+                  $itemHasData = $hasData && !empty($parsedItems[$itemKey]);
+                @endphp
+                <li
+                  class="tw-flex tw-items-start tw-gap-1.5 tw-py-1 tw-px-2 tw-rounded-md tw-text-xs tw-group tw-transition-colors {{ $itemHasData ? 'tw-bg-[#E8F5ED] tw-cursor-pointer hover:tw-bg-[#d9f2e2]/80' : 'tw-bg-gray-50 tw-cursor-default' }}"
+                  @if($itemHasData) @click="selectItemFromSidebar('{{ $key }}', '{{ $itemKey }}')" @endif>
+                  <span
+                    class="tw-mt-0.5 tw-text-[10px] {{ $itemHasData ? 'tw-text-[#1AA24C]' : 'tw-text-gray-300' }}">•</span>
+                  <span
+                    class="{{ $itemHasData ? 'tw-text-gray-700 tw-font-semibold' : 'tw-text-gray-400 tw-font-medium' }}">{{ $itemKey }}</span>
+                </li>
+              @endforeach
+            </ul>
+
             @if($hasData)
-              <button type="button"
-                @click="openModal('{{ $step['label'] }}', '{{ $key }}')"
-                class="tw-flex-1 tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0 hover:tw-opacity-80 tw-transition"
-                title="Xem chi tiết">
-                <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
-              </button>
-              
-              <button type="button"
-                @click="toggleExpand('{{ $key }}')"
-                class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition tw-flex-shrink-0">
-                <i class="ri-arrow-right-s-line"></i>
-              </button>
-            @else
-              <span class="tw-flex-1 tw-font-semibold tw-text-gray-400">{{ $step['label'] }}</span>
+              <div class="tw-flex tw-justify-end tw-mt-2">
+                <button type="button" @click="openModal('{{ $step['label'] }}', '{{ $key }}')"
+                  class="tw-text-[11px] tw-text-[#1AA24C] tw-font-medium hover:tw-underline tw-bg-transparent tw-border-none tw-cursor-pointer tw-p-0">
+                  Xem toàn bộ...
+                </button>
+              </div>
             @endif
           </div>
-
-          {{-- Sub-items (buttons nhỏ) --}}
-          @if($hasData)
-            <div x-show="expandedItems['{{ $key }}']" x-transition class="tw-flex tw-flex-wrap tw-gap-1 tw-ml-2">
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Nội dung đầy đủ', '{{ $key }}', false)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                📄 Nội dung đầy đủ
-              </button>
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Tóm tắt', '{{ $key }}', true)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                ✨ Tóm tắt
-              </button>
-            </div>
-          @endif
         </li>
       @endforeach
 
       {{-- Các step Trunk (trunk1, trunk2) --}}
       @foreach(config('timeline_steps.trunk') as $key => $step)
-        @php $hasData = !empty($trunkData[$key]); @endphp
-        <li class="tw-px-3 tw-py-2 tw-rounded-md {{ $hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60' }} tw-flex tw-flex-col tw-gap-2">
-          
-          <div class="tw-flex tw-items-center tw-gap-2">
+        @php
+          $hasData = !empty($trunkData[$key]);
+          $isActive = ($agentType === $key);
+          $agentContent = $hasData ? $trunkData[$key] : '';
+          $parsedItems = $hasData ? \App\Services\BrandContentParser::parseContent($key, $agentContent) : [];
+        @endphp
+        <li class="tw-rounded-md tw-flex tw-flex-col tw-overflow-hidden
+                {{ $isActive ? 'tw-bg-[#E8F5ED] tw-border-l-[3px] tw-border-l-[#1AA24C]' : '' }}
+                {{ !$isActive && $hasData ? 'tw-bg-[#F4FCF7]' : '' }}
+                {{ !$isActive && !$hasData ? 'tw-bg-transparent tw-opacity-50' : '' }}">
+
+          <button type="button" @click="toggleExpand('{{ $key }}')"
+            class="tw-w-full tw-text-left tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-2 hover:tw-bg-[#d9f2e2]/40 tw-transition tw-border-none tw-bg-transparent">
+            <span
+              class="tw-text-sm {{ $isActive ? 'tw-text-[#1AA24C]' : ($hasData ? 'tw-text-gray-500' : 'tw-text-gray-400') }}">⊙</span>
+            <span
+              class="tw-flex-1 tw-text-sm tw-font-semibold {{ $isActive ? 'tw-text-[#1AA24C]' : ($hasData ? 'tw-text-[#1AA24C]' : 'tw-text-gray-400') }}">{{ $step['label'] }}</span>
+          </button>
+
+          {{-- Sub-items: keyword list --}}
+          <div x-show="expandedItems['{{ $key }}']" x-transition class="tw-px-3 tw-pb-2">
+            @php 
+              $itemKeys = array_keys($agentKeywords[$key] ?? []);
+            @endphp
+            <ul class="tw-list-none tw-p-0 tw-m-0 tw-space-y-1 tw-ml-2">
+              @foreach($itemKeys as $itemKey)
+                @php
+                  $itemHasData = $hasData && !empty($parsedItems[$itemKey]);
+                @endphp
+                <li
+                  class="tw-flex tw-items-start tw-gap-1.5 tw-py-1 tw-px-2 tw-rounded-md tw-text-xs tw-group tw-transition-colors {{ $itemHasData ? 'tw-bg-[#E8F5ED] tw-cursor-pointer hover:tw-bg-[#d9f2e2]/80' : 'tw-bg-gray-50 tw-cursor-default' }}"
+                  @if($itemHasData) @click="selectItemFromSidebar('{{ $key }}', '{{ $itemKey }}')" @endif>
+                  <span
+                    class="tw-mt-0.5 tw-text-[10px] {{ $itemHasData ? 'tw-text-[#1AA24C]' : 'tw-text-gray-300' }}">•</span>
+                  <span
+                    class="{{ $itemHasData ? 'tw-text-gray-700 tw-font-semibold' : 'tw-text-gray-400 tw-font-medium' }}">{{ $itemKey }}</span>
+                </li>
+              @endforeach
+            </ul>
+
             @if($hasData)
-              <button type="button"
-                @click="openModal('{{ $step['label'] }}', '{{ $key }}')"
-                class="tw-flex-1 tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0 hover:tw-opacity-80 tw-transition"
-                title="Xem chi tiết">
-                <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
-              </button>
-              
-              <button type="button"
-                @click="toggleExpand('{{ $key }}')"
-                class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition tw-flex-shrink-0">
-                <i class="ri-arrow-right-s-line"></i>
-              </button>
-            @else
-              <span class="tw-flex-1 tw-font-semibold tw-text-gray-400">{{ $step['label'] }}</span>
+              <div class="tw-flex tw-justify-end tw-mt-2">
+                <button type="button" @click="openModal('{{ $step['label'] }}', '{{ $key }}')"
+                  class="tw-text-[11px] tw-text-[#1AA24C] tw-font-medium hover:tw-underline tw-bg-transparent tw-border-none tw-cursor-pointer tw-p-0">
+                  Xem toàn bộ kết quả phân tích...
+                </button>
+              </div>
             @endif
           </div>
-
-          {{-- Sub-items (buttons nhỏ) --}}
-          @if($hasData)
-            <div x-show="expandedItems['{{ $key }}']" x-transition class="tw-flex tw-flex-wrap tw-gap-1 tw-ml-2">
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Nội dung đầy đủ', '{{ $key }}', false)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                📄 Nội dung đầy đủ
-              </button>
-              <button type="button"
-                @click="openModal('{{ $step['label'] }} - Tóm tắt', '{{ $key }}', true)"
-                class="tw-px-2 tw-py-1 tw-text-xs tw-bg-white tw-border tw-border-[#1AA24C] tw-text-[#1AA24C] tw-rounded hover:tw-bg-[#F0F9F5] tw-transition tw-font-medium">
-                ✨ Tóm tắt
-              </button>
-            </div>
-          @endif
         </li>
       @endforeach
 
       {{-- POPUP MODAL - Tái sử dụng từ chat-result-bar --}}
       <div x-show="showModal" style="display: none;"
-          class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-bg-black/50 tw-backdrop-blur-sm"
-          x-transition:enter="tw-transition tw-ease-out tw-duration-300" 
-          x-transition:enter-start="tw-opacity-0"
-          x-transition:enter-end="tw-opacity-100" 
-          x-transition:leave="tw-transition tw-ease-in tw-duration-200"
-          x-transition:leave-start="tw-opacity-100" 
-          x-transition:leave-end="tw-opacity-0">
+        class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-bg-black/50 tw-backdrop-blur-sm"
+        x-transition:enter="tw-transition tw-ease-out tw-duration-300" x-transition:enter-start="tw-opacity-0"
+        x-transition:enter-end="tw-opacity-100" x-transition:leave="tw-transition tw-ease-in tw-duration-200"
+        x-transition:leave-start="tw-opacity-100" x-transition:leave-end="tw-opacity-0">
 
         <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-h-[600px] tw-flex tw-flex-col"
-            @click.away="showModal = false">
+          @click.away="showModal = false">
 
           <!-- Modal Header -->
           <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
             <div class="tw-flex tw-items-center tw-gap-4">
               <h3 class="tw-text-xl tw-font-bold tw-text-gray-800" x-text="modalTitle"></h3>
-              
+
               <a :href="getChatUrl()"
                 class="tw-inline-flex tw-items-center tw-gap-1 tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1.5 tw-rounded-full hover:tw-bg-[#15803d] tw-transition">
                 <i class="ri-chat-smile-3-line"></i>
@@ -177,32 +199,29 @@
           <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto tw-flex tw-flex-col tw-relative">
             <!-- Tab Toggle - Luôn hiển thị vì sidebar modal luôn có brief data checking -->
             <div class="tw-mb-4 tw-flex tw-gap-2 tw-border-b tw-border-gray-200">
-              <button @click="toggleBriefView()"
-                :disabled="!isBriefReady()"
+              <button @click="toggleBriefView()" :disabled="!isBriefReady()"
                 :class="showingBrief ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold' : 'tw-text-gray-500 tw-font-medium'"
                 class="tw-px-4 tw-py-2 tw-transition"
                 :class="!isBriefReady() && !showingBrief ? 'tw-opacity-50 tw-cursor-not-allowed' : ''">
-                ✨ Nội dung tóm tắt
+                Nội dung tóm tắt
               </button>
               <button @click="toggleBriefView()"
                 :class="!showingBrief ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold' : 'tw-text-gray-500 tw-font-medium'"
                 class="tw-px-4 tw-py-2 tw-transition">
-                📄 Nội dung đầy đủ
+                Nội dung đầy đủ
               </button>
             </div>
 
             <!-- Textarea with loading overlay -->
             <div class="tw-relative tw-flex-1 tw-flex tw-flex-col">
-              <textarea
-                :disabled="showingBrief && !isBriefReady()"
+              <textarea :disabled="showingBrief && !isBriefReady()"
                 class="tw-w-full tw-flex-1 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none disabled:tw-bg-gray-100 disabled:tw-opacity-60 disabled:tw-cursor-not-allowed tw-transition"
-                x-model="modalContent" 
-                spellcheck="false" 
-                placeholder="Chưa có thông tin..."></textarea>
-              
+                x-model="modalContent" spellcheck="false" placeholder="Chưa có thông tin..."></textarea>
+
               <!-- Loading Overlay -->
               <template x-if="showingBrief && !isBriefReady() && loadingBrief">
-                <div class="tw-absolute tw-inset-0 tw-bg-white/80 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3">
+                <div
+                  class="tw-absolute tw-inset-0 tw-bg-white/80 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3">
                   <div class="tw-animate-spin tw-text-[#1AA24C] tw-text-3xl">
                     <i class="ri-loader-4-line"></i>
                   </div>
@@ -213,8 +232,7 @@
 
             <!-- Footer Action -->
             <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
-              <button @click="saveModalContent()" 
-                :disabled="isSavingModal || (showingBrief && !isBriefReady())"
+              <button @click="saveModalContent()" :disabled="isSavingModal || (showingBrief && !isBriefReady())"
                 class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
                 <span x-show="isSavingModal" class="tw-animate-spin">
                   <i class="ri-loader-4-line"></i>
@@ -230,6 +248,7 @@
         </div>
       </div>
     </ul>
+  </div>
 
     {{-- Result Modal Component - giữ nguyên cho result-bar --}}
     <x-result-modal :brand="$brand" />
@@ -244,7 +263,7 @@
        })">
 
     <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
-      <a href="/brands/{{ $brand->slug }}/chat/{{ $agentType }}/{{ $agentId }}/new"
+      <a href="{{ LaravelLocalization::setLocale() ? '/' . LaravelLocalization::setLocale() : '' }}/brands/{{ $brand->slug }}/chat/{{ $agentType }}/{{ $agentId }}/new"
         class="tw-w-full tw-px-3 tw-py-2 tw-flex tw-items-center tw-gap-3 tw-text-left tw-bg-transparent hover:tw-bg-gray-50 tw-rounded-md tw-shrink-0 tw-mb-2">
         <div class="tw-flex tw-items-center tw-justify-center tw-w-[38px] tw-h-[38px]">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -342,13 +361,13 @@
     @foreach(config('timeline_steps.root') as $key => $step)
       '{{ $key }}': '{{ $step['label'] }}',
     @endforeach
-    @foreach(config('timeline_steps.trunk') as $key => $step)
-      '{{ $key }}': '{{ $step['label'] }}',
-    @endforeach
+  @foreach(config('timeline_steps.trunk') as $key => $step)
+    '{{ $key }}': '{{ $step['label'] }}',
+  @endforeach
   };
 
   // Lắng nghe event khi phân tích được lưu → cập nhật sidebar + navigation
-  window.addEventListener('analysis-saved', function(e) {
+  window.addEventListener('analysis-saved', function (e) {
     const agentType = e.detail?.agentType;
     const content = e.detail?.content;
     if (!agentType || !content) return;
@@ -369,7 +388,7 @@
     const label = dataPlatformLabels[agentType];
     if (label) {
       const menuItems = document.querySelectorAll('#dataPlatformMenu li');
-      menuItems.forEach(function(li) {
+      menuItems.forEach(function (li) {
         // Tìm thẻ có span/button chứa đúng label
         const textEl = li.querySelector('span.tw-font-semibold');
         if (textEl && textEl.textContent.trim() === label) {
@@ -406,7 +425,7 @@
         const allItems = container.querySelectorAll('[data-nav-key]');
         let currentIndex = -1;
 
-        allItems.forEach(function(item, index) {
+        allItems.forEach(function (item, index) {
           if (item.getAttribute('data-nav-key') === agentType) {
             currentIndex = index;
           }
@@ -419,10 +438,10 @@
 
           if (nextItem.tagName === 'SPAN') {
             // Thay span bằng a (unlocked)
-            const pathParts = window.location.pathname.split('/');
-            const brandSlug = pathParts[2];
+            const brandSlug = '{{ $brand->slug }}';
             const newLink = document.createElement('a');
-            newLink.href = '/brands/' + brandSlug + '/chat/' + nextKey;
+            const localePrefix = '{{ LaravelLocalization::setLocale() ? '/' . LaravelLocalization::setLocale() : '' }}';
+            newLink.href = localePrefix + '/brands/' + brandSlug + '/chat/' + nextKey;
             newLink.setAttribute('data-nav-key', nextKey);
             newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
             newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
@@ -437,10 +456,10 @@
       if (agentType === 'root3') {
         const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
         if (trunk1Item && trunk1Item.tagName === 'SPAN') {
-          const pathParts = window.location.pathname.split('/');
-          const brandSlug = pathParts[2];
+          const brandSlug = '{{ $brand->slug }}';
           const newLink = document.createElement('a');
-          newLink.href = '/brands/' + brandSlug + '/chat/trunk1';
+          const localePrefix = '{{ LaravelLocalization::setLocale() ? '/' . LaravelLocalization::setLocale() : '' }}';
+          newLink.href = localePrefix + '/brands/' + brandSlug + '/chat/trunk1';
           newLink.setAttribute('data-nav-key', 'trunk1');
           newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
           newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
@@ -516,7 +535,8 @@
       },
 
       getChatLink(chat) {
-        return `/brands/${this.brandSlug}/chat/${this.agentType}/${this.agentId}/${chat.id}`;
+        const localePrefix = '{{ LaravelLocalization::setLocale() ? '/' . LaravelLocalization::setLocale() : '' }}';
+        return `${localePrefix}/brands/${this.brandSlug}/chat/${this.agentType}/${this.agentId}/${chat.id}`;
       },
 
       formatDate(dateString) {
@@ -593,7 +613,13 @@
   // Sidebar Data Manager - Quản lý modal popup cho dataPlatformMenu
   function sidebarDataManager(config) {
     return {
-      expandedItems: {},
+      expandedItems: {
+        'root1': {{ $agentType === 'root1' ? 'true' : 'false' }},
+        'root2': {{ $agentType === 'root2' ? 'true' : 'false' }},
+        'root3': {{ $agentType === 'root3' ? 'true' : 'false' }},
+        'trunk1': {{ $agentType === 'trunk1' ? 'true' : 'false' }},
+        'trunk2': {{ $agentType === 'trunk2' ? 'true' : 'false' }}
+      },
       showModal: false,
       modalTitle: '',
       modalContent: '',
@@ -611,8 +637,89 @@
       briefDataTrunk: config.briefDataTrunk,
       pollingTimers: {},
 
+      init() {
+        // Đồng bộ khi result-bar lưu dữ liệu mới
+        window.addEventListener('brandDataUpdated', (e) => {
+          const { key, content, dataItems } = e.detail || {};
+          if (!key) return;
+
+          const isRoot = key.startsWith('root');
+          if (isRoot) {
+            this.rootData[key] = content;
+          } else {
+            this.trunkData[key] = content;
+          }
+
+          // Cập nhật data-value attribute cho Stimulus controller
+          const nav = document.getElementById('dataPlatformSection');
+          if (nav) {
+            try {
+              const currentData = JSON.parse(nav.dataset.resultModalDataValue || '{}');
+              currentData[key] = content;
+              nav.dataset.resultModalDataValue = JSON.stringify(currentData);
+            } catch (err) {
+              console.error('Sync sidebar data error:', err);
+            }
+          }
+
+          // Cập nhật UI thẻ trong dataPlatformMenu (xám → xanh nếu có data mới)
+          this.updateSidebarItemUI(key, content);
+        });
+
+        // Đồng bộ brief data khi polling từ result-bar hoàn tất
+        window.addEventListener('brandBriefUpdated', (e) => {
+          const { key, briefContent } = e.detail || {};
+          if (!key || !briefContent) return;
+
+          const isRoot = key.startsWith('root');
+          if (isRoot) {
+            this.briefDataRoot[key] = briefContent;
+          } else {
+            this.briefDataTrunk[key] = briefContent;
+          }
+        });
+      },
+
+      // Cập nhật style sidebar item khi có dữ liệu mới
+      updateSidebarItemUI(agentType, content) {
+        if (!content) return;
+        const menuItems = document.querySelectorAll('#dataPlatformMenu li');
+        const labels = {
+          'root1': 'Thiết kế Văn hoá Dịch vụ',
+          'root2': 'Phân tích Thổ nhưỡng',
+          'root3': 'Định vị Giá trị Giải pháp',
+          'trunk1': 'Định vị Thương hiệu',
+          'trunk2': 'Nhận diện Ngôn ngữ'
+        };
+        const label = labels[agentType];
+        if (!label) return;
+
+        menuItems.forEach((li) => {
+          const textEl = li.querySelector('span.tw-font-semibold');
+          if (textEl && textEl.textContent.trim() === label) {
+            li.classList.remove('tw-bg-gray-100', 'tw-opacity-60');
+            li.classList.add('tw-bg-[#D9F2E2]');
+          }
+        });
+      },
+
       toggleExpand(key) {
         this.expandedItems[key] = !this.expandedItems[key];
+      },
+
+      selectItemFromSidebar(agentType, itemKey) {
+        // Collapse expand section first
+        this.expandedItems[agentType] = false;
+        this.$nextTick(() => {
+          // Dispatch event để result-bar lắng nghe và expand brief section tương ứng
+          window.dispatchEvent(new CustomEvent('sidebarItemSelected', {
+            detail: {
+              agentType: agentType,
+              itemKey: itemKey
+            }
+          }));
+          console.log('Dispatched sidebarItemSelected:', agentType, itemKey);
+        });
       },
 
       openModal(title, key, isBrief = false) {
@@ -621,7 +728,7 @@
         this.showModal = true;
         this.saveStatus = '';
         this.showingBrief = isBrief;
-        
+
         // Load content từ data của brand
         if (isBrief) {
           // Kiểm tra brief content
@@ -671,7 +778,7 @@
       toggleBriefView() {
         const isRoot = this.currentKey.startsWith('root');
         this.showingBrief = !this.showingBrief;
-        
+
         if (this.showingBrief) {
           if (!this.isBriefReady()) {
             this.showingBrief = false;
@@ -686,8 +793,8 @@
       getChatUrl() {
         let agentType = this.currentKey;
         let agentId = 1;
-        
-        switch(agentType) {
+
+        switch (agentType) {
           case 'root1': agentId = 1; break;
           case 'root2': agentId = 2; break;
           case 'root3': agentId = 3; break;
@@ -720,7 +827,7 @@
 
           if (result.status === 'success') {
             this.saveStatus = '✓ Đã lưu thành công';
-            
+
             // Update local state
             const isRoot = this.currentKey.startsWith('root');
             if (isRoot) {
@@ -728,7 +835,7 @@
             } else {
               this.trunkData[this.currentKey] = this.modalContent;
             }
-            
+
             // Dispatch event for result-bar to sync updated data items
             if (result.data_items) {
               window.dispatchEvent(new CustomEvent('brandDataItemsUpdated', {
@@ -738,6 +845,15 @@
                 }
               }));
             }
+
+            // Dispatch brandDataUpdated để result-bar đồng bộ full data
+            window.dispatchEvent(new CustomEvent('brandDataUpdated', {
+              detail: {
+                key: this.currentKey,
+                content: this.modalContent,
+                dataItems: result.data_items || null
+              }
+            }));
           } else {
             this.saveStatus = 'Lỗi: ' + (result.message || 'Không thể lưu');
           }
