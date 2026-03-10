@@ -117,10 +117,19 @@ class BrandDataController extends Controller
 
         // Lưu nội dung phân tích
         $brand->$targetColumn = $currentData;
+
+        // Re-parse content thành keyword items
+        $parsedItems = [];
+        if (! empty($content)) {
+            $parsedItems = \App\Services\BrandContentParser::parseContent($key, $content);
+            $itemsColumn = "{$key}_data_items";
+            $brand->$itemsColumn = $parsedItems;
+        }
+
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (!empty($content)) {
+        if (! empty($content)) {
             SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
         }
 
@@ -142,6 +151,7 @@ class BrandDataController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Đã lưu thành công.',
+            'data_items' => $parsedItems,
             'next_step_html' => $nextStepHtml,
             'progress_header_html' => $progressHeaderHtml,
         ]);
@@ -234,7 +244,7 @@ class BrandDataController extends Controller
     public function getBriefStatus(Request $request, Brand $brand)
     {
         $key = $request->query('key');
-        if (!$key) {
+        if (! $key) {
             return response()->json(['ready' => false]);
         }
 
@@ -248,7 +258,7 @@ class BrandDataController extends Controller
         $parsedContent = app(\App\Services\BriefContentParser::class)->parse($key, $content);
 
         return response()->json([
-            'ready' => !empty($content),
+            'ready' => ! empty($content),
             'content' => $content,
             'parsed_content' => $parsedContent,
         ]);

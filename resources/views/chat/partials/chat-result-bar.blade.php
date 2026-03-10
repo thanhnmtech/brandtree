@@ -8,6 +8,19 @@
     $rootData = $brand->root_data ?? [];
     $trunkData = $brand->trunk_data ?? [];
 
+    // Structured items
+    $root1Items = $brand->root1_data_items ?? [];
+    $root2Items = $brand->root2_data_items ?? [];
+    $root3Items = $brand->root3_data_items ?? [];
+    $trunk1Items = $brand->trunk1_data_items ?? [];
+    $trunk2Items = $brand->trunk2_data_items ?? [];
+
+    $root1BriefItems = $brand->root1_brief_items ?? [];
+    $root2BriefItems = $brand->root2_brief_items ?? [];
+    $root3BriefItems = $brand->root3_brief_items ?? [];
+    $trunk1BriefItems = $brand->trunk1_brief_items ?? [];
+    $trunk2BriefItems = $brand->trunk2_brief_items ?? [];
+
     // Normalize data to ensure keys exist for JS object
     $initialData = [
         'root1' => $rootData['root1'] ?? '',
