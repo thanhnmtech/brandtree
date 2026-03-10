@@ -27,20 +27,20 @@ class BrandContentParser
         ],
         'trunk1' => [
             'Tên thương hiệu' => 'Tên thương hiệu \(Brand Name\)',
-            'Khẩu hiệu' => 'Khẩu hiệu \(Tagline)',
-            'Tuyên bố Định vị' => 'Tuyên bố Định vị \(Positioning Statement)',
+            'Khẩu hiệu' => 'Khẩu hiệu \(Tagline\)',
+            'Tuyên bố Định vị' => 'Tuyên bố Định vị \(Positioning Statement\)',
             'Lý do để người dùng tin tưởng thương hiệu' => 'Lý do để người dùng tin tưởng thương hiệu \(Reasons to Believe\)',
             'Tính cách thương hiệu' => 'Tính cách thương hiệu \(Brand Personality\)',
             'Giọng điệu Thương hiệu' => 'Giọng điệu Thương hiệu \(Tone of Voice\)',
             'Lời hứa thương hiệu' => 'Lời hứa thương hiệu \(Brand Promise\)',
         ],
         'trunk2' => [
-            'Định nghĩa giọng nói' => 'Định nghĩa giọng nói \(Nomenclature)',
-            'Đặc điểm giọng điệu' => 'Đặc điểm giọng điệu',
-            'Giọng nói Thương hiệu nên tránh' => 'Giọng nói Thương hiệu nên tránh',
-            'Cách ứng dụng' => 'Cách ứng dụng',
-            'Tone map' => 'Tone map',
-            'Ví dụ cụ thể' => 'Ví dụ cụ thể',
+            'Định nghĩa giọng nói' => 'Định nghĩa giọng nói \(Nomenclature\)',
+            'Đặc điểm giọng điệu' => 'Đặc điểm giọng điệu \(Tone of Voice\)',
+            'Giọng nói Thương hiệu nên tránh' => 'Giọng nói Thương hiệu nên tránh \(Brand Voice to Avoid\)',
+            'Cách ứng dụng' => 'Cách ứng dụng \(How to Apply\)',
+            'Tone map' => 'Tone map \(Tone Map\)',
+            'Ví dụ cụ thể' => 'Ví dụ cụ thể \(Examples\)',
         ],
     ];
 
