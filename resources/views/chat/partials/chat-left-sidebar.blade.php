@@ -60,9 +60,7 @@
           @if($hasData)
             {{-- Có dữ liệu: cho phép click mở result-modal --}}
             <button type="button"
-              data-action="result-modal#open"
-              data-result-modal-title-param="{{ $step['label'] }}"
-              data-result-modal-key-param="{{ $key }}"
+              onclick="window.dispatchEvent(new CustomEvent('open-result-modal', { detail: { title: '{{ str_replace('\'', '\\\'', $step['label']) }}', key: '{{ $key }}', isFromResultBar: false } }))"
               class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
               <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
             </button>
@@ -80,9 +78,7 @@
           @if($hasData)
             {{-- Có dữ liệu: cho phép click mở result-modal --}}
             <button type="button"
-              data-action="result-modal#open"
-              data-result-modal-title-param="{{ $step['label'] }}"
-              data-result-modal-key-param="{{ $key }}"
+              onclick="window.dispatchEvent(new CustomEvent('open-result-modal', { detail: { title: '{{ str_replace('\'', '\\\'', $step['label']) }}', key: '{{ $key }}', isFromResultBar: false } }))"
               class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
               <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
             </button>
@@ -94,9 +90,9 @@
       @endforeach
     </ul>
 
-    {{-- Result Modal Component - để hiển thị popup kết quả phân tích --}}
-    <x-result-modal :brand="$brand" />
   </nav>
+
+  {{-- Đã gỡ Result Modal Component ở đây vì giờ sử dụng chung modal bên chat-result-bar qua $dispatch --}}
 
   <!-- Chat History Section with Alpine.js -->
   <div id="chatHistorySection" class="tw-flex tw-flex-col tw-gap-3 tw-overflow-hidden tw-flex-1" x-data="chatHistorySidebar({
@@ -213,8 +209,8 @@
   // Lắng nghe event khi phân tích được lưu → cập nhật sidebar + navigation
   window.addEventListener('analysis-saved', function(e) {
     const agentType = e.detail?.agentType;
-    const content = e.detail?.content;
-    if (!agentType || !content) return;
+    const content = e.detail?.content !== undefined ? e.detail?.content : null;
+    if (!agentType || content === null) return;
 
     // === 1. Cập nhật data-value của Stimulus result-modal controller ===
     const nav = document.getElementById('dataPlatformSection');
@@ -236,80 +232,95 @@
         // Tìm thẻ có span/button chứa đúng label
         const textEl = li.querySelector('span.tw-font-semibold');
         if (textEl && textEl.textContent.trim() === label) {
-          // Đổi style từ xám sang xanh
-          li.classList.remove('tw-bg-gray-100', 'tw-opacity-60');
-          li.classList.add('tw-bg-[#D9F2E2]');
+          if (content && content.trim() !== '') {
+            // Đổi style từ xám sang xanh
+            li.classList.remove('tw-bg-gray-100', 'tw-opacity-60');
+            li.classList.add('tw-bg-[#D9F2E2]');
 
-          // Nếu đang là span (chưa có data), thay bằng button click được
-          if (li.querySelector('span.tw-text-gray-400') && !li.querySelector('button')) {
-            li.innerHTML = `
-              <button type="button"
-                data-action="result-modal#open"
-                data-result-modal-title-param="${label}"
-                data-result-modal-key-param="${agentType}"
-                class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
-                <span class="tw-font-semibold tw-text-gray-500">${label}</span>
-              </button>
-            `;
+            // Thay span bằng button click được
+            if (li.querySelector('span.tw-text-gray-400') && !li.querySelector('button')) {
+              li.innerHTML = `
+                <button type="button"
+                  onclick="window.dispatchEvent(new CustomEvent('open-result-modal', { detail: { title: '${label}', key: '${agentType}', isFromResultBar: false } }))"
+                  class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
+                  <span class="tw-font-semibold tw-text-gray-500">${label}</span>
+                </button>
+              `;
+            }
+          } else {
+            // Trường hợp xóa data: đổi style từ xanh về xám
+            li.classList.remove('tw-bg-[#D9F2E2]');
+            li.classList.add('tw-bg-gray-100', 'tw-opacity-60');
+            
+            // Thay button bằng span
+            if (li.querySelector('button')) {
+              li.innerHTML = `
+                <span class="tw-font-semibold tw-text-gray-400">${label}</span>
+              `;
+            }
           }
         }
       });
     }
 
     // === 3. Cập nhật navigation dropdown ===
-    const navItem = document.querySelector('[data-nav-key="' + agentType + '"]');
-    if (navItem) {
-      // Đổi style item hiện tại sang màu xanh (unlocked)
-      navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]', 'tw-cursor-not-allowed');
-      navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
+    // Chỉ xử lý unlock các bước tiếp theo khi có dữ liệu mới (không bị rỗng)
+    if (content && content.trim() !== '') {
+      const navItem = document.querySelector('[data-nav-key="' + agentType + '"]');
+      if (navItem) {
+        // Đổi style item hiện tại sang màu xanh (unlocked)
+        navItem.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]', 'tw-cursor-not-allowed');
+        // Tuỳ view đang có active hay không, chúng ta có thể add F4FCF7
+        navItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
 
-      // Tìm container chứa tất cả navigation items
-      const container = navItem.closest('.tw-rounded-\\[4px\\]');
-      if (container) {
-        const allItems = container.querySelectorAll('[data-nav-key]');
-        let currentIndex = -1;
+        // Tìm container chứa tất cả navigation items
+        const container = navItem.closest('.tw-rounded-\\[4px\\]');
+        if (container) {
+          const allItems = container.querySelectorAll('[data-nav-key]');
+          let currentIndex = -1;
 
-        allItems.forEach(function(item, index) {
-          if (item.getAttribute('data-nav-key') === agentType) {
-            currentIndex = index;
+          allItems.forEach(function(item, index) {
+            if (item.getAttribute('data-nav-key') === agentType) {
+              currentIndex = index;
+            }
+          });
+
+          // Unlock next item nếu có trong cùng dropdown
+          if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
+            const nextItem = allItems[currentIndex + 1];
+            const nextKey = nextItem.getAttribute('data-nav-key');
+
+            if (nextItem.tagName === 'SPAN') {
+              // Thay span bằng a (unlocked)
+              const pathParts = window.location.pathname.split('/');
+              const brandSlug = pathParts[2];
+              const newLink = document.createElement('a');
+              newLink.href = '/brands/' + brandSlug + '/chat/' + nextKey;
+              newLink.setAttribute('data-nav-key', nextKey);
+              newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
+              newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
+              newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
+              newLink.innerHTML = nextItem.innerHTML;
+              nextItem.replaceWith(newLink);
+            }
           }
-        });
+        }
 
-        // Unlock next item nếu có trong cùng dropdown
-        if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
-          const nextItem = allItems[currentIndex + 1];
-          const nextKey = nextItem.getAttribute('data-nav-key');
-
-          if (nextItem.tagName === 'SPAN') {
-            // Thay span bằng a (unlocked)
+        // Xử lý đặc biệt: root3 xong → unlock trunk1
+        if (agentType === 'root3') {
+          const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
+          if (trunk1Item && trunk1Item.tagName === 'SPAN') {
             const pathParts = window.location.pathname.split('/');
             const brandSlug = pathParts[2];
             const newLink = document.createElement('a');
-            newLink.href = '/brands/' + brandSlug + '/chat/' + nextKey;
-            newLink.setAttribute('data-nav-key', nextKey);
-            newLink.className = nextItem.className.replace('tw-cursor-not-allowed', '');
+            newLink.href = '/brands/' + brandSlug + '/chat/trunk1';
+            newLink.setAttribute('data-nav-key', 'trunk1');
+            newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
             newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
             newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
-            newLink.innerHTML = nextItem.innerHTML;
-            nextItem.replaceWith(newLink);
+            newLink.innerHTML = trunk1Item.innerHTML;
+            trunk1Item.replaceWith(newLink);
           }
-        }
-      }
-
-      // Xử lý đặc biệt: root3 xong → unlock trunk1
-      if (agentType === 'root3') {
-        const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
-        if (trunk1Item && trunk1Item.tagName === 'SPAN') {
-          const pathParts = window.location.pathname.split('/');
-          const brandSlug = pathParts[2];
-          const newLink = document.createElement('a');
-          newLink.href = '/brands/' + brandSlug + '/chat/trunk1';
-          newLink.setAttribute('data-nav-key', 'trunk1');
-          newLink.className = trunk1Item.className.replace('tw-cursor-not-allowed', '');
-          newLink.classList.remove('tw-text-[#7B7773]', 'tw-bg-[#e7e5df]');
-          newLink.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]', 'hover:tw-opacity-80');
-          newLink.innerHTML = trunk1Item.innerHTML;
-          trunk1Item.replaceWith(newLink);
         }
       }
     }

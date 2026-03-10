@@ -61,10 +61,22 @@ class BrandDataController extends Controller
 
         // Save back
         $brand->$targetColumn = $currentData;
+
+        // Xóa bản tóm tắt cũ nếu người dùng gửi content rỗng
+        if (empty(trim($refinedContent ?? ''))) {
+            $prefix = in_array($agentType, $rootTypes) ? 'root' : 'trunk';
+            $briefColumn = "{$prefix}_brief_data";
+            $currentBriefData = $brand->$briefColumn ?? [];
+            if (!is_array($currentBriefData)) $currentBriefData = [];
+            
+            $currentBriefData[$jsonKey] = ''; 
+            $brand->$briefColumn = $currentBriefData;
+        }
+
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (! empty($refinedContent)) {
+        if (!empty(trim($refinedContent ?? ''))) {
             SummarizeBrandDataJob::dispatch($brand->id, $agentType, $refinedContent);
         }
 
@@ -108,7 +120,7 @@ class BrandDataController extends Controller
         $brand->save();
 
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
-        if (! empty($content)) {
+        if (!empty($content)) {
             SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
         }
 
@@ -167,7 +179,7 @@ class BrandDataController extends Controller
         // Lấy dữ liệu hiện tại
         $currentData = $brand->$targetColumn;
 
-        if (! is_array($currentData)) {
+        if (!is_array($currentData)) {
             $currentData = [];
         }
 
@@ -176,10 +188,21 @@ class BrandDataController extends Controller
 
         // Save
         $brand->$targetColumn = $currentData;
+
+        // Xóa bản tóm tắt cũ nếu người dùng gửi content rỗng
+        if ($type === 'data' && empty(trim($content ?? ''))) {
+            $briefColumn = "{$prefix}_brief_data";
+            $currentBriefData = $brand->$briefColumn ?? [];
+            if (!is_array($currentBriefData)) $currentBriefData = [];
+            
+            $currentBriefData[$key] = ''; 
+            $brand->$briefColumn = $currentBriefData;
+        }
+
         $brand->save();
 
         // Dispatch job nếu là data (không phải brief)
-        if ($type === 'data' && ! empty($content)) {
+        if ($type === 'data' && !empty(trim($content ?? ''))) {
             SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
         }
 
@@ -211,7 +234,7 @@ class BrandDataController extends Controller
     public function getBriefStatus(Request $request, Brand $brand)
     {
         $key = $request->query('key');
-        if (! $key) {
+        if (!$key) {
             return response()->json(['ready' => false]);
         }
 
@@ -222,9 +245,12 @@ class BrandDataController extends Controller
         $briefData = $brand->$briefColumn ?? [];
         $content = $briefData[$key] ?? null;
 
+        $parsedContent = app(\App\Services\BriefContentParser::class)->parse($key, $content);
+
         return response()->json([
-            'ready' => ! empty($content),
+            'ready' => !empty($content),
             'content' => $content,
+            'parsed_content' => $parsedContent,
         ]);
     }
 }

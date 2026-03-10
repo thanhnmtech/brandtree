@@ -21,6 +21,28 @@
 
         <!-- ==== MENU DESKTOP (>=1024px) ==== -->
         @if(!empty($currentBrand))
+            @php
+                $rootData = $currentBrand->root_data ?? [];
+                $trunkData = $currentBrand->trunk_data ?? [];
+                $allSteps = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+                $maxReachedIndex = -1;
+                foreach ($allSteps as $idx => $sKey) {
+                    if (in_array($sKey, ['root1', 'root2', 'root3'])) {
+                        if (!empty($rootData[$sKey]) && is_string($rootData[$sKey]) && trim($rootData[$sKey]) !== '') {
+                            $maxReachedIndex = max($maxReachedIndex, $idx);
+                        }
+                    } else {
+                        if (!empty($trunkData[$sKey]) && is_string($trunkData[$sKey]) && trim($trunkData[$sKey]) !== '') {
+                            $maxReachedIndex = max($maxReachedIndex, $idx);
+                        }
+                    }
+                }
+                $currentAgentType = request()->segment(4);
+                $currentStepIndex = array_search($currentAgentType, $allSteps);
+                if ($currentStepIndex !== false) {
+                    $maxReachedIndex = max($maxReachedIndex, $currentStepIndex - 1);
+                }
+            @endphp
             <div class="tw-hidden lg:tw-flex tw-flex-1 tw-justify-center tw-items-center tw-gap-[20px] lg:tw-gap-[40px]">
                 <a href="{{ route('brands.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.show') ? 'tw-bg-vlbcgreen tw-text-white' : 'tw-bg-transparent tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-px-4 tw-py-1 tw-rounded-full tw-transition-colors tw-duration-200">
@@ -35,16 +57,12 @@
                     {{-- Dropdown menu --}}
                     <div class="tw-absolute tw-hidden group-hover:tw-block tw-w-[246px] tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-pt-2 tw-z-50">
                         <div class="tw-border tw-border-gray-300 tw-bg-white tw-rounded-[4px] tw-shadow-lg tw-overflow-hidden">
-                            @php
-                                $rootData = $currentBrand->root_data ?? [];
-                                $prevStepDone = true; // First step is always ready
-                            @endphp
                             @foreach(config('timeline_steps.root') as $key => $step)
                                 @php
-                                    $isDone = !empty($rootData[$key]);
-                                    // Chỉ root1 mở mặc định, các step sau chỉ mở khi step trước đã có data
-                                    $isFirstStep = ($key === 'root1');
-                                    $isUnlocked = $isFirstStep ? true : $prevStepDone;
+                                    $isDone = !empty($rootData[$key]) && is_string($rootData[$key]) && trim($rootData[$key]) !== '';
+                                    
+                                    $stepIndex = array_search($key, $allSteps);
+                                    $isUnlocked = ($stepIndex <= $maxReachedIndex + 1);
                                     
                                     // Kiểm tra xem đang ở trang chat của step này không
                                     // URL: /brands/{slug}/chat/{agentType} => segment(4) = agentType
@@ -72,9 +90,6 @@
                                     {{ $step['label'] }}
                                 </span>
                                 @endif
-                                @php
-                                    $prevStepDone = $isDone;
-                                @endphp
                             @endforeach
                         </div>
                     </div>
@@ -88,25 +103,12 @@
                     {{-- Dropdown menu --}}
                     <div class="tw-absolute tw-hidden group-hover:tw-block tw-w-[246px] tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-pt-2 tw-z-50">
                         <div class="tw-border tw-border-gray-300 tw-bg-white tw-rounded-[4px] tw-shadow-lg tw-overflow-hidden">
-                            @php
-                                $trunkData = $currentBrand->trunk_data ?? [];
-                                // Kiểm tra xem tất cả root đã hoàn thành chưa
-                                $rootSteps = array_keys(config('timeline_steps.root'));
-                                $allRootCompleted = true;
-                                foreach ($rootSteps as $rootKey) {
-                                    if (empty($rootData[$rootKey])) {
-                                        $allRootCompleted = false;
-                                        break;
-                                    }
-                                }
-                                $prevTrunkStepDone = $allRootCompleted;
-                            @endphp
                             @foreach(config('timeline_steps.trunk') as $key => $step)
                                 @php
-                                    $isDone = !empty($trunkData[$key]);
-                                    // trunk1 mở nếu root xong hết, các step sau mở khi step trước đã có data
-                                    $isFirstTrunkStep = ($key === 'trunk1');
-                                    $isUnlocked = $isFirstTrunkStep ? $allRootCompleted : $prevTrunkStepDone;
+                                    $isDone = !empty($trunkData[$key]) && is_string($trunkData[$key]) && trim($trunkData[$key]) !== '';
+                                    
+                                    $stepIndex = array_search($key, $allSteps);
+                                    $isUnlocked = ($stepIndex <= $maxReachedIndex + 1);
                                     
                                     // Kiểm tra xem đang ở trang chat của step này không
                                     // URL: /brands/{slug}/chat/{agentType} => segment(4) = agentType
@@ -134,9 +136,6 @@
                                     {{ $step['label'] }}
                                 </span>
                                 @endif
-                                @php
-                                    $prevTrunkStepDone = $isDone;
-                                @endphp
                             @endforeach
                         </div>
                     </div>

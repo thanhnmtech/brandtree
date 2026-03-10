@@ -131,6 +131,14 @@ export default class extends Controller {
                 newData[this.currentKey] = this.contentTarget.value;
                 this.dataValue = newData;
 
+                // Gửi event để chat-result-bar xử lý polling (hoặc clear data khi empty)
+                window.dispatchEvent(new CustomEvent('analysis-saved', {
+                    detail: {
+                        agentType: this.currentKey,
+                        content: this.contentTarget.value
+                    }
+                }));
+
                 // Cập nhật các phần UI (Next Step, Progress, Steps)
                 this.updateUIFromResponse(result);
 
@@ -202,6 +210,8 @@ export default class extends Controller {
      * - Xử lý đặc biệt khi hoàn thành root3 → unlock trunk1
      */
     updateNavigationDropdown() {
+        if (!this.contentTarget.value || this.contentTarget.value.trim() === '') return;
+        
         // Tìm cả a và span với data-nav-key
         const navItem = document.querySelector(`[data-nav-key="${this.currentKey}"]`);
         if (!navItem) return;
