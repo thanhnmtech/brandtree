@@ -202,7 +202,7 @@
                 <div class="tw-flex tw-items-center tw-gap-3">
                     <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">Xác nhận và Lưu thông tin</h3>
                     <button
-                        class="tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-text-blue-600 tw-bg-blue-50 tw-rounded-md hover:tw-bg-blue-100 tw-transition-colors">
+                        class="tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-text-green-600 tw-bg-green-100 tw-rounded-md hover:tw-bg-green-200 tw-transition-colors">
                         Trích xuất dữ liệu
                     </button>
                 </div>

@@ -89,7 +89,7 @@
                 class="tw-flex tw-flex-row tw-gap-[15px] max-[900px]:tw-w-full max-[900px]:tw-justify-between max-[640px]:tw-flex-col">
                 <!-- Status filter -->
                 <div
-                    class="tw-relative tw-h-[44px] tw-w-[220px] max-[900px]:tw-w-full tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
+                    class="tw-relative tw-h-[44px]  tw-w-[220px] max-[900px]:tw-w-full tw-rounded-[7px] tw-border-[2px] tw-border-[#E2EBE7] tw-bg-white tw-flex tw-items-center">
                     <img src="{{ asset('assets/img/filter-vector.svg') }}" alt="filter"
                         class="tw-absolute tw-left-[10px] tw-top-1/2 tw--translate-y-1/2 tw-w-[16px] tw-h-[16px] tw-pointer-events-none" />
                     <select name="status"

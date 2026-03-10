@@ -5,98 +5,133 @@ namespace App\Services;
 class BriefContentParser
 {
     /**
-     * Map agent type -> keywords để extract từ brief content
+     * Parse raw markdown content into structured items based on config.
+     *
+     * @param string $agentType (e.g., 'root1', 'trunk2')
+     * @param string $content (raw markdown content)
+     * @return array
      */
-    public static function getKeywordMap(): array
+    public function parse(string $agentType, ?string $content): array
     {
-        return [
-            'root1' => [
-                'purpose' => ['Purpose (Mục đích)', 'Purpose', 'Mục đích', 'Mục đích doanh nghiệp'],
-                'core_values' => ['Giá trị cốt lõi', 'Core Values (Giá trị cốt lõi)', 'Core Values', 'Giá trị'],
-                'behaviors' => ['Hành vi đặc trưng', 'Behaviors', 'Hành vi'],
-                'promise' => ['Lời cam kết', 'Promise', 'Cam kết'],
-                'spirit' => ['Tinh thần đội ngũ', 'Spirit', 'Tinh thần'],
-            ],
-            'root2' => [
-                'core_customer' => ['Khách hàng trọng tâm', 'Core Customer', 'Khách hàng'],
-                'pain_points' => ['Nỗi đau lớn nhất', 'Pain Points', 'Nỗi đau'],
-                'customer_desires' => ['Khao khát của khách hàng', 'Customer Desires', 'Khao khát'],
-                'purchase_barriers' => ['Rào cản mua hàng', 'Purchase Barriers', 'Rào cản'],
-                'market_opportunity' => ['Cơ hội thị trường', 'Market Opportunity', 'Cơ hội'],
-            ],
-            'root3' => [
-                'unique_character' => ['Điểm khác biệt độc nhất', 'Điểm khác biệt', 'khác biệt', 'độc nhất'],
-                'core_solution' => ['Giải pháp cốt lõi', 'Core Solution', 'Giải pháp'],
-                'rational_benefits' => ['Lợi ích lý tính', 'Rational Benefits', 'Lợi ích'],
-                'emotional_benefits' => ['Lợi ích cảm xúc', 'Emotional Benefits', 'Cảm xúc'],
-            ],
-            'trunk1' => [
-                'brand_name' => ['Tên thương hiệu', 'Brand Name'],
-                'brand_slogan' => ['Thông điệp chính', 'Thông điệp', 'slogan'],
-                'personality' => ['Tính cách thương hiệu', 'Brand Personality', 'Tính cách'],
-                'representative' => ['Hình mẫu đại diện', 'Representative', 'Hình mẫu'],
-                'brand_promise' => ['Lời hứa thương hiệu', 'Brand Promise', 'Lời hứa'],
-            ],
-            'trunk2' => [
-                'forms_of_address' => ['Cách xưng hô', 'Forms of Address', 'Cách xưng hô'],
-                'core_tone' => ['Giọng văn chủ đạo', 'Core Tone', 'Giọng văn', 'chủ đạo'],
-                'delivery' => ['Cảm xúc truyền tải', 'Delivery', 'truyền tải', 'Cảm xúc'],
-                'unique_keyword' => ['Từ khóa đặc trưng', 'Unique Keyword', 'Từ khóa', 'đặc trưng'],
-                'forbidden_words' => ['Ngôn từ cần tránh', 'Từ khóa cấm', 'Forbidden Words', 'cấm', 'Tránh', 'Ngôn từ'],
-            ],
-        ];
-    }
-
-    /**
-     * Parse brief content theo keywords
-     * Trả về array: [item_key => content]
-     */
-    public static function parseBriefContent(string $agentType, string $briefContent): array
-    {
-        $keywordMap = self::getKeywordMap();
-
-        if (!isset($keywordMap[$agentType])) {
+        if (empty($content)) {
             return [];
         }
 
-        $itemMap = $keywordMap[$agentType];
-        $result = [];
-        $content = trim($briefContent);
-
-        foreach ($itemMap as $itemKey => $keywords) {
-            $result[$itemKey] = self::extractSection($content, $keywords);
+        $configItems = config("agent_brief.{$agentType}", []);
+        if (empty($configItems)) {
+            return [];
         }
 
-        return $result;
-    }
+        $content = str_replace(["\r\n", "\r"], "\n", $content);
+        $lines = explode("\n", $content);
 
-    /**
-     * Extract section content từ brief based on keywords
-     */
-    private static function extractSection(string $content, array $keywords): string
-    {
-        foreach ($keywords as $keyword) {
-            $escaped = preg_quote($keyword, '/');
-            // Match with or without markdown bold, followed by a colon or newline, capturing until the next bold heading or end
-            $pattern = '/(?:^|\n)(?:\*\*|)\s*' . $escaped . '\s*(?:\*\*|)\s*[:\-]*\s*(.+?)(?=\n\s*(?:\*\*|)[A-ZĐÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÊẾỀỂỄỆÔỐỒỔỖỘƠỚỜỞỠỢƯỨỪỬỮỰÍÌỈĨỊÚÙỦŨỤÝỲỶỸỴ][a-zđáàảãạâấầẩẫậăắằẳẵặêếềểễệôốồổỗộơớờởỡợưứừửữựíìỉĩịúùủũụýỳỷỹỵA-Z\s]+(?:\*\*|)\s*:|$)/is';
-            
-            if (preg_match($pattern, $content, $matches)) {
-                $section = trim($matches[1]);
-                $section = ltrim($section, ':- \t\n');
-                $section = rtrim($section, ':- \t\n');
-                return $section;
-            }
-            
-            // Fallback simpler pattern if the strict one fails
-            $patternFallback = '/(?:^|\n)(?:\*\*|)\s*' . $escaped . '\s*(?:\*\*|)\s*[:\-]*\s*(.+?)(?=\n\n|$)/is';
-            if (preg_match($patternFallback, $content, $matches)) {
-                $section = trim($matches[1]);
-                $section = ltrim($section, ':- \t\n');
-                $section = rtrim($section, ':- \t\n');
-                return $section;
+        // Chuẩn hoá string thành không dấu, viết thường, xoá kí tự đặc biệt để ép so sánh
+        $normalize = function ($str) {
+            $str = mb_strtolower($str, 'UTF-8');
+            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str);
+            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str);
+            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str);
+            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str);
+            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str);
+            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str);
+            $str = preg_replace('/(đ)/', 'd', $str);
+            // Xoá mọi thứ không phải chữ cái a-z hoặc số
+            return preg_replace('/[^a-z0-9]/', '', $str);
+        };
+
+        $normalizedMap = [];
+        foreach ($configItems as $index => $item) {
+            foreach ($item['match_keywords'] as $kw) {
+                $normalizedMap[$index][] = $normalize($kw);
             }
         }
 
-        return '';
+        $parsedMap = [];
+        $activeConfigIndex = -1;
+        $activeContent = [];
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if (empty($trimmed)) {
+                if ($activeConfigIndex !== -1) {
+                    $activeContent[] = $line;
+                }
+                continue;
+            }
+
+            // Loại bỏ #, *, -, số thứ tự ở đầu dòng để lấy chữ thuần
+            $cleanLineForMatch = preg_replace('/^([#\*\-\s\d\.]+)/', '', $trimmed);
+            // Lấy 30 char đầu tiên để so sánh xem có phải là thẻ tiêu đề không
+            $startOfLine = mb_substr($cleanLineForMatch, 0, 30);
+            $normalizedStart = $normalize($startOfLine);
+
+            $matchedIndex = -1;
+
+            foreach ($normalizedMap as $idx => $nKeywords) {
+                foreach ($nKeywords as $nkw) {
+                    if (str_starts_with($normalizedStart, $nkw)) {
+                        $matchedIndex = $idx;
+                        break 2;
+                    }
+                }
+            }
+
+            if ($matchedIndex !== -1) {
+                // Đã tìm ra mục mới!
+                if ($activeConfigIndex !== -1) {
+                    $parsedMap[$configItems[$activeConfigIndex]['title']] = trim(implode("\n", $activeContent));
+                }
+
+                $activeConfigIndex = $matchedIndex;
+                $activeContent = [];
+
+                // Trim nội dung trùng với tiêu đề
+                $pos = mb_strpos($trimmed, ':');
+                if ($pos !== false) {
+                    $rest = mb_substr($trimmed, $pos + 1);
+                    $rest = trim(preg_replace('/^[\*\s]+/', '', $rest));
+                    if (!empty($rest)) {
+                        $activeContent[] = $rest;
+                    }
+                } else {
+                    // force so sánh
+                    $origKw = $configItems[$matchedIndex]['match_keywords'][0];
+                    $ireplace = str_ireplace($origKw, '', $trimmed);
+
+                    if (mb_strlen($ireplace) < mb_strlen($trimmed) - 2) {
+                        $rest = preg_replace('/^[\*: \-\n\r]+/', '', trim($ireplace));
+                        if (!empty($rest)) {
+                            $activeContent[] = $rest;
+                        }
+                    }
+                }
+            } else {
+                if ($activeConfigIndex !== -1) {
+                    $activeContent[] = $line;
+                }
+            }
+        }
+
+        // Lưu mục cuối
+        if ($activeConfigIndex !== -1) {
+            $parsedMap[$configItems[$activeConfigIndex]['title']] = trim(implode("\n", $activeContent));
+        }
+
+        // Generate final array
+        $finalParsedList = [];
+        foreach ($configItems as $itemConfig) {
+            $title = $itemConfig['title'];
+            $contentStr = $parsedMap[$title] ?? '';
+
+            $finalParsedList[] = [
+                'title' => $title,
+                'content' => $contentStr,
+                'short_content' => !empty($contentStr)
+                    ? \Illuminate\Support\Str::limit(strip_tags($contentStr), 100)
+                    : '',
+            ];
+        }
+
+        return $finalParsedList;
     }
 }

@@ -68,7 +68,7 @@ export default class extends Controller {
         // Hiển thị modal
         this.modalTarget.classList.remove("tw-hidden");
         this.modalTarget.style.display = "";
-        
+
         // Chặn scroll body
         document.body.style.overflow = "hidden";
 
@@ -131,6 +131,14 @@ export default class extends Controller {
                 newData[this.currentKey] = this.contentTarget.value;
                 this.dataValue = newData;
 
+                // Gửi event để chat-result-bar xử lý polling (hoặc clear data khi empty)
+                window.dispatchEvent(new CustomEvent('analysis-saved', {
+                    detail: {
+                        agentType: this.currentKey,
+                        content: this.contentTarget.value
+                    }
+                }));
+
                 // Cập nhật các phần UI (Next Step, Progress, Steps)
                 this.updateUIFromResponse(result);
 
@@ -154,6 +162,8 @@ export default class extends Controller {
     /**
      * Gửi request lưu dữ liệu lên server
      */
+
+    // Note: hardcode type = data trong request để lưu vào cột root_data/trunk_data. Nếu muốn lưu vào brief_data, có thể truyền thêm data-result-modal-type-value="brief" từ button và sử dụng ở đây
     async sendSaveRequest() {
         const response = await fetch(
             `/brands/${this.brandSlugValue}/update-section`,
@@ -168,6 +178,7 @@ export default class extends Controller {
                 body: JSON.stringify({
                     key: this.currentKey,
                     content: this.contentTarget.value,
+                    type: this.typeValue || "data", // Có thể mở rộng nếu muốn phân biệt brief/data
                 }),
             },
         );
@@ -199,6 +210,8 @@ export default class extends Controller {
      * - Xử lý đặc biệt khi hoàn thành root3 → unlock trunk1
      */
     updateNavigationDropdown() {
+        if (!this.contentTarget.value || this.contentTarget.value.trim() === '') return;
+        
         // Tìm cả a và span với data-nav-key
         const navItem = document.querySelector(`[data-nav-key="${this.currentKey}"]`);
         if (!navItem) return;
@@ -214,7 +227,7 @@ export default class extends Controller {
         // Lấy tất cả items trong container
         const allItems = container.querySelectorAll('[data-nav-key]');
         let currentIndex = -1;
-        
+
         // Tìm index của item hiện tại
         allItems.forEach((item, index) => {
             if (item.getAttribute('data-nav-key') === this.currentKey) {
@@ -226,7 +239,7 @@ export default class extends Controller {
         if (currentIndex !== -1 && currentIndex + 1 < allItems.length) {
             const nextItem = allItems[currentIndex + 1];
             const nextKey = nextItem.getAttribute('data-nav-key');
-            
+
             // Nếu next item là span (locked), thay bằng a (unlocked)
             if (nextItem.tagName === 'SPAN') {
                 const newLink = document.createElement('a');
@@ -243,13 +256,13 @@ export default class extends Controller {
                 nextItem.classList.add('tw-text-vlbcgreen', 'tw-bg-[#F4FCF7]');
             }
         }
-        
+
         // Nếu là step cuối của root (root3), kiểm tra và unlock trunk1
         if (this.currentKey === 'root3') {
             // Kiểm tra tất cả root steps đã có data chưa
             const rootKeys = ['root1', 'root2', 'root3'];
             const allRootDone = rootKeys.every(key => this.dataValue[key]);
-            
+
             if (allRootDone) {
                 // Tìm trunk1 trong dropdown trunk
                 const trunk1Item = document.querySelector('[data-nav-key="trunk1"]');
@@ -310,8 +323,8 @@ export default class extends Controller {
         try {
             this.stepsContainerTarget.classList.add("tw-opacity-50");
 
-            const url = this.hasUrlValue 
-                ? this.urlValue 
+            const url = this.hasUrlValue
+                ? this.urlValue
                 : `/brands/${this.brandSlugValue}/root`;
             const response = await fetch(url, {
                 headers: {
