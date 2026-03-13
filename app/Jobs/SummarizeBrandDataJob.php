@@ -211,7 +211,7 @@ class SummarizeBrandDataJob implements ShouldQueue
                     ['role' => 'user', 'content' => $content],
                 ],
                 'temperature' => 0.7,
-                'max_tokens' => 1000,
+                'max_completion_tokens' => 1000,
             ];
 
             Log::info('SummarizeBrandDataJob: Gửi request tới OpenAI Chat Completions API');

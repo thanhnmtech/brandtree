@@ -175,7 +175,7 @@ class SummaryJob implements ShouldQueue
                 // Không dùng response_format: json_object vì một số prompt trả array, không phải object
                 // Thay vào đó dùng parseJsonResponse() để xử lý linh hoạt
                 'temperature' => 0.3, // Giảm temperature vì cần output chính xác theo format
-                'max_tokens' => 2000,
+                'max_completion_tokens' => 1000,
             ];
 
             Log::info("SummaryJob: Gửi request tới OpenAI Chat Completions API cho '{$this->summaryName}'");
