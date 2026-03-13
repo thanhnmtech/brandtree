@@ -167,14 +167,14 @@ class SummaryJob implements ShouldQueue
 
         try {
             $data = [
-                'model' => config('services.openai.chat_model', 'gpt-4o'),
+                'model' => 'gpt-4o',
                 'messages' => [
                     ['role' => 'system', 'content' => $prompt],
                     ['role' => 'user', 'content' => $content],
                 ],
                 // Không dùng response_format: json_object vì một số prompt trả array, không phải object
                 // Thay vào đó dùng parseJsonResponse() để xử lý linh hoạt
-                'temperature' => 0.7, // Giảm temperature vì cần output chính xác theo format
+                'temperature' => 0.3, // Giảm temperature vì cần output chính xác theo format
                 'max_tokens' => 2000,
             ];
 

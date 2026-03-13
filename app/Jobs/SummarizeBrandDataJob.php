@@ -205,7 +205,7 @@ class SummarizeBrandDataJob implements ShouldQueue
 
         try {
             $data = [
-                'model' => config('services.openai.chat_model', 'gpt-4o'),
+                'model' => 'gpt-4o',
                 'messages' => [
                     ['role' => 'system', 'content' => $briefPrompt],
                     ['role' => 'user', 'content' => $content],
