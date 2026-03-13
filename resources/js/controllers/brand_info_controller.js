@@ -312,7 +312,8 @@ export default class extends Controller {
             },
             body: JSON.stringify({
                 key: key,
-                content: content
+                content: content,
+                type: 'data' // Backend yêu cầu field type (required|in:data,brief)
             })
         });
         

@@ -15,6 +15,28 @@
         $overallProgress = $brand->getOverallProgress();
         $circumference = 2 * M_PI * 52; // Chu vi vòng tròn (2πr với r=52)
         $dashOffset = $circumference * (1 - $overallProgress / 100);
+
+        // Lấy summary data cho KẾT QUẢ CHIẾN LƯỢC
+        $summaryData = $brand->summary_data ?? [];
+        // Helper: parse string JSON (data cũ bị lưu raw) thành array
+        $parseSummary = function($data) {
+            if (is_array($data)) return $data;
+            if (!is_string($data)) return null;
+            // Normalize smart quotes từ OpenAI 
+            $cleaned = str_replace(
+                ["\u{201C}", "\u{201D}", "\u{2018}", "\u{2019}"],
+                ['"', '"', "'", "'"],
+                trim($data)
+            );
+            // Loại bỏ markdown code block
+            if (preg_match('/^```(?:json)?\s*\n?(.*?)\n?\s*```$/s', $cleaned, $m)) {
+                $cleaned = trim($m[1]);
+            }
+            $decoded = json_decode($cleaned, true);
+            return (json_last_error() === JSON_ERROR_NONE && $decoded) ? $decoded : null;
+        };
+        $authenticFoundation = $parseSummary($summaryData['authentic_foundation'] ?? null);
+        $consistentIdentity = $parseSummary($summaryData['consistent_identity'] ?? null);
     @endphp
     <div data-controller="brand-form result-modal brand-info" 
         data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
@@ -312,9 +334,9 @@
                 </h2>
 
                 <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-5">
-                    <!-- CARD 1 — Active -->
-                    <div
-                        class="tw-bg-white tw-rounded-xl tw-border-2 tw-border-[#1AA24C] tw-shadow-sm tw-p-6 tw-transition">
+                    <!-- CARD 1 — Authentic Foundation (Nền tảng gốc rễ) -->
+                    <a href="{{ route('brands.root.show', $brand->slug) }}" id="card-authentic-foundation"
+                        class="tw-block tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-6 tw-transition hover:-tw-translate-y-1 {{ $authenticFoundation ? 'tw-border-2 tw-border-[#1AA24C]' : 'tw-border tw-border-[#E4ECE8] tw-opacity-70' }}">
                         <div class="tw-flex tw-items-start tw-gap-3">
                             <div
                                 class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#E6F6EC] tw-flex tw-items-center tw-justify-center">
@@ -322,34 +344,34 @@
                             </div>
 
                             <div class="tw-flex-1">
-                                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
+                                <h3 class="tw-text-lg tw-font-semibold {{ $authenticFoundation ? 'tw-text-gray-800' : 'tw-text-gray-500' }}">
                                     {{ __('messages.brand_show.authentic_foundation') }}
                                 </h3>
-                                <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
-                                    {{ __('messages.brand_show.core_values_defined') }}
-                                </p>
-
-                                <div class="tw-flex tw-gap-2 tw-flex-wrap tw-mt-3">
-                                    <span
-                                        class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                                        {{ __('messages.brand_show.quality') }}
-                                    </span>
-                                    <span
-                                        class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                                        {{ __('messages.brand_show.dedication') }}
-                                    </span>
-                                    <span
-                                        class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                                        {{ __('messages.brand_show.innovation') }}
-                                    </span>
-                                </div>
+                                @if($authenticFoundation && is_array($authenticFoundation))
+                                    {{-- Có data: hiển thị các tags từ summary_data --}}
+                                    <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
+                                        {{ __('messages.brand_show.root_defined') }}
+                                    </p>
+                                    <div class="tw-flex tw-gap-2 tw-flex-wrap tw-mt-3">
+                                        @foreach($authenticFoundation as $value)
+                                            <span class="tw-bg-[#E6F6EC] tw-text-[#1AA24C] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
+                                                {{ $value }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    {{-- Chưa có data: trạng thái chờ --}}
+                                    <p class="tw-text-sm tw-text-gray-400 tw-mt-1">
+                                        {{ __('messages.brand_show.root_not_completed') }}
+                                    </p>
+                                @endif
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <!-- CARD 2 — Locked -->
-                    <div
-                        class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E4ECE8] tw-shadow-sm tw-p-6 tw-opacity-70">
+                    <!-- CARD 2 — Consistent Identity (Nhận diện nhất quán) -->
+                    <a href="{{ route('brands.trunk.show', $brand->slug) }}" id="card-consistent-identity"
+                        class="tw-block tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-6 tw-transition hover:-tw-translate-y-1 {{ $consistentIdentity ? 'tw-border-2 tw-border-[#E3A65A]' : 'tw-border tw-border-[#E4ECE8] tw-opacity-70' }}">
                         <div class="tw-flex tw-items-start tw-gap-3">
                             <div
                                 class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#FFF5E6] tw-flex tw-items-center tw-justify-center">
@@ -357,37 +379,181 @@
                             </div>
 
                             <div class="tw-flex-1">
-                                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-500">
+                                <h3 class="tw-text-lg tw-font-semibold {{ $consistentIdentity ? 'tw-text-gray-800' : 'tw-text-gray-500' }}">
                                     {{ __('messages.brand_show.consistent_identity') }}
                                 </h3>
-                                <p class="tw-text-sm tw-text-gray-400 tw-mt-1">
-                                    {{ __('messages.brand_show.trunk_not_completed') }}
-                                </p>
+                                @if($consistentIdentity && is_array($consistentIdentity))
+                                    {{-- Có data: hiển thị các tags --}}
+                                    <p class="tw-text-sm tw-text-gray-500 tw-mt-1">
+                                        {{ __('messages.brand_show.trunk_defined') }}
+                                    </p>
+                                    <div class="tw-flex tw-gap-2 tw-flex-wrap tw-mt-3">
+                                        @foreach($consistentIdentity as $value)
+                                            <span class="tw-bg-[#FFF5E6] tw-text-[#E3A65A] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
+                                                {{ $value }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    {{-- Chưa có data: trạng thái chờ --}}
+                                    <p class="tw-text-sm tw-text-gray-400 tw-mt-1">
+                                        {{ __('messages.brand_show.trunk_not_completed') }}
+                                    </p>
+                                @endif
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <!-- CARD 3 — Locked -->
-                    <div
-                        class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E4ECE8] tw-shadow-sm tw-p-6 tw-opacity-60">
+                    <!-- CARD 3 — Brand Health (Sức khỏe thương hiệu) - Locked -->
+                    <a href="{{ route('brands.canopy.show', $brand->slug) }}" id="card-brand-health"
+                        class="tw-block tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-6 tw-transition hover:-tw-translate-y-1 {{ $consistentIdentity && $authenticFoundation ? 'tw-border-2 tw-border-[#2681EF]' : 'tw-border tw-border-[#E4ECE8] tw-opacity-70' }}">
                         <div class="tw-flex tw-items-start tw-gap-3">
                             <div
-                                class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#EAF5F1] tw-flex tw-items-center tw-justify-center">
-                                <i class="ri-heart-pulse-line tw-text-[#87B2A1] tw-text-xl"></i>
+                                class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-[#E7F1FD] tw-flex tw-items-center tw-justify-center">
+                                <i class="ri-heart-pulse-line tw-text-[#2681EF] tw-text-xl"></i>
                             </div>
 
                             <div class="tw-flex-1">
-                                <h3 class="tw-text-lg tw-font-semibold tw-text-gray-500">
+                                <h3 class="tw-text-lg tw-font-semibold {{ $consistentIdentity && $authenticFoundation ? 'tw-text-gray-800' : 'tw-text-gray-500' }}">
                                     {{ __('messages.brand_show.brand_health') }}
                                 </h3>
-                                <p class="tw-text-sm tw-text-gray-400 tw-mt-1">
+                                <p class="tw-text-sm tw-mt-1 {{ $consistentIdentity && $authenticFoundation ? 'tw-text-gray-500' : 'tw-text-gray-400' }}">
                                     {{ __('messages.brand_show.canopy_not_started') }}
                                 </p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </section>
+
+            {{-- Polling JS: tự kiểm tra và reload card khi SummaryJob hoàn thành --}}
+            @if(!$authenticFoundation || !$consistentIdentity)
+            <script>
+                (function() {
+                    const brandSlug = @json($brand->slug);
+                    // Xác định cần poll những summary nào
+                    const pendingSummaries = [];
+                    @if(!$authenticFoundation)
+                        pendingSummaries.push('authentic_foundation');
+                    @endif
+                    @if(!$consistentIdentity)
+                        pendingSummaries.push('consistent_identity');
+                    @endif
+
+                    if (pendingSummaries.length === 0) return;
+
+                    let pollCount = 0;
+                    const maxPollCount = 30; // Tối đa 30 lần (5 phút)
+                    const pollInterval = 3000; // 3 giây mỗi lần
+
+                    const pollTimer = setInterval(async () => {
+                        pollCount++;
+                        if (pollCount > maxPollCount || pendingSummaries.length === 0) {
+                            clearInterval(pollTimer);
+                            return;
+                        }
+
+                        // Kiểm tra từng summary đang pending
+                        for (let i = pendingSummaries.length - 1; i >= 0; i--) {
+                            const name = pendingSummaries[i];
+                            try {
+                                const resp = await fetch(`/brands/${brandSlug}/summary-status?name=${name}`);
+                                const data = await resp.json();
+                                if (data.ready && data.content) {
+                                    // Đã có data → reload card
+                                    updateCard(name, data.content);
+                                    // Xóa khỏi danh sách pending
+                                    pendingSummaries.splice(i, 1);
+                                    console.log(`Summary '${name}' đã sẵn sàng, cập nhật card.`);
+                                }
+                            } catch (e) {
+                                console.error(`Polling summary '${name}' error:`, e);
+                            }
+                        }
+
+                        // Nếu tất cả đã hoàn thành (hoặc vừa hoàn thành do reload card)
+                        if (pendingSummaries.length === 0) {
+                            updateBrandHealthCard();
+                            clearInterval(pollTimer);
+                        }
+                    }, pollInterval);
+
+                    /**
+                     * Cập nhật card 3 (Brand Health)
+                     */
+                    function updateBrandHealthCard() {
+                        const card = document.getElementById('card-brand-health');
+                        if (!card) return;
+
+                        // Cập nhật card border & opacity
+                        card.className = card.className
+                            .replace('tw-border tw-border-[#E4ECE8]', 'tw-border-2 tw-border-[#2681EF]')
+                            .replace('tw-opacity-70', '');
+
+                        // Cập nhật text color header
+                        const h3 = card.querySelector('h3');
+                        if (h3) h3.className = h3.className.replace('tw-text-gray-500', 'tw-text-gray-800');
+
+                        // Cập nhật text color description
+                        const p = card.querySelector('p');
+                        if (p) p.className = p.className.replace('tw-text-gray-400', 'tw-text-gray-500');
+                    }
+
+                    /**
+                     * Cập nhật card UI khi có data mới
+                     */
+                    function updateCard(name, content) {
+                        const cardId = `card-${name.replace(/_/g, '-')}`;
+                        const card = document.getElementById(cardId);
+                        if (!card) return;
+
+                        // Xác định style theo loại card
+                        const isAuthentic = name === 'authentic_foundation';
+                        const borderColor = isAuthentic ? '#1AA24C' : '#E3A65A';
+                        const bgColor = isAuthentic ? '#E6F6EC' : '#FFF5E6';
+                        const textColor = isAuthentic ? '#1AA24C' : '#E3A65A';
+
+                        // Cập nhật style card: active
+                        card.className = card.className
+                            .replace('tw-border tw-border-[#E4ECE8]', `tw-border-2 tw-border-[${borderColor}]`)
+                            .replace('tw-opacity-70', '');
+
+                        // Cập nhật tiêu đề style
+                        const h3 = card.querySelector('h3');
+                        if (h3) h3.className = h3.className.replace('tw-text-gray-500', 'tw-text-gray-800');
+
+                        // Tìm container nội dung (div.tw-flex-1)
+                        const contentDiv = card.querySelector('.tw-flex-1');
+                        if (!contentDiv) return;
+
+                        // Xóa paragraph cũ và thêm tags mới
+                        const oldP = contentDiv.querySelector('p');
+                        
+                        // Tạo tags HTML từ array data
+                        let tagsHtml = '';
+                        if (Array.isArray(content)) {
+                            tagsHtml = content.map(v =>
+                                `<span class="tw-bg-[${bgColor}] tw-text-[${textColor}] tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">${v}</span>`
+                            ).join('');
+                        }
+
+                        if (oldP) {
+                            oldP.textContent = isAuthentic ? '{{ __('messages.brand_show.root_defined') }}' : '{{ __('messages.brand_show.trunk_defined') }}';
+                            oldP.className = 'tw-text-sm tw-text-gray-500 tw-mt-1';
+                        }
+
+                        // Xóa div tags cũ nếu có, thêm mới
+                        let tagsDiv = contentDiv.querySelector('.tw-flex.tw-gap-2');
+                        if (!tagsDiv) {
+                            tagsDiv = document.createElement('div');
+                            tagsDiv.className = 'tw-flex tw-gap-2 tw-flex-wrap tw-mt-3';
+                            contentDiv.appendChild(tagsDiv);
+                        }
+                        tagsDiv.innerHTML = tagsHtml;
+                    }
+                })();
+            </script>
+            @endif
             <!-- =================== BƯỚC TIẾP THEO =================== -->
             <div data-result-modal-target="nextStepContainer">
                 @include('brands.partials.next-step', ['brand' => $brand, 'phases' => $phases])

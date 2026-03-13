@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SummarizeBrandDataJob;
+use App\Jobs\SummaryJob;
 use App\Models\Brand;
+use App\Models\SummaryAgent;
 use Illuminate\Http\Request;
 
 class BrandDataController extends Controller
@@ -75,10 +77,14 @@ class BrandDataController extends Controller
 
         $brand->save();
 
-        // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt
+        // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt từng section
         if (!empty(trim($refinedContent ?? ''))) {
             SummarizeBrandDataJob::dispatch($brand->id, $agentType, $refinedContent);
         }
+
+        // Dispatch các SummaryJob tổng hợp nếu đủ điều kiện
+        $brand->refresh(); // Refresh để lấy data mới nhất
+        $this->dispatchSummaryJobs($brand, $agentType);
 
         return response()->json([
             'status' => 'success',
@@ -216,6 +222,12 @@ class BrandDataController extends Controller
             SummarizeBrandDataJob::dispatch($brand->id, $key, $content);
         }
 
+        // Dispatch các SummaryJob tổng hợp nếu đủ điều kiện (chỉ khi lưu data)
+        if ($type === 'data') {
+            $brand->refresh();
+            $this->dispatchSummaryJobs($brand, $key);
+        }
+
         // Update phase status
         $phases = $brand->calculatePhaseStatuses();
 
@@ -263,4 +275,85 @@ class BrandDataController extends Controller
             'parsed_content' => $parsedContent,
         ]);
     }
+
+    /**
+     * Dispatch các SummaryJob tổng hợp dựa trên điều kiện hoàn thành
+     * Logic generic: đọc trigger_condition từ DB, không hardcode tên prompt
+     * → Khi thêm prompt mới chỉ cần insert record vào summary_agents
+     */
+    private function dispatchSummaryJobs(Brand $brand, string $agentType): void
+    {
+        $isRoot = str_starts_with($agentType, 'root');
+        $isTrunk = str_starts_with($agentType, 'trunk');
+
+        // Lấy tất cả summary agents đang active
+        $summaryAgents = SummaryAgent::where('is_active', true)->get();
+
+        foreach ($summaryAgents as $agent) {
+            $shouldDispatch = false;
+
+            switch ($agent->trigger_condition) {
+                case SummaryAgent::TRIGGER_ROOT_COMPLETED:
+                    // Chỉ dispatch khi vừa cập nhật root VÀ root đã hoàn thành
+                    $shouldDispatch = $isRoot && $brand->isRootCompleted();
+                    break;
+
+                case SummaryAgent::TRIGGER_TRUNK_COMPLETED:
+                    // Chỉ dispatch khi vừa cập nhật trunk VÀ trunk đã hoàn thành
+                    $shouldDispatch = $isTrunk && $brand->isTrunkCompleted();
+                    break;
+
+                case SummaryAgent::TRIGGER_ALL_COMPLETED:
+                    // Dispatch khi cả root + trunk đều hoàn thành
+                    $shouldDispatch = $brand->isAllStepsCompleted();
+                    break;
+            }
+
+            if ($shouldDispatch) {
+                SummaryJob::dispatch($brand->id, $agent->name);
+            }
+        }
+    }
+
+    /**
+     * API endpoint cho frontend polling kiểm tra summary data đã sẵn sàng chưa
+     */
+    public function getSummaryStatus(Request $request, Brand $brand)
+    {
+        $name = $request->query('name');
+        if (!$name) {
+            return response()->json(['ready' => false]);
+        }
+
+        $summaryData = $brand->summary_data ?? [];
+        $content = $summaryData[$name] ?? null;
+
+        $parsedContent = null;
+        if ($content) {
+            if (is_array($content)) {
+                $parsedContent = $content;
+            } elseif (is_string($content)) {
+                // Normalize smart quotes
+                $cleaned = str_replace(
+                    ["\u{201C}", "\u{201D}", "\u{2018}", "\u{2019}"],
+                    ['"', '"', "'", "'"],
+                    trim($content)
+                );
+                // Loại bỏ markdown code block
+                if (preg_match('/^```(?:json)?\s*\n?(.*?)\n?\s*```$/s', $cleaned, $m)) {
+                    $cleaned = trim($m[1]);
+                }
+                $decoded = json_decode($cleaned, true);
+                if (json_last_error() === JSON_ERROR_NONE && $decoded) {
+                    $parsedContent = $decoded;
+                }
+            }
+        }
+
+        return response()->json([
+            'ready' => !empty($content),
+            'content' => $parsedContent ?: $content,
+        ]);
+    }
 }
+

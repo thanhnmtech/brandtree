@@ -5,6 +5,9 @@
           'trunk1' => $trunkData['trunk1'] ?? '',
           'trunk2' => $trunkData['trunk2'] ?? '',
       ];
+      $overallProgress = $brand->getOverallProgress();
+      $circumferenceSm = 2 * M_PI * 37; // radius = 37 for 80x80 svg
+      $dashOffsetSm = $circumferenceSm * (1 - $overallProgress / 100);
   @endphp
 
   <main class="tw-mt-[36px]"
@@ -51,12 +54,23 @@
             </div>
 
             <div class="tw-flex tw-items-center">
-                <div
-                    class="tw-h-20 tw-w-20 tw-rounded-full tw-border-[6px] tw-border-green-300 tw-bg-white tw-flex tw-flex-col tw-items-center tw-justify-center tw-shadow-sm">
-                    <span class="tw-text-green-600 tw-font-semibold tw-text-xl">53%</span>
-                    <span class="tw-text-gray-500 tw-text-[10px] tw-mt-0.5">
-                    Hoàn thành
-                    </span>
+                <div class="tw-relative tw-w-20 tw-h-20">
+                    <svg class="tw-w-full tw-h-full tw-rounded-full tw-shadow-sm tw-bg-white" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="37" stroke="#E8EDEB" stroke-width="6" fill="none" />
+                    </svg>
+
+                    <svg class="tw-w-full tw-h-full tw-absolute tw-top-0 tw-left-0 tw-rotate-[-90deg]"
+                        viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="37" stroke="#1AA24C" stroke-width="6" stroke-linecap="round"
+                            fill="none" stroke-dasharray="{{ round($circumferenceSm, 2) }}" stroke-dashoffset="{{ round($dashOffsetSm, 2) }}" />
+                    </svg>
+
+                    <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
+                        <div class="tw-flex tw-flex-col tw-items-center">
+                            <span class="tw-text-green-600 tw-font-semibold tw-text-xl">{{ $overallProgress }}%</span>
+                            <span class="tw-text-gray-500 tw-text-[10px] tw-mt-0.5">Hoàn thành</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

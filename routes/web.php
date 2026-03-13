@@ -114,6 +114,10 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
             ->middleware(['brand.access'])
             ->name('brands.brief_status');
 
+        Route::get('/brands/{brand}/summary-status', [\App\Http\Controllers\BrandDataController::class, 'getSummaryStatus'])
+            ->middleware(['brand.access'])
+            ->name('brands.summary_status');
+
         Route::post('/brands/{brand}/agents', [\App\Http\Controllers\BrandAgentController::class, 'store'])
             ->middleware(['brand.access'])
             ->name('brands.agents.store');
