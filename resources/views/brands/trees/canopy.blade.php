@@ -1,4 +1,9 @@
 <x-app-layout>
+  @php
+      $overallProgress = $brand->getOverallProgress();
+      $circumferenceSm = 2 * M_PI * 37; // radius = 37 for 80x80 svg
+      $dashOffsetSm = $circumferenceSm * (1 - $overallProgress / 100);
+  @endphp
   <!-- Main Content -->
   <main class="tw-mt-[36px]" x-data="{ openCreateModal: false, openTemplateModal: false, openEditModal: false }">
 
@@ -39,10 +44,24 @@
         </div>
 
         <div class="tw-flex tw-items-center">
-          <div class="tw-h-20 tw-w-20 tw-rounded-full tw-border-[6px] tw-border-green-300 tw-bg-white tw-flex tw-flex-col tw-items-center tw-justify-center tw-shadow-sm">
-            <span class="tw-text-green-600 tw-font-semibold tw-text-xl">53%</span>
-            <span class="tw-text-gray-500 tw-text-[10px] tw-mt-0.5">Hoàn thành</span>
-          </div>
+            <div class="tw-relative tw-w-20 tw-h-20">
+                <svg class="tw-w-full tw-h-full tw-rounded-full tw-shadow-sm tw-bg-white" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="37" stroke="#E8EDEB" stroke-width="6" fill="none" />
+                </svg>
+
+                <svg class="tw-w-full tw-h-full tw-absolute tw-top-0 tw-left-0 tw-rotate-[-90deg]"
+                    viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="37" stroke="#1AA24C" stroke-width="6" stroke-linecap="round"
+                        fill="none" stroke-dasharray="{{ round($circumferenceSm, 2) }}" stroke-dashoffset="{{ round($dashOffsetSm, 2) }}" />
+                </svg>
+
+                <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
+                    <div class="tw-flex tw-flex-col tw-items-center">
+                        <span class="tw-text-green-600 tw-font-semibold tw-text-xl">{{ $overallProgress }}%</span>
+                        <span class="tw-text-gray-500 tw-text-[10px] tw-mt-0.5">Hoàn thành</span>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
 
@@ -67,7 +86,7 @@
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
                   Giá trị Cốt Lõi
                 </h3>
-                <p class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
+                <p id="sp-core-values" class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
                   Chất lượng Đổi mới, Trách nhiệm
                 </p>
               </div>
@@ -88,7 +107,7 @@
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
                   Chân dung Khách hàng
                 </h3>
-                <p class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
+                <p id="sp-customer-persona" class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
                   SME Việt Nam, 30-45 tuổi, tìm kiếm tăng trưởng
                 </p>
               </div>
@@ -109,7 +128,7 @@
                 <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
                   Định vị Thương hiệu
                 </h3>
-                <p class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
+                <p id="sp-brand-positioning" class="tw-text-sm tw-font-semibold tw-text-[#829B99] tw-mt-1">
                   Giải pháp marketing AI-powered cho SME
                 </p>
               </div>
@@ -249,6 +268,39 @@
   </main>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fetch dữ liệu Nền tảng chiến lược (strategic_platform)
+      fetch(`{{ route('brands.summary_status', ['brand' => $brand->slug]) }}?name=strategic_platform`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ready && data.content) {
+            let contentData = data.content;
+            
+            // Xử lý trường hợp data.content là JSON string
+            if (typeof contentData === 'string') {
+              try {
+                contentData = JSON.parse(contentData);
+              } catch (e) {
+                console.error('Lỗi khi parse JSON Nền tảng chiến lược:', e);
+                return;
+              }
+            }
+
+            // Gán giá trị vào các element tương ứng
+            if (contentData['Giá trị Cốt lõi']) {
+              document.getElementById('sp-core-values').innerText = contentData['Giá trị Cốt lõi'];
+            }
+            if (contentData['Chân dung Khách hàng']) {
+              document.getElementById('sp-customer-persona').innerText = contentData['Chân dung Khách hàng'];
+            }
+            if (contentData['Định vị Thương hiệu']) {
+              document.getElementById('sp-brand-positioning').innerText = contentData['Định vị Thương hiệu'];
+            }
+          }
+        })
+        .catch(error => console.error('Lỗi khi fetch Nền tảng chiến lược:', error));
+    });
+
     async function deleteAgent(agentId, agentName, brandSlug) {
       if (!confirm('Bạn có chắc muốn xóa Agent "' + agentName + '" không?')) {
         return;

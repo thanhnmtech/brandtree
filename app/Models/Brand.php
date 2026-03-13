@@ -27,6 +27,7 @@ class Brand extends Model
         'trunk_data',
         'root_brief_data',
         'trunk_brief_data',
+        'summary_data', // Kết quả tóm tắt tổng hợp (strategic_platform, authentic_foundation, consistent_identity)
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ class Brand extends Model
         'trunk_data' => 'array',
         'root_brief_data' => 'array',   // Dữ liệu tóm tắt từ OpenAI cho root
         'trunk_brief_data' => 'array',  // Dữ liệu tóm tắt từ OpenAI cho trunk
+        'summary_data' => 'array',      // Kết quả tóm tắt tổng hợp (3 loại)
         // Structured items from parser
         'root1_data_items' => 'array',
         'root2_data_items' => 'array',
@@ -415,6 +417,44 @@ class Brand extends Model
         $completed = count(array_filter($rootSteps, fn ($k) => ! empty($rootData[$k])));
 
         return round(($completed / $total) * 100).'%';
+    }
+
+    // ============================================
+    // SUMMARY COMPLETION HELPERS
+    // ============================================
+
+    /**
+     * Kiểm tra tất cả root steps đã hoàn thành chưa
+     */
+    public function isRootCompleted(): bool
+    {
+        $rootSteps = array_keys(config('timeline_steps.root', []));
+        $rootData = $this->root_data ?? [];
+
+        if (empty($rootSteps)) return false;
+
+        return count(array_filter($rootSteps, fn($k) => !empty($rootData[$k]))) === count($rootSteps);
+    }
+
+    /**
+     * Kiểm tra tất cả trunk steps đã hoàn thành chưa
+     */
+    public function isTrunkCompleted(): bool
+    {
+        $trunkSteps = array_keys(config('timeline_steps.trunk', []));
+        $trunkData = $this->trunk_data ?? [];
+
+        if (empty($trunkSteps)) return false;
+
+        return count(array_filter($trunkSteps, fn($k) => !empty($trunkData[$k]))) === count($trunkSteps);
+    }
+
+    /**
+     * Kiểm tra tất cả root + trunk steps đã hoàn thành chưa
+     */
+    public function isAllStepsCompleted(): bool
+    {
+        return $this->isRootCompleted() && $this->isTrunkCompleted();
     }
 
     // ============================================
