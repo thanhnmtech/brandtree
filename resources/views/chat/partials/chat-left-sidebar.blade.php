@@ -52,7 +52,9 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
 
     <div class="tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2 tw-overflow-hidden tw-max-h-[40vh]">
     {{-- Danh sách các step Root và Trunk --}}
-    <ul id="dataPlatformMenu" class="tw-w-full tw-space-y-2 tw-text-sm" x-data="sidebarDataManager({
+    <ul id="dataPlatformMenu" class="tw-w-full tw-space-y-2 tw-text-sm"
+      @open-result-modal.window="openModal($event.detail.title, $event.detail.key, $event.detail.isFromResultBar || false)"
+      x-data="sidebarDataManager({
       brandSlug: '{{ $brand->slug }}',
       rootData: @js($brand->root_data ?? []),
       trunkData: @js($brand->trunk_data ?? []),
