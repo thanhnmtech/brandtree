@@ -8,18 +8,6 @@
     $rootData = $brand->root_data ?? [];
     $trunkData = $brand->trunk_data ?? [];
 
-    // Structured items
-    $root1Items = $brand->root1_data_items ?? [];
-    $root2Items = $brand->root2_data_items ?? [];
-    $root3Items = $brand->root3_data_items ?? [];
-    $trunk1Items = $brand->trunk1_data_items ?? [];
-    $trunk2Items = $brand->trunk2_data_items ?? [];
-
-    $root1BriefItems = $brand->root1_brief_items ?? [];
-    $root2BriefItems = $brand->root2_brief_items ?? [];
-    $root3BriefItems = $brand->root3_brief_items ?? [];
-    $trunk1BriefItems = $brand->trunk1_brief_items ?? [];
-    $trunk2BriefItems = $brand->trunk2_brief_items ?? [];
 
     // Normalize data to ensure keys exist for JS object
     $initialData = [
@@ -30,58 +18,35 @@
         'trunk2' => $trunkData['trunk2'] ?? '',
     ];
 
-    $parser = app(\App\Services\BriefContentParser::class);
-    $parsedData = [];
-    foreach (['root1', 'root2', 'root3'] as $type) {
-        $parsedData[$type] = $parser->parse($type, $brand->root_brief_data[$type] ?? '');
-    }
-    foreach (['trunk1', 'trunk2'] as $type) {
-        $parsedData[$type] = $parser->parse($type, $brand->trunk_brief_data[$type] ?? '');
-    }
+
 @endphp
 
 @php
     $nextUrl = '#';
+    
+    // Define the sequence of agents
+    $agentSequence = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+    $currentIndex = array_search($agentType, $agentSequence);
 
-    switch ($agentType) {
-        case 'root1':
-            $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root2', 'agentId' => 2, 'convId' => 'new']);
-            break;
-        case 'root2':
-            $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'root3', 'agentId' => 3, 'convId' => 'new']);
-            break;
-        case 'root3':
-            $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk1', 'agentId' => 4, 'convId' => 'new']);
-            break;
-        case 'trunk1':
-            $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => 'trunk2', 'agentId' => 5, 'convId' => 'new']);
-            break;
-        case 'trunk2':
+    if ($currentIndex !== false) {
+        if ($currentIndex < count($agentSequence) - 1) {
+            // Next agent in the sequence
+            $nextAgentType = $agentSequence[$currentIndex + 1];
+            $nextUrl = route('chat', ['brand' => $brandSlug, 'agentType' => $nextAgentType]);
+        } else {
+            // After trunk2, go to canopy
             $nextUrl = route('brands.canopy.show', ['brand' => $brandSlug]);
-            break;
-        default:
-            $nextUrl = '#';
-            break;
+        }
     }
 @endphp
 
-<div class="tw-flex tw-flex-col" x-data="{
-        openModal: false,
-        modalTitle: '',
-        modalContent: '',
-        currentKey: '',
+<div class="tw-flex tw-flex-col tw-h-full" x-data="{
         brandSlug: '{{ $brand->slug }}',
-        isSaving: false,
-        saveStatus: '',
         data: @js($initialData),
         briefData: @js($brand->root_brief_data ?? []),
         briefDataTrunk: @js($brand->trunk_brief_data ?? []),
-        parsedBriefData: @js($parsedData),
-        isPartialItem: false,
         pollingTimers: {},
         loadingAgents: {},
-        showingBrief: false,
-        isFromResultBar: false,
         showToast: false,
         toastMessage: '',
         toastTimeout: null,
@@ -112,26 +77,6 @@
                     this.startPollingBrief(agentType);
                 }
             });
-
-            // Lắng nghe event mở modal từ bên ngoài (e.g. từ Left Sidebar)
-            window.addEventListener('open-result-modal', (e) => {
-                const { title, key, isFromResultBar } = e.detail || {};
-                if (title && key) {
-                    this.openInfo(title, key, isFromResultBar);
-                }
-            });
-        },
-
-        openItemModal(title, content, agentType) {
-            if (!content) return;
-            this.modalTitle = title;
-            this.modalContent = content;
-            this.currentKey = agentType;
-            this.isFromResultBar = true;
-            this.showingBrief = true;
-            this.isPartialItem = true;
-            this.saveStatus = '';
-            this.openModal = true;
         },
 
         // Polling kiểm tra brief data đã sẵn sàng chưa
@@ -168,25 +113,10 @@
                         } else {
                             this.briefDataTrunk[agentType] = result.content;
                         }
-                        
-                        if (result.parsed_content) {
-                            if (!this.parsedBriefData) this.parsedBriefData = {};
-                            this.parsedBriefData[agentType] = result.parsed_content;
-                        }
 
                         // Dừng polling
-                        clearInterval(this.pollingTimers[agentType]);
                         delete this.pollingTimers[agentType];
                         this.loadingAgents[agentType] = false;
-                        
-                        // Auto-update modal content nếu nó đang open và showing brief
-                        if (this.openModal && this.currentKey === agentType && this.showingBrief && this.isFromResultBar && !this.isPartialItem) {
-                            if (rootTypes.includes(agentType)) {
-                                this.modalContent = this.briefData[agentType] || '';
-                            } else {
-                                this.modalContent = this.briefDataTrunk[agentType] || '';
-                            }
-                        }
                         
                         // Show toast notification
                         this.showToastNotification(`✓ Đã hoàn tất tóm tắt ${this.getLevelLabel(agentType)}`);
@@ -230,15 +160,6 @@
             } else {
                 this.briefDataTrunk[agentType] = '';
             }
-            
-            // Reset JSON parser content để UI list items chuyển xám
-            if (this.parsedBriefData && this.parsedBriefData[agentType]) {
-                this.parsedBriefData[agentType] = this.parsedBriefData[agentType].map(item => ({
-                    ...item,
-                    content: '',
-                    short_content: ''
-                }));
-            }
 
             // Ngừng polling nếu đang chạy
             if (this.pollingTimers[agentType]) {
@@ -246,11 +167,6 @@
                 delete this.pollingTimers[agentType];
             }
             this.loadingAgents[agentType] = false;
-            
-            // Nếu modal đang mở đúng item này và đang show brief view, reset nội dung
-            if (this.openModal && this.currentKey === agentType && this.showingBrief && this.isFromResultBar && !this.isPartialItem) {
-                this.modalContent = '';
-            }
         },
 
         // Tính tiến độ hoàn thành thương hiệu (root + trunk = 5 steps)
@@ -277,79 +193,6 @@
             return labels[agentType] || 'Không xác định';
         },
 
-        openInfo(title, key, isFromResultBar = true) {
-            this.modalTitle = title;
-            this.currentKey = key;
-            this.isFromResultBar = isFromResultBar;
-            this.isPartialItem = false;
-            this.saveStatus = '';
-            
-            const rootTypes = ['root1', 'root2', 'root3'];
-            
-            if (isFromResultBar) {
-                // Mở từ result-bar: mặc định show brief content
-                if (rootTypes.includes(key)) {
-                    this.modalContent = this.briefData[key] || '';
-                } else {
-                    this.modalContent = this.briefDataTrunk[key] || '';
-                }
-                this.showingBrief = true;
-            } else {
-                // Mở từ dataPlatformMenu: show full content only
-                this.modalContent = this.data[key] || '';
-                this.showingBrief = false;
-            }
-            
-            this.openModal = true;
-        },
-
-        isBriefReady(key) {
-            const rootTypes = ['root1', 'root2', 'root3'];
-            if (rootTypes.includes(key)) {
-                return !!(this.briefData[key] && this.briefData[key].length > 0);
-            } else {
-                return !!(this.briefDataTrunk[key] && this.briefDataTrunk[key].length > 0);
-            }
-        },
-
-        toggleBriefView() {
-            const rootTypes = ['root1', 'root2', 'root3'];
-            this.showingBrief = !this.showingBrief;
-            const key = this.currentKey;
-            
-            if (this.showingBrief) {
-                // Switching to brief
-                if (!this.isBriefReady(key)) {
-                    // Brief not ready yet, revert and don't toggle
-                    this.showingBrief = false;
-                    return;
-                }
-                if (rootTypes.includes(key)) {
-                    this.modalContent = this.briefData[key] || '';
-                } else {
-                    this.modalContent = this.briefDataTrunk[key] || '';
-                }
-            } else {
-                this.modalContent = this.data[key] || '';
-            }
-        },
-
-        getChatUrl() {
-            let agentType = this.currentKey; 
-            let agentId = 1;
-            
-            switch(agentType) {
-                case 'root1': agentId = 1; break;
-                case 'root2': agentId = 2; break;
-                case 'root3': agentId = 3; break;
-                case 'trunk1': agentId = 4; break;
-                case 'trunk2': agentId = 5; break;
-                default: agentId = 1;
-            }
-
-            return `/brands/${this.brandSlug}/chat/${agentType}/${agentId}/new`;
-        },
-
         hasPassedStep(key) {
             const allKeys = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
             if (this.data[key] && this.data[key].toString().trim() !== '') return true;
@@ -364,50 +207,6 @@
                 }
             }
             return false;
-        },
-
-        async saveInfo() {
-            this.isSaving = true;
-            this.saveStatus = '';
-
-            try {
-                const response = await fetch(`/brands/${this.brandSlug}/update-section`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                    },
-                    body: JSON.stringify({
-                        key: this.currentKey,
-                        content: this.modalContent,
-                        type: this.showingBrief ? 'brief' : 'data'
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    this.saveStatus = 'Đã lưu thành công';
-                    
-                    // Update local state so reopen shows new data
-                    this.data[this.currentKey] = this.modalContent;
-
-                    // Bắn event để cập nhật sidebar và menu điều hướng (navigation)
-                    window.dispatchEvent(new CustomEvent('analysis-saved', {
-                        detail: {
-                            agentType: this.currentKey,
-                            content: this.modalContent
-                        }
-                    }));
-                } else {
-                    this.saveStatus = 'Lỗi: ' + (result.message || 'Không thể lưu');
-                }
-            } catch (error) {
-                console.error(error);
-                this.saveStatus = 'Lỗi kết nối';
-            } finally {
-                this.isSaving = false;
-            }
         }
     }">
     <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
@@ -448,207 +247,108 @@
             </div>
         </div>
     </div>
-    <!-- End Header Area -->
 
-    <!-- Content Area (Scrollable section) -->
-    <div class="tw-flex-1 tw-overflow-y-auto tw-p-3 tw-pb-24 tw-overflow-y-scroll">
-        <div id=" result-panel" class="tw-flex tw-flex-col">
+    <!-- Content Area -->
+    <div class="tw-flex-1 tw-overflow-y-auto tw-p-3 tw-overflow-y-scroll">
+        <div id=" result-panel" class="tw-flex tw-flex-col tw-gap-3">
 
         @php
-            $agentOrder = ['trunk2', 'trunk1', 'root3', 'root2', 'root1'];
             $agentLabels = [
-                'trunk2' => 'Nhận diện Ngôn ngữ',
-                'trunk1' => 'Định vị Thương Hiệu',
-                'root3' => 'Định vị Giá Trị Giải Pháp',
-                'root2' => 'Phân tích Thổ Nhưỡng',
                 'root1' => 'Thiết kế Văn Hóa Dịch Vụ',
+                'root2' => 'Phân tích Thổ Nhưỡng',
+                'root3' => 'Định vị Giá Trị Giải Pháp',
+                'trunk1' => 'Định vị Thương Hiệu',
+                'trunk2' => 'Nhận diện Ngôn ngữ',
             ];
+            
+            // Xây dựng mảng thứ tự các agent: Đưa agent hiện tại lên đầu tiên (nếu hợp lệ).
+            // Sau đó lần lượt in các agent còn lại theo thứ tự: root1 -> root2 -> root3 -> trunk1 -> trunk2
+            $defaultOrder = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
+            $agentOrder = [];
+            
+            if (in_array($agentType, $defaultOrder)) {
+                $agentOrder[] = $agentType;
+            }
+            
+            foreach ($defaultOrder as $ag) {
+                if ($ag !== $agentType) {
+                    $agentOrder[] = $ag;
+                }
+            }
         @endphp
 
         @foreach($agentOrder as $agent)
-            <div class="tw-mb-3">
-                {{-- Section header --}}
-                <div class="tw-flex tw-items-center tw-gap-1.5 tw-mb-1.5 tw-px-1">
-                    <span class="tw-text-[10px] tw-font-bold tw-uppercase tw-tracking-widest tw-text-gray-400">
-                        {{ $agentLabels[$agent] }}
-                    </span>
-                    <template x-if="loadingAgents['{{ $agent }}']">
-                        <span class="tw-animate-spin tw-text-[#1AA24C]" style="font-size:11px">
-                            <i class="ri-loader-4-line"></i>
-                        </span>
-                    </template>
-                </div>
+            @php
+                $isRootAgent = in_array($agent, ['root1', 'root2', 'root3']);
+            @endphp
 
-                {{-- 5 items - reactive: dùng parsedBriefData từ Alpine state (cập nhật khi polling xong) --}}
-                <div class="tw-w-full">
-                    {{-- Skeleton Loading --}}
-                    <template x-if="loadingAgents['{{ $agent }}']">
-                        <div class="tw-flex tw-flex-col tw-gap-1 tw-w-full">
-                            @for ($i = 0; $i < 3; $i++)
-                                <div
-                                    class="tw-w-full tw-px-3 tw-py-2.5 tw-rounded-lg tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-animate-pulse">
-                                    <div class="tw-flex tw-items-start tw-gap-2">
-                                        <div class="tw-flex-1 tw-min-w-0 tw-flex tw-flex-col tw-gap-2 tw-mt-1">
-                                            <div class="tw-h-2.5 tw-bg-gray-200/80 tw-rounded tw-w-2/3"></div>
-                                            <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-full"></div>
-                                            <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-4/5"></div>
-                                            <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-4/5"></div>
-                                        </div>
-                                    </div>
+            <!-- Wrapper ẩn hiện theo Alpine JS logic (chỉ show khu vực của agent nào đang tải hoặc đã có data) -->
+            <div x-show="loadingAgents['{{ $agent }}'] || ({{ $isRootAgent ? "briefData['{$agent}']" : "briefDataTrunk['{$agent}']" }})"
+                 style="display: none;" 
+            >
+                <!-- Loading Skeleton -->
+                <template x-if="loadingAgents['{{ $agent }}']">
+                    <div class="tw-flex tw-flex-col tw-gap-1 tw-w-full">
+                        <div class="tw-w-full tw-px-3 tw-py-2.5 tw-rounded-xl tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] tw-animate-pulse">
+                            <div class="tw-flex tw-items-start tw-gap-2">
+                                <div class="tw-flex-1 tw-min-w-0 tw-flex tw-flex-col tw-gap-3 tw-mt-1">
+                                    <div class="tw-h-3 tw-bg-gray-200/80 tw-rounded tw-w-1/2"></div>
+                                    <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-full"></div>
+                                    <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-5/6"></div>
+                                    <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-4/5"></div>
+                                    <div class="tw-h-2 tw-bg-gray-200/60 tw-rounded tw-w-2/3"></div>
                                 </div>
-                            @endfor
+                            </div>
                         </div>
-                    </template>
+                    </div>
+                </template>
 
-                    {{-- Actual Items --}}
-                    <template x-if="!loadingAgents['{{ $agent }}']">
-                        <div class="tw-flex tw-flex-col tw-gap-1">
-                            <template x-for="(item, idx) in (parsedBriefData['{{ $agent }}'] || @js($parsedData[$agent]))"
-                                :key="'{{ $agent }}-' + idx">
-                                <button type="button" @click="openItemModal(item.title, item.content, '{{ $agent }}')"
-                                    :disabled="!item.content"
-                                    class="tw-w-full tw-text-left tw-px-3 tw-py-2 tw-rounded-lg tw-transition tw-group"
-                                    :class="item.content
-                                                                                            ? 'tw-bg-[#F9FBF9] tw-border tw-border-[#E8F3EE] hover:tw-bg-[#E6F6EC] hover:tw-border-[#1AA24C] tw-cursor-pointer'
-                                                                                            : 'tw-bg-gray-50 tw-border tw-border-gray-100 tw-opacity-60 tw-cursor-not-allowed'">
-                                    <div class="tw-flex tw-items-start tw-justify-between tw-gap-2">
-                                        <div class="tw-flex-1 tw-min-w-0">
-                                            <h4 class="tw-text-xs tw-font-semibold tw-leading-snug"
-                                                :class="item.content ? 'tw-text-gray-700' : 'tw-text-gray-400'"
-                                                x-text="item.title"></h4>
-                                            <template x-if="item.content">
-                                                <p class="tw-text-xs tw-text-gray-500 tw-mt-0.5 tw-line-clamp-2 tw-leading-snug"
-                                                    x-text="item.short_content"></p>
-                                            </template>
-                                        </div>
-                                        <template x-if="item.content">
-                                            <i
-                                                class="ri-arrow-right-s-line tw-text-gray-300 group-hover:tw-text-[#1AA24C] tw-transition tw-flex-shrink-0 tw-mt-0.5"></i>
-                                        </template>
-                                    </div>
-                                </button>
-                            </template>
+                <!-- Brief Data Article for {{ $agent }} -->
+                <template x-if="!loadingAgents['{{ $agent }}'] && ({{ $isRootAgent ? "briefData['{$agent}']" : "briefDataTrunk['{$agent}']" }})">
+                    <article class="tw-w-full tw-px-3 tw-py-2 tw-rounded-xl tw-border tw-border-[#E0EAE6] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-flex tw-flex-col tw-bg-white">
+                        <div>
+                            <h3 class="tw-font-semibold tw-text-gray-900 tw-mb-2">{{ $agentLabels[$agent] ?? 'Phân tích' }}</h3>
                         </div>
-                    </template>
-                </div>
+                        <div>
+                            <div class="tw-text-sm tw-text-gray-600 tw-leading-relaxed tw-whitespace-pre-wrap" x-text="{{ $isRootAgent ? "briefData['{$agent}']" : "briefDataTrunk['{$agent}']" }}"></div>
+                        </div>
+                    </article>
+                </template>
             </div>
         @endforeach
+        </div>
+    </div>
 
-        @if($nextUrl !== '#')
-            <!-- Spacer to maintain scrolling area against the fixed floating button -->
-            <div class="tw-h-16"></div>
-        @endif
-
-        <!-- Modal -->
-        <div x-show="openModal" style="display: none;"
-            class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-bg-black/50 tw-backdrop-blur-sm"
-            x-transition:enter="tw-transition tw-ease-out tw-duration-300" x-transition:enter-start="tw-opacity-0"
-            x-transition:enter-end="tw-opacity-100" x-transition:leave="tw-transition tw-ease-in tw-duration-200"
-            x-transition:leave-start="tw-opacity-100" x-transition:leave-end="tw-opacity-0">
-
-            <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-h-[600px] tw-flex tw-flex-col"
-                @click.away="openModal = false">
-
-                <!-- Modal Header -->
-                <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
-                    <div class="tw-flex tw-items-center tw-gap-4">
-                        <h3 class="tw-text-xl tw-font-bold tw-text-gray-800" x-text="modalTitle"></h3>
-
-                        <a :href="getChatUrl()"
-                            class="tw-inline-flex tw-items-center tw-gap-1 tw-bg-[#1AA24C] tw-text-white tw-text-xs tw-font-medium tw-px-3 tw-py-1.5 tw-rounded-full hover:tw-bg-[#15803d] tw-transition">
-                            <i class="ri-chat-smile-3-line"></i>
-                            Chat ngay với trợ lý AI
-                        </a>
-                    </div>
-
-                    <button @click="openModal = false" class="tw-text-gray-400 hover:tw-text-gray-600">
-                        <i class="ri-close-line tw-text-2xl"></i>
-                    </button>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto tw-flex tw-flex-col tw-relative">
-                    <!-- Tab Toggle - Chỉ hiển thị khi mở từ result-bar -->
-                    <template x-if="isFromResultBar && !isPartialItem">
-                        <div class="tw-mb-4 tw-flex tw-gap-2 tw-border-b tw-border-gray-200">
-                            <button @click="showingBrief = true" {{-- :disabled="!isBriefReady(currentKey)" --}} :class="showingBrief 
-                                    ? 'tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-font-semibold'
-                                    : 'tw-text-gray-500 tw-font-medium'" class="tw-px-4 tw-py-2 tw-transition">
-                                Nội dung tóm tắt
-                            </button>
-                        </div>
-                    </template>
-
-                    <!-- Textarea with loading overlay -->
-                    <div class="tw-relative tw-flex-1 tw-flex tw-flex-col">
-                        <textarea :disabled="showingBrief && !isBriefReady(currentKey) || isPartialItem"
-                            class="tw-w-full tw-flex-1 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none disabled:tw-bg-gray-100 disabled:tw-opacity-60 disabled:tw-cursor-not-allowed tw-transition"
-                            x-model="modalContent" spellcheck="false" placeholder="Chưa có thông tin..."></textarea>
-
-                        <!-- Loading Overlay - show when brief is loading -->
-                        <template x-if="showingBrief && !isBriefReady(currentKey) && loadingAgents[currentKey]">
-                            <div
-                                class="tw-absolute tw-inset-0 tw-bg-white/80 tw-rounded-lg tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3">
-                                <div class="tw-animate-spin tw-text-[#1AA24C] tw-text-3xl">
-                                    <i class="ri-loader-4-line"></i>
-                                </div>
-                                <p class="tw-text-sm tw-font-medium tw-text-gray-600">Đang tóm tắt nội dung...</p>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Footer Action -->
-                    <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3" x-show="!isPartialItem">
-                        <button @click="saveInfo()" :disabled="isSaving || (showingBrief && !isBriefReady(currentKey))"
-                            class="tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-[#15803d] tw-transition disabled:tw-opacity-50 disabled:tw-cursor-not-allowed tw-flex tw-items-center tw-gap-2">
-                            <span x-show="isSaving" class="tw-animate-spin"><i class="ri-loader-4-line"></i></span>
-                            <span>Lưu</span>
-                        </button>
-
-                        <!-- Status Message -->
-                        <span x-show="saveStatus" x-text="saveStatus" class="tw-text-sm tw-font-medium"
-                            :class="saveStatus.includes('Lỗi') ? 'tw-text-red-600' : 'tw-text-[#1AA24C]'">
-                        </span>
-                    </div>
-                </div>
+    <!-- Toast Notification -->
+    <template x-if="showToast">
+        <div class="tw-fixed tw-bottom-4 tw-right-4 tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-3 tw-rounded-lg tw-shadow-lg tw-flex tw-items-center tw-gap-3 tw-max-w-md tw-animate-fade-in tw-z-[10000]"
+            x-transition:enter="tw-transition tw-duration-300" x-transition:enter-start="tw-opacity-0 tw-translate-y-2"
+            x-transition:enter-end="tw-opacity-100 tw-translate-y-0" x-transition:leave="tw-transition tw-duration-300"
+            x-transition:leave-start="tw-opacity-100 tw-translate-y-0"
+            x-transition:leave-end="tw-opacity-0 tw-translate-y-2">
+            <div class="tw-text-lg">
+                <i class="ri-check-circle-line"></i>
             </div>
+            <span class="tw-flex-1 tw-text-sm tw-font-medium" x-text="toastMessage"></span>
+            <button @click="closeToast()" class="tw-text-white/70 hover:tw-text-white tw-transition">
+                <i class="ri-close-line tw-text-lg"></i>
+            </button>
         </div>
-    </div>
-</div>
+    </template>
 
-<!-- Toast Notification -->
-<template x-if="showToast">
-    <div class="tw-fixed tw-bottom-4 tw-right-4 tw-bg-[#1AA24C] tw-text-white tw-px-6 tw-py-3 tw-rounded-lg tw-shadow-lg tw-flex tw-items-center tw-gap-3 tw-max-w-md tw-animate-fade-in tw-z-[10000]"
-        x-transition:enter="tw-transition tw-duration-300" x-transition:enter-start="tw-opacity-0 tw-translate-y-2"
-        x-transition:enter-end="tw-opacity-100 tw-translate-y-0" x-transition:leave="tw-transition tw-duration-300"
-        x-transition:leave-start="tw-opacity-100 tw-translate-y-0"
-        x-transition:leave-end="tw-opacity-0 tw-translate-y-2">
-        <div class="tw-text-lg">
-            <i class="ri-check-circle-line"></i>
+    <!-- Floating Button Footer -->
+    @if($nextUrl !== '#')
+        <div class="tw-w-full tw-border-t tw-border-gray-100 tw-p-4 tw-bg-transparent tw-z-20">
+            <a :href="hasPassedStep('{{ $agentType }}') ? '{{ $nextUrl }}' : 'javascript:void(0)'" :class="hasPassedStep('{{ $agentType }}') 
+                                            ? 'tw-bg-[#16a34a] hover:tw-bg-[#15803d] tw-text-white tw-cursor-pointer tw-shadow-lg hover:tw-shadow-xl hover:tw--translate-y-0.5' 
+                                            : 'tw-bg-gray-200 tw-text-gray-400 tw-cursor-not-allowed tw-pointer-events-none'"
+                class="tw-flex tw-items-center tw-justify-center tw-w-full tw-px-4 tw-py-3 tw-text-sm tw-font-bold tw-rounded-xl tw-transition-all tw-duration-300">
+                <span>Bước tiếp theo</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="tw-w-5 tw-h-5 tw-ml-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </a>
         </div>
-        <span class="tw-flex-1 tw-text-sm tw-font-medium" x-text="toastMessage"></span>
-        <button @click="closeToast()" class="tw-text-white/70 hover:tw-text-white tw-transition">
-            <i class="ri-close-line tw-text-lg"></i>
-        </button>
-    </div>
-</template>
-
-</template>
-
-<!-- Floating Button Footer -->
-@if($nextUrl !== '#')
-    <div class="tw-absolute tw-bottom-0 tw-right-10 tw-w-64px tw-p-4 tw-bg-transparent tw-z-20">
-        <a :href="hasPassedStep('{{ $agentType }}') ? '{{ $nextUrl }}' : 'javascript:void(0)'" :class="hasPassedStep('{{ $agentType }}') 
-                                        ? 'tw-bg-[#16a34a] hover:tw-bg-[#15803d] tw-text-white tw-cursor-pointer tw-shadow-lg hover:tw-shadow-xl hover:tw--translate-y-0.5' 
-                                        : 'tw-bg-gray-200 tw-text-gray-400 tw-cursor-not-allowed tw-pointer-events-none'"
-            class="tw-flex tw-items-center tw-justify-center tw-w-full tw-px-4 tw-py-3 tw-text-sm tw-font-bold tw-rounded-xl tw-transition-all tw-duration-300">
-            <span>Bước tiếp theo</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="tw-w-5 tw-h-5 tw-ml-2" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-        </a>
-    </div>
-@endif
-</div>
+    @endif
 </div>
