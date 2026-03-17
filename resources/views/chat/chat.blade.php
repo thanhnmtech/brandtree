@@ -29,7 +29,7 @@
 
     <!-- RESULT PANEL -->
     <aside id="right-sidebar"
-      class="tw-hidden md:tw-block tw-w-[280px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-overflow-y-auto tw-h-full tw-transition-all tw-duration-300">
+      class="tw-hidden md:tw-block tw-w-[300px] tw-min-w-[200px] tw-bg-white tw-border tw-border-gray-200 tw-h-[calc(100vh-60px)] tw-transition-all tw-duration-300 tw-overflow-hidden">
       @include('chat.partials.chat-result-bar')
     </aside>
   </main>

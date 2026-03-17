@@ -4,11 +4,11 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
 
 <div class="tw-flex tw-flex-col tw-h-full">
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
-    <div id="logo-sidebar">
+    <a href="{{ route('brands.show', $brand) }}" id="logo-sidebar">
       <img
         src="{{ !empty($brand->logo_path) ? Storage::url($brand->logo_path) : asset('assets/img/logo-sidebar.svg') }}"
         alt="{{ $brand->name }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain tw-rounded-full tw-bg-white" />
-    </div>
+    </a>
     <div id="content-sidebar" class="tw-flex-1 tw-min-w-0">
       <div class="tw-font-bold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
         {{ $brand->name }}
@@ -26,7 +26,7 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
 
   {{-- Section Nền Tảng Dữ Liệu - Hiển thị danh sách root/trunk steps --}}
   {{-- Bọc bằng result-modal controller để có thể mở modal xem kết quả --}}
-  <nav id="dataPlatformSection" data-controller="result-modal" data-result-modal-brand-slug-value="{{ $brand->slug }}"
+  <nav id="dataPlatformSection" class="tw-px-3 tw-py-3" data-controller="result-modal" data-result-modal-brand-slug-value="{{ $brand->slug }}"
     data-result-modal-data-value='@json(array_merge($brand->root_data ?? [], $brand->trunk_data ?? []))'
     >
     <button onclick="toggleMenu('dataPlatformMenu', 'dataArrow')"
@@ -50,9 +50,11 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
       </div>
     </button>
 
-    <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2 tw-overflow-y-scroll tw-max-h-[40vh]">
+    <div class="tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2 tw-overflow-hidden tw-max-h-[40vh]">
     {{-- Danh sách các step Root và Trunk --}}
-    <ul id="dataPlatformMenu" class="tw-w-full tw-space-y-2 tw-text-sm" x-data="sidebarDataManager({
+    <ul id="dataPlatformMenu" class="tw-w-full tw-space-y-2 tw-text-sm"
+      @open-result-modal.window="openModal($event.detail.title, $event.detail.key, $event.detail.isFromResultBar || false)"
+      x-data="sidebarDataManager({
       brandSlug: '{{ $brand->slug }}',
       rootData: @js($brand->root_data ?? []),
       trunkData: @js($brand->trunk_data ?? []),

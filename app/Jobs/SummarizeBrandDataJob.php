@@ -86,16 +86,11 @@ class SummarizeBrandDataJob implements ShouldQueue
         $briefData[$this->agentType] = $summary;
         $brand->$briefColumn = $briefData;
 
-        // ✅ Parse brief items từ summary theo keywords (sử dụng BriefContentParser)
-        $briefItems = BriefContentParser::parseBriefContent($this->agentType, $summary);
-        $briefItemsColumn = "{$this->agentType}_brief_items";
-        $brand->$briefItemsColumn = $briefItems;
-
         $brand->save();
 
         // Broadcast event để update UI real-time
         if (method_exists($brand, 'broadcastBriefReady')) {
-            $brand->broadcastBriefReady($this->agentType, $summary, $briefItems);
+            $brand->broadcastBriefReady($this->agentType, $summary);
         }
     }
 
