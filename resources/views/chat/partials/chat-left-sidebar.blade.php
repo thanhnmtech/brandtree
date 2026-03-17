@@ -53,7 +53,6 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
     <div class="tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-flex-col tw-items-center tw-gap-2 tw-overflow-hidden tw-max-h-[40vh]">
     {{-- Danh sách các step Root và Trunk --}}
     <ul id="dataPlatformMenu" class="tw-w-full tw-space-y-2 tw-text-sm"
-      @open-result-modal.window="openModal($event.detail.title, $event.detail.key, $event.detail.isFromResultBar || false)"
       x-data="sidebarDataManager({
       brandSlug: '{{ $brand->slug }}',
       rootData: @js($brand->root_data ?? []),
@@ -69,7 +68,9 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
           @if($hasData)
             {{-- Có dữ liệu: cho phép click mở result-modal --}}
             <button type="button"
-              onclick="window.dispatchEvent(new CustomEvent('open-result-modal', { detail: { title: '{{ str_replace('\'', '\\\'', $step['label']) }}', key: '{{ $key }}', isFromResultBar: false } }))"
+              data-action="result-modal#open"
+              data-result-modal-title-param="{{ $step['label'] }}"
+              data-result-modal-key-param="{{ $key }}"
               class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
               <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
             </button>
@@ -87,7 +88,9 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
           @if($hasData)
             {{-- Có dữ liệu: cho phép click mở result-modal --}}
             <button type="button"
-              onclick="window.dispatchEvent(new CustomEvent('open-result-modal', { detail: { title: '{{ str_replace('\'', '\\\'', $step['label']) }}', key: '{{ $key }}', isFromResultBar: false } }))"
+              data-action="result-modal#open"
+              data-result-modal-title-param="{{ $step['label'] }}"
+              data-result-modal-key-param="{{ $key }}"
               class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
               <span class="tw-font-semibold tw-text-gray-500">{{ $step['label'] }}</span>
             </button>
@@ -180,6 +183,7 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
     </ul>
   </div>
 
+  <x-result-modal :brand="$brand" />
   </nav>
 
   {{-- Đã gỡ Result Modal Component ở đây vì giờ sử dụng chung modal bên chat-result-bar qua $dispatch --}}
@@ -331,10 +335,12 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
             if (li.querySelector('span.tw-text-gray-400') && !li.querySelector('button')) {
               li.innerHTML = `
                 <button type="button"
-                  onclick="window.dispatchEvent(new CustomEvent('open-result-modal', { detail: { title: '${label}', key: '${agentType}', isFromResultBar: false } }))"
-                  class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
-                  <span class="tw-font-semibold tw-text-gray-500">${label}</span>
-                </button>
+                data-action="result-modal#open"
+                data-result-modal-title-param="${label}"
+                data-result-modal-key-param="${agentType}"
+                class="tw-w-full tw-text-left tw-cursor-pointer tw-bg-transparent tw-border-none tw-p-0">
+                <span class="tw-font-semibold tw-text-gray-500">${label}</span>
+              </button>
               `;
             }
           } else {
