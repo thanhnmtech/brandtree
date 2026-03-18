@@ -171,9 +171,9 @@
                         </div>
                     </div>
 
-                    <div class="tw-h-4 tw-w-[1px] tw-bg-gray-200"></div>
+                    <div class="tw-hidden md:tw-block tw-h-4 tw-w-[1px] tw-bg-gray-200"></div>
 
-                    <div class="tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+                    <div class="tw-hidden md:tw-block tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
                         Kết quả phân tích sẽ hiển thị ở bên phải
                     </div>
                 </div>
