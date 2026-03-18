@@ -11,7 +11,7 @@
      data-action="click->result-modal#closeOnBackdrop">
     
     {{-- Modal Content --}}
-    <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-max-h-[90vh] tw-flex tw-flex-col">
+    <div class="tw-bg-white tw-rounded-xl tw-shadow-xl tw-w-[90%] md:tw-w-[800px] tw-min-h-[70vh] tw-max-h-[80vh] tw-flex tw-flex-col tw-overflow-hidden">
 
         {{-- Modal Header --}}
         <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-justify-between">
@@ -35,10 +35,10 @@
         </div>
 
         {{-- Modal Body --}}
-        <div class="tw-p-6 tw-flex-1 tw-overflow-y-auto">
+        <div class="tw-p-6 tw-flex tw-flex-col tw-flex-1 tw-overflow-hidden">
             <textarea
                 data-result-modal-target="content"
-                class="tw-w-full tw-h-[400px] tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none"
+                class="tw-flex-1 tw-w-full tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none"
                 spellcheck="false" 
                 placeholder="Chưa có kết quả phân tích..."></textarea>
 
