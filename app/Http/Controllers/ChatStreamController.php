@@ -166,7 +166,9 @@ class ChatStreamController extends Controller
 
         if ($attachedFiles->isNotEmpty()) {
             $fileTexts = [];
+            $fileNames = [];
             foreach ($attachedFiles as $file) {
+                $fileNames[] = $file->filename;
                 if ($file->isImage()) {
                     // Hình: dùng mô tả từ Gemini Vision
                     $desc = $file->image_description;
@@ -182,8 +184,16 @@ class ChatStreamController extends Controller
                 }
             }
 
+            if (!empty($fileNames)) {
+                $userInput .= "\n\n";
+                foreach ($fileNames as $fileName) {
+                    $userInput .= "📎 {$fileName}\n";
+                }
+                $userInput = trim($userInput);
+            }
+
             if (!empty($fileTexts)) {
-                $userInput .= "\nĐây là các nội dung trong tài liệu đính kèm:\n" . implode("\n\n", $fileTexts);
+                $userInput .= "\n[===FILE_CONTENT_START===]\nĐây là các nội dung trong tài liệu đính kèm:\n" . implode("\n\n", $fileTexts) . "\n[===FILE_CONTENT_END===]";
             }
         }
 
