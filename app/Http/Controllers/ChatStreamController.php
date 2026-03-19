@@ -131,7 +131,7 @@ class ChatStreamController extends Controller
         }
 
         // 1. Create Conversation if new
-        if (!$convId || $convId === 'new') {
+        if (!$convId || $convId === 'new') {    
             $chat = $this->createConversation($agentType, $agentId, $userInput, $brandId, $userId);
             $convId = $chat->id;
         } else {

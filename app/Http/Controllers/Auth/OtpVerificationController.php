@@ -44,7 +44,8 @@ class OtpVerificationController extends Controller
         if ($user->verifyOtp($request->otp)) {
             Auth::login($user);
             session()->forget('otp_email');
-            return redirect()->route('dashboard')->with('success', __('messages.otp.verified_success'));
+            // Redirect đến trang chọn loại tài khoản thay vì dashboard
+            return redirect()->route('account-type.select')->with('success', __('messages.otp.verified_success'));
         }
 
         return back()->withErrors(['otp' => __('messages.otp.invalid_or_expired')]);

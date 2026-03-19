@@ -28,6 +28,7 @@ class User extends Authenticatable
         'otp',
         'otp_expires_at',
         'avatar', // Thêm avatar để cho phép lưu đường dẫn ảnh đại diện
+        'account_type', // Loại tài khoản: student (Sinh Viên) hoặc business (Doanh Nghiệp)
     ];
 
     /**
