@@ -38,7 +38,7 @@
                                 <div class="tw-text-xs tw-text-gray-500">User</div> <!-- Or name if avail -->
                                 <div
                                     class="tw-bg-[#45C974] tw-text-white tw-px-4 tw-py-3 tw-rounded-2xl tw-rounded-tr-none">
-                                    <div x-html="formatMessage(msg.content)"></div>
+                                    <div class="chat-markdown-content" x-html="formatMessage(msg.content)"></div>
                                 </div>
                             </div>
                         </div>
@@ -57,7 +57,7 @@
                                     class="tw-bg-white tw-text-gray-800 tw-border tw-border-gray-200 tw-px-4 tw-py-3 tw-rounded-2xl tw-rounded-tl-none">
                                     <!-- Use html for markdown support later, but text for now -->
                                     <!-- Use html for markdown support later, but text for now -->
-                                    <div x-html="formatMessage(msg.content)"></div>
+                                    <div class="chat-markdown-content" x-html="formatMessage(msg.content)"></div>
                                 </div>
                             </div>
                         </div>
@@ -273,6 +273,206 @@
 
 </div>
 
+{{-- Nhúng thư viện marked.js (local) để parse markdown --}}
+@push('scripts')
+<script src="{{ asset('assets/js/marked.min.js') }}"></script>
+@endpush
+
+{{-- CSS styling cho nội dung markdown trong chat --}}
+@push('styles')
+<style>
+    /* === MARKDOWN CONTENT TRONG CHAT === */
+    .chat-markdown-content {
+        line-height: 1.7;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Heading */
+    .chat-markdown-content h1,
+    .chat-markdown-content h2,
+    .chat-markdown-content h3,
+    .chat-markdown-content h4 {
+        font-weight: 700;
+        margin-top: 0.8em;
+        margin-bottom: 0.4em;
+        line-height: 1.3;
+    }
+    .chat-markdown-content h1 { font-size: 1.4em; }
+    .chat-markdown-content h2 { font-size: 1.25em; }
+    .chat-markdown-content h3 { font-size: 1.1em; }
+    .chat-markdown-content h4 { font-size: 1em; }
+
+    /* Paragraph */
+    .chat-markdown-content p {
+        margin: 0.5em 0;
+    }
+    .chat-markdown-content p:first-child {
+        margin-top: 0;
+    }
+    .chat-markdown-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* List */
+    .chat-markdown-content ul,
+    .chat-markdown-content ol {
+        padding-left: 1.5em;
+        margin: 0.5em 0;
+    }
+    .chat-markdown-content li {
+        margin-bottom: 0.25em;
+    }
+    .chat-markdown-content li > ul,
+    .chat-markdown-content li > ol {
+        margin-top: 0.25em;
+        margin-bottom: 0;
+    }
+
+    /* Bold, Italic */
+    .chat-markdown-content strong { font-weight: 700; }
+    .chat-markdown-content em { font-style: italic; }
+
+    /* Inline code */
+    .chat-markdown-content code {
+        background: rgba(0, 0, 0, 0.06);
+        padding: 0.15em 0.4em;
+        border-radius: 4px;
+        font-size: 0.88em;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* Code block */
+    .chat-markdown-content pre {
+        background: #1e1e2e;
+        color: #cdd6f4;
+        padding: 0.8em 1em;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 0.6em 0;
+        font-size: 0.85em;
+        line-height: 1.5;
+    }
+    .chat-markdown-content pre code {
+        background: none;
+        padding: 0;
+        border-radius: 0;
+        color: inherit;
+        font-size: inherit;
+    }
+
+    /* === TABLE === */
+    .chat-markdown-content table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0.8em 0;
+        font-size: 0.9em;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+    .chat-markdown-content thead {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+    .chat-markdown-content thead th {
+        color: #fff;
+        font-weight: 600;
+        padding: 10px 14px;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 2px solid #15803d;
+    }
+    .chat-markdown-content tbody tr {
+        transition: background-color 0.15s ease;
+    }
+    .chat-markdown-content tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+    .chat-markdown-content tbody tr:hover {
+        background-color: #ecfdf5;
+    }
+    .chat-markdown-content tbody td {
+        padding: 9px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+    .chat-markdown-content tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Blockquote */
+    .chat-markdown-content blockquote {
+        border-left: 3px solid #16a34a;
+        margin: 0.6em 0;
+        padding: 0.4em 0.8em;
+        background: #f0fdf4;
+        color: #374151;
+        border-radius: 0 6px 6px 0;
+    }
+    .chat-markdown-content blockquote p {
+        margin: 0.2em 0;
+    }
+
+    /* Horizontal rule */
+    .chat-markdown-content hr {
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin: 1em 0;
+    }
+
+    /* Link */
+    .chat-markdown-content a {
+        color: #16a34a;
+        text-decoration: underline;
+    }
+
+    /* === User message: override table color cho tin nhắn user (nền xanh) === */
+    .tw-bg-\[\#45C974\] .chat-markdown-content thead {
+        background: rgba(255,255,255,0.2);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content thead th {
+        color: #fff;
+        border-bottom-color: rgba(255,255,255,0.3);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content tbody tr:nth-child(even) {
+        background-color: rgba(255,255,255,0.08);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content tbody tr:hover {
+        background-color: rgba(255,255,255,0.15);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content tbody td {
+        border-bottom-color: rgba(255,255,255,0.15);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content table {
+        border-color: rgba(255,255,255,0.2);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content code {
+        background: rgba(255,255,255,0.15);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content pre {
+        background: rgba(0,0,0,0.2);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content blockquote {
+        border-left-color: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.1);
+    }
+    .tw-bg-\[\#45C974\] .chat-markdown-content a {
+        color: #fff;
+    }
+
+    /* Table responsive - cuộn ngang khi bảng quá rộng */
+    .chat-markdown-content .table-wrapper {
+        overflow-x: auto;
+        margin: 0.8em 0;
+        border-radius: 8px;
+    }
+    .chat-markdown-content .table-wrapper table {
+        margin: 0;
+    }
+</style>
+@endpush
+
 <script>
     function chatComponent(params) {
         return {
@@ -330,30 +530,35 @@
             formatMessage(content) {
                 if (!content) return '';
 
-                // 1. Escape HTML
-                let safeContent = content
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
+                // Xóa nội dung file đính kèm dạng text dài để không hiển thị lên giao diện
+                content = content.replace(/\[===FILE_CONTENT_START===\][\s\S]*?\[===FILE_CONTENT_END===\]/g, '');
 
-                // 2. Header: ### Text
-                // Matches ### at start or after newline, captures content until end of line
-                safeContent = safeContent.replace(/(^|\n)###\s+(.*?)(\n|$)/g, function (match, p1, p2, p3) {
-                    return p1 + '<div style="font-size: 1.5em; font-weight: bold; margin-top: 0.5em; margin-bottom: 0.25em;">' + p2 + '</div>' + p3;
-                });
+                // Sử dụng marked.js để parse markdown đầy đủ
+                // (table, heading, list, code block, bold, italic...)
+                try {
+                    // Cấu hình marked: bật GFM (GitHub Flavored Markdown) cho table
+                    const html = marked.marked(content, {
+                        breaks: true,  // Xuống dòng = <br>
+                        gfm: true,     // Hỗ trợ table, strikethrough, task list...
+                    });
 
-                // 3. Bold: **text**
-                safeContent = safeContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
-                // 3.5 Regular Italic: *text* (must come after bold)
-                safeContent = safeContent.replace(/\*(.*?)\*/g, '<i>$1</i>');
-
-                // 4. Newlines to <br>
-                safeContent = safeContent.replace(/\n/g, '<br>');
-
-                return safeContent;
+                    // Bọc <table> trong div.table-wrapper để scroll ngang khi bảng rộng
+                    return html.replace(
+                        /<table>/g,
+                        '<div class="table-wrapper"><table>'
+                    ).replace(
+                        /<\/table>/g,
+                        '</table></div>'
+                    );
+                } catch (e) {
+                    console.warn('Marked parse error, fallback to plain text:', e);
+                    // Fallback: escape HTML và thay \n bằng <br>
+                    return content
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\n/g, '<br>');
+                }
             },
 
             // Logic to check verification keywords
@@ -481,10 +686,26 @@
                 this.isConfirmationActive = false; // Reset on new message
                 this.editingContent = ''; // Reset editing content on new turn
 
+                // Collect file IDs to send (bao gồm cả pending để backend đợi)
+                const fileIds = this.uploadedFiles
+                    .filter(f => f.status === 'completed' || f.status === 'processing' || f.status === 'pending')
+                    .map(f => f.id);
+
+                let displayContent = messageContent;
+                if (fileIds.length > 0) {
+                    displayContent += "\n\n";
+                    this.uploadedFiles.forEach(f => {
+                         if (f.status !== 'failed') {
+                             displayContent += "📎 " + f.filename + "\n";
+                         }
+                    });
+                    displayContent = displayContent.trim();
+                }
+
                 // 1. Optimistically append User Message
                 this.messages.push({
                     role: 'user',
-                    content: messageContent
+                    content: displayContent
                 });
                 this.scrollToBottom();
 
@@ -500,11 +721,6 @@
                     const apiUrl = (this.selectedModel === 'Gemini')
                         ? '/api/chat_stream_gemini'
                         : '/api/chat_stream';
-
-                    // Collect file IDs to send (bao gồm cả pending để backend đợi)
-                    const fileIds = this.uploadedFiles
-                        .filter(f => f.status === 'completed' || f.status === 'processing' || f.status === 'pending')
-                        .map(f => f.id);
 
                     // Call streaming API
                     const response = await fetch(apiUrl, {
