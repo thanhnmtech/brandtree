@@ -77,6 +77,9 @@ class BrandDataController extends Controller
 
         $brand->save();
 
+        // Tự động cập nhật status dựa trên dữ liệu root/trunk
+        $brand->updateStatusFromData();
+
         // Dispatch Job chạy ngầm để gọi OpenAI tóm tắt từng section
         if (!empty(trim($refinedContent ?? ''))) {
             SummarizeBrandDataJob::dispatch($brand->id, $agentType, $refinedContent);
@@ -216,6 +219,9 @@ class BrandDataController extends Controller
         }
 
         $brand->save();
+
+        // Tự động cập nhật status dựa trên dữ liệu root/trunk
+        $brand->updateStatusFromData();
 
         // Dispatch job nếu là data (không phải brief)
         if ($type === 'data' && !empty(trim($content ?? ''))) {
