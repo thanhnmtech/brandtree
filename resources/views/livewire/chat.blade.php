@@ -527,89 +527,11 @@
                 if (container) container.scrollTop = container.scrollHeight;
             },
 
-            /**
-             * Sửa lỗi bảng markdown bị ngắt dòng giữa chừng
-             * - Xóa dòng trống giữa các table row (dòng bắt đầu bằng |)
-             * - Nối cell bị wrap xuống dòng lại thành 1 dòng
-             * - Đảm bảo mỗi row kết thúc đúng cú pháp
-             */
-            fixMarkdownTable(content) {
-                if (!content) return content;
-
-                const lines = content.split('\n');
-                const result = [];
-                let i = 0;
-
-                while (i < lines.length) {
-                    const line = lines[i];
-                    const trimmed = line.trim();
-
-                    // Kiểm tra xem dòng hiện tại có phải là table row không (bắt đầu bằng |)
-                    const isTableRow = trimmed.startsWith('|');
-
-                    if (isTableRow) {
-                        // Nối các dòng tiếp theo nếu chúng là phần tiếp theo của cell bị wrap
-                        // (không bắt đầu bằng | nhưng dòng trước là table row)
-                        let fullRow = trimmed;
-
-                        // Đảm bảo row kết thúc bằng |
-                        if (!fullRow.endsWith('|')) {
-                            fullRow += ' |';
-                        }
-
-                        // Kiểm tra dòng trống phía sau và dòng table phía sau nữa
-                        // → nếu có thì xóa dòng trống để giữ bảng liền mạch
-                        let nextIdx = i + 1;
-                        while (nextIdx < lines.length) {
-                            const nextTrimmed = lines[nextIdx].trim();
-
-                            // Dòng trống → kiểm tra dòng sau nó có phải table row không
-                            if (nextTrimmed === '') {
-                                // Nhìn tiếp dòng sau dòng trống
-                                if (nextIdx + 1 < lines.length && lines[nextIdx + 1].trim().startsWith('|')) {
-                                    // Bỏ qua dòng trống này (không push vào result)
-                                    nextIdx++;
-                                    continue;
-                                } else {
-                                    // Dòng trống nhưng sau đó không phải table → kết thúc bảng
-                                    break;
-                                }
-                            }
-
-                            // Dòng tiếp theo bắt đầu bằng | → là row mới, dừng nối
-                            if (nextTrimmed.startsWith('|')) {
-                                break;
-                            }
-
-                            // Dòng không bắt đầu bằng | và không trống
-                            // → có thể là nội dung cell bị wrap xuống dòng → nối vào row hiện tại
-                            // Chỉ nối nếu dòng trước đó là table row (tránh nối nhầm paragraph)
-                            fullRow = fullRow.slice(0, -1).trim() + ' ' + nextTrimmed;
-                            if (!fullRow.endsWith('|')) {
-                                fullRow += ' |';
-                            }
-                            nextIdx++;
-                        }
-
-                        result.push(fullRow);
-                        i = nextIdx;
-                    } else {
-                        result.push(line);
-                        i++;
-                    }
-                }
-
-                return result.join('\n');
-            },
-
             formatMessage(content) {
                 if (!content) return '';
 
                 // Xóa nội dung file đính kèm dạng text dài để không hiển thị lên giao diện
                 content = content.replace(/\[===FILE_CONTENT_START===\][\s\S]*?\[===FILE_CONTENT_END===\]/g, '');
-
-                // Sửa lỗi bảng markdown bị ngắt dòng giữa chừng trước khi parse
-                content = this.fixMarkdownTable(content);
 
                 // Sử dụng marked.js để parse markdown đầy đủ
                 // (table, heading, list, code block, bold, italic...)

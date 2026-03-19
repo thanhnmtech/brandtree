@@ -131,7 +131,7 @@ class ChatStreamController extends Controller
         }
 
         // 1. Create Conversation if new
-        if (!$convId || $convId === 'new') {    
+        if (!$convId || $convId === 'new') {
             $chat = $this->createConversation($agentType, $agentId, $userInput, $brandId, $userId);
             $convId = $chat->id;
         } else {
@@ -539,4 +539,3 @@ class ChatStreamController extends Controller
         return "Các thông tin có thể liên quan (từ file đã upload, có thể tham khảo nếu phù hợp với câu hỏi):\n\n" . implode("\n\n", $formattedChunks);
     }
 }
-
