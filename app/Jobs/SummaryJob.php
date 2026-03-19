@@ -167,7 +167,7 @@ class SummaryJob implements ShouldQueue
 
         try {
             $data = [
-                'model' => 'gpt-4o',
+                'model' => 'gpt-4.1-mini',
                 'messages' => [
                     ['role' => 'system', 'content' => $prompt],
                     ['role' => 'user', 'content' => $content],

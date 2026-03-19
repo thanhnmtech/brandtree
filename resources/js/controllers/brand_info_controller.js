@@ -286,11 +286,11 @@ export default class extends Controller {
                 
                 this.showToast('Đã lưu thành công!', 'success');
             } else {
-                throw new Error(result.message || 'Có lỗi xảy ra');
+                throw new Error('Có lỗi xảy ra khi lưu');
             }
         } catch (error) {
             console.error('BrandInfo: Save error:', error);
-            this.showToast(error.message || 'Có lỗi xảy ra khi lưu', 'error');
+            this.showToast('Có lỗi xảy ra khi lưu', 'error');
         } finally {
             this.isSaving = false;
             this.updateSaveButtonState(button, false);
