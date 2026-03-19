@@ -1,4 +1,5 @@
-<div id="authAccountTypeModal" class="tw-hidden tw-fixed tw-inset-0 tw-z-[10000] tw-bg-black/60 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-p-4 md:tw-p-0">
+@if(auth()->check() && empty(auth()->user()->account_type))
+<div id="authAccountTypeModal" class="tw-fixed tw-inset-0 tw-z-[10000] tw-bg-black/60 tw-backdrop-blur-sm tw-flex tw-items-center tw-justify-center tw-p-4 md:tw-p-0">
     <div class="tw-bg-white tw-w-full md:tw-max-w-2xl tw-rounded-3xl tw-shadow-2xl tw-overflow-hidden tw-relative animate-fade-in-up">
         <div class="tw-p-6 md:tw-p-10">
             <form method="POST" action="{{ route('account-type.store') }}" class="tw-space-y-8" id="account-type-form">
@@ -110,5 +111,55 @@
         });
 
         updateUI();
+
+        const form = document.getElementById('account-type-form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-continue');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<svg class="tw-animate-spin tw-h-5 tw-w-5 tw-mx-auto tw-text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            btn.disabled = true;
+
+            fetch(form.action, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    account_type: document.querySelector('input[name="account_type"]:checked').value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, 'success');
+                    }
+                    window.userAccountType = data.account_type;
+                    document.getElementById('authAccountTypeModal').classList.add('tw-hidden');
+                } else if (data.errors) {
+                    const firstError = Object.values(data.errors)[0][0];
+                    if (typeof showToast === 'function') {
+                        showToast(firstError, 'error');
+                    }
+                } else if (data.message) {
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                if (typeof showToast === 'function') {
+                    showToast('Có lỗi xảy ra, vui lòng thử lại.', 'error');
+                }
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        });
     });
 </script>
+@endif

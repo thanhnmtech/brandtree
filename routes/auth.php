@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\AccountTypeController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -80,13 +79,6 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // Routes chọn loại tài khoản (Sinh Viên / Doanh Nghiệp)
-    Route::get('account-type', [AccountTypeController::class, 'show'])
-        ->name('account-type.select');
-
-    Route::post('account-type', [AccountTypeController::class, 'store'])
-        ->name('account-type.store');
-
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 

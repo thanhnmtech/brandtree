@@ -67,6 +67,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
         // Profile routes
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/profile/account-type', [ProfileController::class, 'updateAccountType'])->name('account-type.store');
         // Avatar routes
         Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
         Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
