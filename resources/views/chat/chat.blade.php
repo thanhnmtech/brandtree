@@ -6,7 +6,7 @@
   $agentType = $agentType ?? request()->route('agentType') ?? 'root1';
   $agentId = $agentId ?? request()->route('agentId') ?? 1;
 @endphp
-<x-app-layout>
+<x-app-layout :hideFooter="true">
   <div id="sidebar-mobile">
     @include('chat.partials.chat-sidebar-mobile')
   </div>

@@ -146,7 +146,7 @@ export default class extends Controller {
                 this.updateNavigationDropdown();
             } else {
                 this.showStatus(
-                    "Lỗi: " + (result.message || "Không thể lưu"),
+                    "Lỗi: Nội dung vượt quá giới hạn ký tự cho phép",
                     "error",
                 );
             }
