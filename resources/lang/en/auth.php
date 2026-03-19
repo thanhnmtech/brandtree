@@ -99,6 +99,7 @@ return [
     'account_type_subheading' => 'Choose the account type that fits you so we can personalize your experience.',
     'account_type_hero_title' => 'Customize your experience',
     'account_type_hero_text' => 'We will personalize content and features based on your selection.',
+    'select_account_type' => 'Select account type',
     'student' => 'Student',
     'student_desc' => 'For students who are exploring and building their personal brand.',
     'business' => 'Business',

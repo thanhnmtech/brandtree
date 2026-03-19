@@ -59,6 +59,30 @@
             @enderror
         </div>
 
+        <!-- Account Type -->
+        <div class="tw-space-y-2">
+            <label for="account_type" class="tw-text-base md:tw-text-lg tw-font-medium">{{ __('auth.account_type_heading') ?? 'Loại tài khoản' }}</label>
+            <div class="tw-relative">
+                <select
+                    id="account_type"
+                    name="account_type"
+                    class="tw-w-full tw-appearance-none tw-h-[44px] md:tw-h-[50px] tw-border tw-border-gray-300 tw-rounded-full tw-px-5 tw-text-gray-600 tw-text-sm md:tw-text-lg focus:tw-border-green-600 focus:tw-shadow-[0_0_0_3px_rgba(22,162,73,0.15)] tw-bg-white"
+                    required
+                >
+                    <option value="" disabled selected>{{ __('auth.select_account_type') ?? 'Chọn loại tài khoản' }}</option>
+                    <option value="student" {{ old('account_type') == 'student' ? 'selected' : '' }}>{{ __('auth.student') }}</option>
+                    <option value="business" {{ old('account_type') == 'business' ? 'selected' : '' }}>{{ __('auth.business') }}</option>
+                </select>
+                <!-- Select Icon -->
+                <div class="tw-pointer-events-none tw-absolute tw-inset-y-0 tw-right-0 tw-flex tw-items-center tw-px-4 tw-text-gray-500">
+                    <svg class="tw-fill-current tw-h-4 tw-w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+            </div>
+            @error('account_type')
+                <p class="tw-text-red-600 tw-text-sm tw-mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         <!-- Password -->
         <div class="tw-space-y-2">
             <label for="password" class="tw-text-base md:tw-text-lg tw-font-medium">{{ __('auth.password_label') }}</label>

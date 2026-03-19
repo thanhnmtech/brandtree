@@ -72,6 +72,20 @@
 
     @stack('scripts')
     @livewireScripts
+    @auth
+        <x-account-type-modal />
+        <script>
+            window.userAccountType = "{{ auth()->user()->account_type ?? '' }}";
+            document.addEventListener('DOMContentLoaded', function () {
+                if (window.userAccountType === '') {
+                    const roleModal = document.getElementById("authAccountTypeModal");
+                    if (roleModal) {
+                        roleModal.classList.remove("tw-hidden");
+                    }
+                }
+            });
+        </script>
+    @endauth
 </body>
 
 </html>

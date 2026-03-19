@@ -99,6 +99,7 @@ return [
     'account_type_subheading' => 'Chọn loại tài khoản phù hợp để chúng tôi cá nhân hóa trải nghiệm cho bạn.',
     'account_type_hero_title' => 'Tùy chỉnh trải nghiệm',
     'account_type_hero_text' => 'Chúng tôi sẽ cá nhân hóa nội dung và tính năng dựa trên lựa chọn của bạn.',
+    'select_account_type' => 'Chọn loại tài khoản',
     'student' => 'Sinh Viên',
     'student_desc' => 'Dành cho sinh viên, học viên đang tìm hiểu và xây dựng thương hiệu cá nhân.',
     'business' => 'Doanh Nghiệp',

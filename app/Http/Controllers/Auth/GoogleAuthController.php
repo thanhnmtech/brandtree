@@ -60,8 +60,8 @@ class GoogleAuthController extends Controller
             ]);
 
             Auth::login($user);
-            // User mới qua Google → redirect đến trang chọn loại tài khoản
-            return redirect()->route('account-type.select')->with('success', __('messages.google.created_success'));
+            
+            return redirect()->route('dashboard')->with('success', __('messages.google.created_success'));
 
         } catch (\Exception $e) {
             Log::error($e->getMessage());
