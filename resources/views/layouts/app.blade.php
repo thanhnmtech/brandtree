@@ -72,6 +72,9 @@
 
     @stack('scripts')
     @livewireScripts
+    @auth
+        <x-account-type-modal />
+    @endauth
 </body>
 
 </html>

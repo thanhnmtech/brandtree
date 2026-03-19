@@ -93,5 +93,18 @@ return [
     'verify_password_otp_description' => 'Please enter the 6-digit OTP code sent to your email address.',
     'verify_otp_button' => 'Verify OTP',
 
+    // Account Type Selection Page
+    'account_type_title' => 'Select Account Type - AI Brand Tree',
+    'account_type_heading' => 'Who are you?',
+    'account_type_subheading' => 'Choose the account type that fits you so we can personalize your experience.',
+    'account_type_hero_title' => 'Customize your experience',
+    'account_type_hero_text' => 'We will personalize content and features based on your selection.',
+    'select_account_type' => 'Select account type',
+    'student' => 'Student',
+    'student_desc' => 'For students who are exploring and building their personal brand.',
+    'business' => 'Business',
+    'business_desc' => 'For businesses and startups looking to grow and manage their brand professionally.',
+    'continue_button' => 'Continue',
+
 ];
 

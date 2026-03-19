@@ -104,4 +104,27 @@ class ProfileController extends Controller
 
         return Redirect::back()->with('status', 'avatar-deleted');
     }
+
+    /**
+     * Cập nhật loại tài khoản của người dùng.
+     */
+    public function updateAccountType(Request $request)
+    {
+        $request->validate([
+            'account_type' => ['required', 'in:student,business'],
+        ], [
+            'account_type.required' => 'Vui lòng chọn loại tài khoản.',
+            'account_type.in' => 'Loại tài khoản không hợp lệ.',
+        ]);
+
+        $user = $request->user();
+        $user->account_type = $request->account_type;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cập nhật loại tài khoản thành công.',
+            'account_type' => $user->account_type
+        ]);
+    }
 }

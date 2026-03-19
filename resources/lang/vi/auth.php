@@ -93,4 +93,17 @@ return [
     'verify_password_otp_description' => 'Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi đến địa chỉ email của bạn.',
     'verify_otp_button' => 'Xác thực OTP',
 
+    // Trang chọn loại tài khoản
+    'account_type_title' => 'Chọn loại tài khoản - AI Cây Thương Hiệu',
+    'account_type_heading' => 'Bạn là ai?',
+    'account_type_subheading' => 'Chọn loại tài khoản phù hợp để chúng tôi cá nhân hóa trải nghiệm cho bạn.',
+    'account_type_hero_title' => 'Tùy chỉnh trải nghiệm',
+    'account_type_hero_text' => 'Chúng tôi sẽ cá nhân hóa nội dung và tính năng dựa trên lựa chọn của bạn.',
+    'select_account_type' => 'Chọn loại tài khoản',
+    'student' => 'Sinh Viên',
+    'student_desc' => 'Dành cho sinh viên, học viên đang tìm hiểu và xây dựng thương hiệu cá nhân.',
+    'business' => 'Doanh Nghiệp',
+    'business_desc' => 'Dành cho doanh nghiệp, startup muốn phát triển và quản lý thương hiệu chuyên nghiệp.',
+    'continue_button' => 'Tiếp tục',
+
 ];

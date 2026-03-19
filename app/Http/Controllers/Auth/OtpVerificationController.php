@@ -44,6 +44,7 @@ class OtpVerificationController extends Controller
         if ($user->verifyOtp($request->otp)) {
             Auth::login($user);
             session()->forget('otp_email');
+            
             return redirect()->route('dashboard')->with('success', __('messages.otp.verified_success'));
         }
 
