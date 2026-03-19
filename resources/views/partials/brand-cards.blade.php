@@ -3,6 +3,9 @@
     <article
         class="tw-h-full brand-card tw-bg-white tw-rounded-[7px] tw-border-2 tw-border-[#E2EBE7] tw-shadow-[0_4px_4px_rgba(0,0,0,0.05)] tw-p-[20px] tw-flex tw-flex-col tw-relative tw-transition hover:tw-shadow-[0_8px_12px_rgba(0,0,0,0.1)] hover:tw-border-vlbcgreen">
         @php
+            $process_root = $brand->getProcessRoot();
+            $process_trunk = $brand->getProcessTrunk();
+            
             $statusConfig = match($brand->status) {
                 'seedling' => ['label' => __('messages.dashboard.status_seedling'), 'bg' => '#FDEAEA', 'color' => '#DC282E'],
                 'growing' => ['label' => __('messages.dashboard.status_growing'), 'bg' => '#FAF4EB', 'color' => '#F59F0A'],
@@ -36,9 +39,9 @@
                 </div>
                 <div class="tw-flex tw-gap-4 tw-mt-1">
                     <div class="root-text tw-text-[14px] tw-text-[#829B99]">{{ __('messages.dashboard.root') }}
-                        {{ $process_root = $brand->getProcessRoot() }}</div>
+                        {{ $process_root }}</div>
                     <div class="stem-text tw-text-[14px] tw-text-[#829B99]">{{ __('messages.dashboard.trunk') }}
-                        {{ $process_trunk = $brand->getProcessTrunk() }}</div>
+                        {{ $process_trunk }}</div>
                 </div>
             </div>
 

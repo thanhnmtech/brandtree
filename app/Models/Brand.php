@@ -28,6 +28,7 @@ class Brand extends Model
         'root_brief_data',
         'trunk_brief_data',
         'summary_data', // Kết quả tóm tắt tổng hợp (strategic_platform, authentic_foundation, consistent_identity)
+        'status',
     ];
 
     protected $casts = [
@@ -401,6 +402,37 @@ class Brand extends Model
         $completedTrunk = count(array_filter($trunkSteps, fn ($k) => ! empty($trunkData[$k])));
 
         return (int) round(($completedRoot + $completedTrunk) / $totalSteps * 100);
+    }
+
+    /**
+     * Tính status dựa trên tiến độ thực tế của root/trunk
+     * - seedling: root chưa hoàn thành 100%
+     * - growing: root đã 100%, trunk chưa 100%
+     * - completed: cả root và trunk đều 100%
+     */
+    public function getBadgeStatus(): string
+    {
+        $processRoot = $this->getProcessRoot();
+        $processTrunk = $this->getProcessTrunk();
+
+        if ($processRoot >= 100 && $processTrunk >= 100) {
+            return 'completed';
+        } elseif ($processRoot >= 100) {
+            return 'growing';
+        }
+        return 'seedling';
+    }
+
+    /**
+     * Tự động tính lại và lưu status dựa trên dữ liệu root/trunk
+     * - seedling: chưa hoàn thành hết root
+     * - growing: hoàn thành hết root, chưa hoàn thành trunk
+     * - completed: hoàn thành cả root và trunk
+     */
+    public function updateStatusFromData(): void
+    {
+        $this->status = $this->getBadgeStatus();
+        $this->saveQuietly(); // Dùng saveQuietly để tránh trigger event loop
     }
 
     public function getProcessRoot()
