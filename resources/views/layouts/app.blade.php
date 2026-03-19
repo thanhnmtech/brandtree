@@ -1,3 +1,5 @@
+@props(['hideFooter' => false])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -23,7 +25,9 @@
 <body class="tw-font-bevietnam tw-bg-[#FFFFFF] tw-text-[#1a1a1a] tw-min-h-screen tw-overflow-x-hidden">
     @include('layouts.navigation')
     {{ $slot }}
-    @include('layouts.footer')
+    @unless($hideFooter)
+        @include('layouts.footer')
+    @endunless
     <!-- Toastify JS (Local) -->
     <script src="{{ asset('assets/js/toastify.min.js') }}"></script>
     <script>
