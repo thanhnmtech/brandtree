@@ -539,3 +539,4 @@ class ChatStreamController extends Controller
         return "Các thông tin có thể liên quan (từ file đã upload, có thể tham khảo nếu phù hợp với câu hỏi):\n\n" . implode("\n\n", $formattedChunks);
     }
 }
+
