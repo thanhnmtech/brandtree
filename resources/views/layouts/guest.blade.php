@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/ccf8fd54d8a10b4ab49d514622f1efb57099e1a4.svg') }}">
 
         <!-- Toastify CSS (Local) -->
         <link rel="stylesheet" href="{{ asset('assets/css/toastify.min.css') }}">
