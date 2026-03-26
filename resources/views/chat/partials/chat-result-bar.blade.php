@@ -1,3 +1,27 @@
+{{-- CSS cho bullet và thụt dòng từng đầu mục brief --}}
+<style>
+    .brief-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        padding-left: 2px;
+        margin-bottom: 4px;
+        line-height: 1.6;
+    }
+    .brief-item .brief-bullet {
+        /* Bullet tròn nhỏ, màu trùng màu chữ, bôi đen như Google Docs */
+        flex-shrink: 0;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+        margin-top: 7px; /* Căn giữa theo chiều dọc với dòng chữ */
+    }
+    .brief-item .brief-text {
+        flex: 1;
+    }
+</style>
+
 @php
     // Extract agentType from URL: /brands/{slug}/chat/{agentType}/{agentId}/{convId}
     $agentType = request()->segment(4) ?? 'root1';
@@ -207,6 +231,24 @@
                 }
             }
             return false;
+        },
+
+        // Định dạng nội dung brief: mỗi dòng thêm bullet tròn và thụt lề
+        formatBriefContent(text) {
+            if (!text) return '';
+            return text
+                .split('\n')
+                .filter(line => line.trim() !== '') // Bỏ dòng trống
+                .map(line => {
+                    // Escape HTML để tránh XSS, sau đó wrap với bullet
+                    // Dùng string concatenation + single quote để tránh phá vỡ x-data attribute HTML
+                    const escaped = line
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    return '<div class=\'brief-item\'><span class=\'brief-bullet\'></span><span class=\'brief-text\'>' + escaped + '</span></div>';
+                })
+                .join('');
         }
     }">
     <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
@@ -310,7 +352,8 @@
                             <h3 class="tw-font-semibold tw-text-gray-900 tw-mb-2">{{ $agentLabels[$agent] ?? 'Phân tích' }}</h3>
                         </div>
                         <div>
-                            <div class="tw-text-sm tw-text-gray-600 tw-leading-relaxed tw-whitespace-pre-wrap" x-text="{{ $isRootAgent ? "briefData['{$agent}']" : "briefDataTrunk['{$agent}']" }}"></div>
+                            {{-- Dùng x-html để render bullet HTML, formatBriefContent xử lý từng dòng --}}
+                            <div class="tw-text-sm tw-text-gray-600 tw-leading-relaxed" x-html="formatBriefContent({{ $isRootAgent ? "briefData['{$agent}']" : "briefDataTrunk['{$agent}']" }})"></div>
                         </div>
                     </article>
                 </template>
