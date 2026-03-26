@@ -46,16 +46,22 @@
             </div>
 
             <!-- Vertical progress indicators (right) -->
-            <div class="tw-w-[110px] tw-relative tw-flex tw-flex-col tw-items-end tw-gap-3">
+            <div class="tw-w-[50px] tw-relative tw-flex tw-flex-col tw-items-center tw-gap-3">
+                <div class="tw-w-full tw-flex tw-flex-col tw-items-center tw-gap-1">
+                <img src="{{ asset('assets/img/icon-goc-green.svg') }}" class="tw-w-[11px] tw-h-[12px]" />
                 <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
                     {{-- Thanh tiến độ gốc: bo tròn 2 đầu khi đạt 100% --}}
                     <div class="progress-root tw-h-full tw-bg-[#269063] {{ $process_root === '100%' ? 'tw-rounded-full' : 'tw-rounded-l-full' }}"
                         style="width: {{ $process_root }};"></div>
                 </div>
+                </div>
+                <div class="tw-w-full tw-flex tw-flex-col tw-items-center tw-gap-1">
+                <img src="{{ asset('assets/img/icon-than-green.svg') }}" class="tw-w-[10px] tw-h-[12px] tw-items-center" />
                 <div class="tw-w-full tw-h-[6px] tw-bg-[#e8eeeb] tw-rounded-full">
                     {{-- Thanh tiến độ thân: bo tròn 2 đầu khi đạt 100% --}}
                     <div class="progress-stem tw-h-full tw-bg-[#269063] {{ $process_trunk === '100%' ? 'tw-rounded-full' : 'tw-rounded-l-full' }}"
                         style="width: {{ $process_trunk }};"></div>
+                </div>
                 </div>
             </div>
         </div>

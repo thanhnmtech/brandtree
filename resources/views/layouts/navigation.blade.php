@@ -46,13 +46,13 @@
             <div class="tw-hidden lg:tw-flex tw-flex-1 tw-justify-center tw-items-center tw-gap-[20px] lg:tw-gap-[40px]">
                 <a href="{{ route('brands.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.show') ? 'tw-bg-vlbcgreen tw-text-white' : 'tw-bg-transparent tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-px-4 tw-py-1 tw-rounded-full tw-transition-colors tw-duration-200">
-                    <i class="ri-home-line tw-transition"></i> Trang chủ
+                    Trang chủ
                 </a>
                 {{-- Gốc cây với dropdown --}}
                 <div class="tw-relative tw-group">
                     <a href="{{ route('brands.root.show', $currentBrand) }}"
                         class="{{ request()->routeIs('brands.root.show') || request()->is('*/chat/root*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
-                        <i class="ri-plant-line tw-transition"></i> Gốc cây
+                        Gốc cây
                     </a>
                     {{-- Dropdown menu --}}
                     <div class="tw-absolute tw-hidden group-hover:tw-block tw-w-[246px] tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-pt-2 tw-z-50">
@@ -98,7 +98,7 @@
                 <div class="tw-relative tw-group">
                     <a href="{{ route('brands.trunk.show', $currentBrand) }}"
                         class="{{ request()->routeIs('brands.trunk.show') || request()->is('*/chat/trunk*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
-                        <i class="ri-tree-line tw-transition"></i> Thân cây
+                        Thân cây
                     </a>
                     {{-- Dropdown menu --}}
                     <div class="tw-absolute tw-hidden group-hover:tw-block tw-w-[246px] tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-pt-2 tw-z-50">
@@ -142,7 +142,7 @@
                 </div>
                 <a href="{{ route('brands.canopy.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.canopy.show') || request()->is('*/chat/canopy*') ? 'tw-bg-vlbcgreen tw-text-white tw-px-4 tw-py-1 tw-rounded-full' : 'tw-text-black hover:tw-text-vlbcgreen' }} tw-text-[14px] tw-font-semibold tw-cursor-pointer tw-transition-colors tw-duration-200">
-                    <i class="ri-leaf-line tw-transition"></i> Tán cây
+                    Tán cây
                 </a>
             </div>
         @endif
@@ -154,19 +154,19 @@
                 <!-- GỐC CÂY -->
                 <a href="{{ route('brands.root.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.root.show') || request()->is('*/chat/root*') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
-                    <i class="ri-plant-line"></i>
+                    <img src="{{ asset('assets/img/icon-goc-black.svg') }}" class="tw-w-[15px] tw-h-[16px]" />
                 </a>
 
                 <!-- THÂN CÂY -->
                 <a href="{{ route('brands.trunk.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.trunk.show') || request()->is('*/chat/trunk*') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
-                    <i class="ri-tree-line"></i>
+                    <img src="{{ asset('assets/img/icon-than-black.svg') }}" class="tw-w-[14px] tw-h-[16px]" />
                 </a>
 
                 <!-- TÁN CÂY -->
                 <a href="{{ route('brands.canopy.show', $currentBrand) }}"
                     class="{{ request()->routeIs('brands.canopy.show') || request()->is('*/chat/canopy*') ? 'tw-text-vlbcgreen' : 'tw-text-gray-800 hover:tw-text-green-600' }} tw-transition">
-                    <i class="ri-leaf-line"></i>
+                    <img src="{{ asset('assets/img/icon-tan-black.svg') }}" class="tw-w-[16px] tw-h-[16px]" />
                 </a>
             </div>
         @endif
