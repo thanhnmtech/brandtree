@@ -8,12 +8,16 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
     // Khai báo các phần tử DOM cần thao tác
     static targets = [
-        "modal", // Container modal
-        "title", // Tiêu đề modal
-        "content", // Textarea nội dung
-        "status", // Thông báo trạng thái (success/error)
-        "saveBtn", // Nút lưu
-        "chatLink", // Link chat với AI
+        "modal",            // Container modal
+        "title",            // Tiêu đề modal
+        "content",          // Textarea nội dung (chế độ Sửa)
+        "preview",          // Container chế độ Xem
+        "previewContent",   // Div chứa HTML markdown đã render
+        "viewTab",          // Tab "Xem"
+        "editTab",          // Tab "Sửa"
+        "status",           // Thông báo trạng thái (success/error)
+        "saveBtn",          // Nút lưu
+        "chatLink",         // Link chat với AI
         "stepsContainer",
         "progressContainer",
         "nextStepContainer",
@@ -29,6 +33,7 @@ export default class extends Controller {
     // State nội bộ
     currentKey = "";
     currentTitle = "";
+    isViewMode = true; // Mặc định mở ở chế độ Xem
     isSaving = false;
 
     connect() {
@@ -65,15 +70,16 @@ export default class extends Controller {
         this.chatLinkTarget.href = this.getChatUrl();
         this.clearStatus();
 
+        // Render markdown và mặc định mở chế độ Xem
+        this.renderMarkdown();
+        this.switchToView();
+
         // Hiển thị modal
         this.modalTarget.classList.remove("tw-hidden");
         this.modalTarget.style.display = "";
 
         // Chặn scroll body
         document.body.style.overflow = "hidden";
-
-        // Focus vào textarea
-        setTimeout(() => this.contentTarget.focus(), 100);
     }
 
     /**
@@ -108,6 +114,84 @@ export default class extends Controller {
      */
     getChatUrl() {
         return `/brands/${this.brandSlugValue}/chat/${this.currentKey}/1/new`;
+    }
+
+    /**
+     * Chuyển sang chế độ Xem (Preview markdown)
+     * Re-render markdown từ nội dung textarea hiện tại
+     */
+    switchToView() {
+        this.isViewMode = true;
+
+        // Re-render markdown từ textarea (có thể đã được sửa)
+        this.renderMarkdown();
+
+        // Hiện preview, ẩn textarea
+        this.previewTarget.classList.remove("tw-hidden");
+        this.contentTarget.classList.add("tw-hidden");
+
+        // Cập nhật style tabs
+        this.viewTabTarget.classList.add("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
+        this.viewTabTarget.classList.remove("tw-border-transparent", "tw-text-gray-500");
+        this.editTabTarget.classList.add("tw-border-transparent", "tw-text-gray-500");
+        this.editTabTarget.classList.remove("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
+    }
+
+    /**
+     * Chuyển sang chế độ Sửa (Textarea raw text)
+     */
+    switchToEdit() {
+        this.isViewMode = false;
+
+        // Ẩn preview, hiện textarea
+        this.previewTarget.classList.add("tw-hidden");
+        this.contentTarget.classList.remove("tw-hidden");
+
+        // Cập nhật style tabs
+        this.editTabTarget.classList.add("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
+        this.editTabTarget.classList.remove("tw-border-transparent", "tw-text-gray-500");
+        this.viewTabTarget.classList.add("tw-border-transparent", "tw-text-gray-500");
+        this.viewTabTarget.classList.remove("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
+
+        // Focus vào textarea
+        setTimeout(() => this.contentTarget.focus(), 100);
+    }
+
+    /**
+     * Parse markdown content bằng marked.js và render vào preview
+     * Bọc <table> trong div.table-wrapper để hỗ trợ cuộn ngang
+     */
+    renderMarkdown() {
+        const rawContent = this.contentTarget.value || "";
+
+        if (!rawContent.trim()) {
+            this.previewContentTarget.innerHTML =
+                '<p class="tw-text-gray-400 tw-italic">Chưa có kết quả phân tích...</p>';
+            return;
+        }
+
+        try {
+            // Parse markdown bằng marked.js (GFM: table, strikethrough, task list...)
+            let html = marked.marked(rawContent, {
+                breaks: true, // Xuống dòng = <br>
+                gfm: true, // GitHub Flavored Markdown
+            });
+
+            // Bọc <table> trong div.table-wrapper để cuộn ngang khi bảng quá rộng
+            html = html
+                .replace(/<table>/g, '<div class="table-wrapper"><table>')
+                .replace(/<\/table>/g, "</table></div>");
+
+            this.previewContentTarget.innerHTML = html;
+        } catch (e) {
+            console.warn("Marked parse error, fallback to plain text:", e);
+            // Fallback: escape HTML và thay \n bằng <br>
+            this.previewContentTarget.innerHTML = rawContent
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\n/g, "<br>");
+        }
     }
 
     /**
@@ -356,4 +440,6 @@ export default class extends Controller {
         this.statusTarget.textContent = "";
         this.statusTarget.classList.add("tw-hidden");
     }
+
+    
 }

@@ -1,0 +1,194 @@
+/* ============================================
+   MARKDOWN CONTENT STYLING
+   Dùng chung cho chat messages và result modal.
+   Được parse từ marked.js (GFM - GitHub Flavored Markdown)
+   ============================================ */
+
+.chat-markdown-content {
+    line-height: 1.7;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* === Heading === */
+.chat-markdown-content h1,
+.chat-markdown-content h2,
+.chat-markdown-content h3,
+.chat-markdown-content h4 {
+    font-weight: 700;
+    margin-top: 0.8em;
+    margin-bottom: 0.4em;
+    line-height: 1.3;
+}
+.chat-markdown-content h1 { font-size: 1.4em; }
+.chat-markdown-content h2 { font-size: 1.25em; }
+.chat-markdown-content h3 { font-size: 1.1em; }
+.chat-markdown-content h4 { font-size: 1em; }
+
+/* === Paragraph === */
+.chat-markdown-content p {
+    margin: 0.5em 0;
+}
+.chat-markdown-content p:first-child {
+    margin-top: 0;
+}
+.chat-markdown-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* === List === */
+.chat-markdown-content ul,
+.chat-markdown-content ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+}
+.chat-markdown-content li {
+    margin-bottom: 0.25em;
+}
+.chat-markdown-content li > ul,
+.chat-markdown-content li > ol {
+    margin-top: 0.25em;
+    margin-bottom: 0;
+}
+
+/* === Bold, Italic === */
+.chat-markdown-content strong { font-weight: 700; }
+.chat-markdown-content em { font-style: italic; }
+
+/* === Inline code === */
+.chat-markdown-content code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* === Code block === */
+.chat-markdown-content pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 0.8em 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.6em 0;
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+.chat-markdown-content pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+/* === TABLE === */
+.chat-markdown-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0.8em 0;
+    font-size: 0.9em;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+.chat-markdown-content thead {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+.chat-markdown-content thead th {
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid #15803d;
+}
+.chat-markdown-content tbody tr {
+    transition: background-color 0.15s ease;
+}
+.chat-markdown-content tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+.chat-markdown-content tbody tr:hover {
+    background-color: #ecfdf5;
+}
+.chat-markdown-content tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+.chat-markdown-content tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* === Blockquote === */
+.chat-markdown-content blockquote {
+    border-left: 3px solid #16a34a;
+    margin: 0.6em 0;
+    padding: 0.4em 0.8em;
+    background: #f0fdf4;
+    color: #374151;
+    border-radius: 0 6px 6px 0;
+}
+.chat-markdown-content blockquote p {
+    margin: 0.2em 0;
+}
+
+/* === Horizontal rule === */
+.chat-markdown-content hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 1em 0;
+}
+
+/* === Link === */
+.chat-markdown-content a {
+    color: #16a34a;
+    text-decoration: underline;
+}
+
+/* === User message: override table/code cho tin nhắn user (nền xanh #45C974) === */
+.tw-bg-\[\#45C974\] .chat-markdown-content thead {
+    background: rgba(255,255,255,0.2);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content thead th {
+    color: #fff;
+    border-bottom-color: rgba(255,255,255,0.3);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content tbody tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.08);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content tbody tr:hover {
+    background-color: rgba(255,255,255,0.15);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content tbody td {
+    border-bottom-color: rgba(255,255,255,0.15);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content table {
+    border-color: rgba(255,255,255,0.2);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content code {
+    background: rgba(255,255,255,0.15);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content pre {
+    background: rgba(0,0,0,0.2);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content blockquote {
+    border-left-color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.1);
+}
+.tw-bg-\[\#45C974\] .chat-markdown-content a {
+    color: #fff;
+}
+
+/* === Table responsive wrapper === */
+.chat-markdown-content .table-wrapper {
+    overflow-x: auto;
+    margin: 0.8em 0;
+    border-radius: 8px;
+}
+.chat-markdown-content .table-wrapper table {
+    margin: 0;
+}

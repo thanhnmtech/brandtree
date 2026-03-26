@@ -20,6 +20,8 @@
     @vite(['resources/js/app.js'])
 
     <link rel="stylesheet" href="{{ asset('assets/css/toastify.min.css') }}">
+    {{-- CSS styling cho nội dung markdown (dùng chung cho chat + result modal) --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/markdown-content.css') }}">
     @livewireStyles
 </head>
 
@@ -71,6 +73,8 @@
         }
     </script>
 
+    {{-- Thư viện marked.js để parse markdown (dùng chung cho chat + result modal) --}}
+    <script src="{{ asset('assets/js/marked.min.js') }}"></script>
     @stack('scripts')
     @livewireScripts
     @auth
