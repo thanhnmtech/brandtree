@@ -10,11 +10,9 @@ export default class extends Controller {
     static targets = [
         "modal",            // Container modal
         "title",            // Tiêu đề modal
-        "content",          // Textarea nội dung (chế độ Sửa)
-        "preview",          // Container chế độ Xem
-        "previewContent",   // Div chứa HTML markdown đã render
-        "viewTab",          // Tab "Xem"
-        "editTab",          // Tab "Sửa"
+        "content",          // Textarea ẩn lưu raw markdown
+        "preview",          // Container hiển thị markdown đã render
+        "previewContent",   // Div chứa HTML markdown + editable tables
         "status",           // Thông báo trạng thái (success/error)
         "saveBtn",          // Nút lưu
         "chatLink",         // Link chat với AI
@@ -33,7 +31,6 @@ export default class extends Controller {
     // State nội bộ
     currentKey = "";
     currentTitle = "";
-    isViewMode = true; // Mặc định mở ở chế độ Xem
     isSaving = false;
 
     connect() {
@@ -70,9 +67,8 @@ export default class extends Controller {
         this.chatLinkTarget.href = this.getChatUrl();
         this.clearStatus();
 
-        // Render markdown và mặc định mở chế độ Xem
+        // Render markdown vào preview (bảng sẽ tự động editable)
         this.renderMarkdown();
-        this.switchToView();
 
         // Hiển thị modal
         this.modalTarget.classList.remove("tw-hidden");
@@ -117,49 +113,8 @@ export default class extends Controller {
     }
 
     /**
-     * Chuyển sang chế độ Xem (Preview markdown)
-     * Re-render markdown từ nội dung textarea hiện tại
-     */
-    switchToView() {
-        this.isViewMode = true;
-
-        // Re-render markdown từ textarea (có thể đã được sửa)
-        this.renderMarkdown();
-
-        // Hiện preview, ẩn textarea
-        this.previewTarget.classList.remove("tw-hidden");
-        this.contentTarget.classList.add("tw-hidden");
-
-        // Cập nhật style tabs
-        this.viewTabTarget.classList.add("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
-        this.viewTabTarget.classList.remove("tw-border-transparent", "tw-text-gray-500");
-        this.editTabTarget.classList.add("tw-border-transparent", "tw-text-gray-500");
-        this.editTabTarget.classList.remove("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
-    }
-
-    /**
-     * Chuyển sang chế độ Sửa (Textarea raw text)
-     */
-    switchToEdit() {
-        this.isViewMode = false;
-
-        // Ẩn preview, hiện textarea
-        this.previewTarget.classList.add("tw-hidden");
-        this.contentTarget.classList.remove("tw-hidden");
-
-        // Cập nhật style tabs
-        this.editTabTarget.classList.add("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
-        this.editTabTarget.classList.remove("tw-border-transparent", "tw-text-gray-500");
-        this.viewTabTarget.classList.add("tw-border-transparent", "tw-text-gray-500");
-        this.viewTabTarget.classList.remove("tw-border-[#1AA24C]", "tw-text-[#1AA24C]");
-
-        // Focus vào textarea
-        setTimeout(() => this.contentTarget.focus(), 100);
-    }
-
-    /**
      * Parse markdown content bằng marked.js và render vào preview
-     * Bọc <table> trong div.table-wrapper để hỗ trợ cuộn ngang
+     * Toàn bộ preview có contenteditable để user sửa trực tiếp
      */
     renderMarkdown() {
         const rawContent = this.contentTarget.value || "";
@@ -167,8 +122,22 @@ export default class extends Controller {
         if (!rawContent.trim()) {
             this.previewContentTarget.innerHTML =
                 '<p class="tw-text-gray-400 tw-italic">Chưa có kết quả phân tích...</p>';
+            
+            // Xám nút lưu và không cho click
+            this.saveBtnTarget.disabled = true;
+            this.saveBtnTarget.classList.remove("tw-bg-[#1AA24C]", "hover:tw-bg-[#15803d]", "tw-text-white", "disabled:tw-opacity-50");
+            this.saveBtnTarget.classList.add("tw-bg-gray-200", "tw-text-gray-400");
+
+            // Tắt contenteditable cho toàn bộ preview — user sửa trực tiếp heading, text, bảng...
+            this.previewContentTarget.setAttribute("contenteditable", "false");
+            
             return;
         }
+
+        // Bật lại nút lưu khi có kết quả
+        this.saveBtnTarget.disabled = false;
+        this.saveBtnTarget.classList.remove("tw-bg-gray-200", "tw-text-gray-400");
+        this.saveBtnTarget.classList.add("tw-bg-[#1AA24C]", "hover:tw-bg-[#15803d]", "tw-text-white", "disabled:tw-opacity-50");
 
         try {
             // Parse markdown bằng marked.js (GFM: table, strikethrough, task list...)
@@ -183,14 +152,64 @@ export default class extends Controller {
                 .replace(/<\/table>/g, "</table></div>");
 
             this.previewContentTarget.innerHTML = html;
+
+            // Bật contenteditable cho toàn bộ preview — user sửa trực tiếp heading, text, bảng...
+            this.previewContentTarget.setAttribute("contenteditable", "true");
         } catch (e) {
             console.warn("Marked parse error, fallback to plain text:", e);
-            // Fallback: escape HTML và thay \n bằng <br>
             this.previewContentTarget.innerHTML = rawContent
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/\n/g, "<br>");
+            this.previewContentTarget.setAttribute("contenteditable", "true");
+        }
+    }
+
+    /**
+     * Chuyển đổi HTML đã chỉnh sửa trong preview về markdown
+     * Sử dụng turndown.js + plugin GFM (hỗ trợ table, strikethrough, task list)
+     * Ghi kết quả vào textarea ẩn
+     */
+    syncHtmlToMarkdown() {
+        try {
+            // Khởi tạo TurndownService với cấu hình phù hợp
+            const turndownService = new TurndownService({
+                headingStyle: "atx",        // # Heading (không phải underline)
+                bulletListMarker: "-",      // Dùng - cho unordered list
+                codeBlockStyle: "fenced",   // ``` code block ```
+                emDelimiter: "*",           // *italic*
+                strongDelimiter: "**",      // **bold**
+            });
+
+            // Thêm plugin GFM để hỗ trợ table, strikethrough, task list
+            if (typeof turndownPluginGfm !== "undefined") {
+                turndownService.use(turndownPluginGfm.gfm);
+            }
+
+            // Bỏ qua div.table-wrapper khi convert (chỉ lấy table bên trong)
+            turndownService.addRule("tableWrapper", {
+                filter: function (node) {
+                    return (
+                        node.nodeName === "DIV" &&
+                        node.classList.contains("table-wrapper")
+                    );
+                },
+                replacement: function (content) {
+                    return content;
+                },
+            });
+
+            // Lấy HTML từ preview và chuyển sang markdown
+            const html = this.previewContentTarget.innerHTML;
+            const markdown = turndownService.turndown(html);
+
+            // Ghi vào textarea ẩn
+            this.contentTarget.value = markdown;
+        } catch (e) {
+            console.warn("Turndown convert error:", e);
+            // Fallback: lấy text thuần từ preview
+            this.contentTarget.value = this.previewContentTarget.innerText;
         }
     }
 
@@ -199,6 +218,9 @@ export default class extends Controller {
      */
     async save() {
         if (this.isSaving) return;
+
+        // Chuyển HTML đã sửa về markdown trước khi lưu
+        this.syncHtmlToMarkdown();
 
         this.isSaving = true;
         this.updateSaveButtonState(true);

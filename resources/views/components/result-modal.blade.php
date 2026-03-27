@@ -37,42 +37,23 @@
         {{-- Modal Body --}}
         <div class="tw-p-6 tw-flex tw-flex-col tw-flex-1 tw-overflow-hidden">
 
-            {{-- Toggle tabs: Xem / Sửa --}}
-            <div class="tw-flex tw-items-center tw-gap-1 tw-mb-3 tw-border-b tw-border-gray-200">
-                {{-- Tab Xem (mặc định active) --}}
-                <button
-                    data-result-modal-target="viewTab"
-                    data-action="result-modal#switchToView"
-                    class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-border-b-2 tw-border-[#1AA24C] tw-text-[#1AA24C] tw-transition-colors">
-                    <i class="ri-eye-line tw-mr-1"></i>Xem
-                </button>
-                {{-- Tab Sửa --}}
-                <button
-                    data-result-modal-target="editTab"
-                    data-action="result-modal#switchToEdit"
-                    class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-border-b-2 tw-border-transparent tw-text-gray-500 hover:tw-text-gray-700 tw-transition-colors">
-                    <i class="ri-edit-line tw-mr-1"></i>Sửa
-                </button>
-            </div>
-
-            {{-- Chế độ Xem: hiển thị markdown đã render --}}
+            {{-- Hiển thị markdown đã render (bảng editable trực tiếp) --}}
             <div data-result-modal-target="preview"
                 class="tw-flex-1 tw-w-full tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 tw-overflow-y-auto">
-                <div class="chat-markdown-content" data-result-modal-target="previewContent">
-                    {{-- Nội dung markdown được render bởi JS --}}
+                <div class="result-markdown-content" data-result-modal-target="previewContent">
+                    {{-- Nội dung markdown được render + editable bởi JS --}}
                 </div>
             </div>
 
-            {{-- Chế độ Sửa: textarea raw text (ẩn mặc định) --}}
+            {{-- Textarea ẩn: chỉ dùng để lưu trữ raw markdown, không hiển thị --}}
             <textarea
                 data-result-modal-target="content"
-                class="tw-hidden tw-flex-1 tw-w-full tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none"
-                spellcheck="false"
-                placeholder="Chưa có kết quả phân tích..."></textarea>
+                class="tw-hidden"
+                spellcheck="false"></textarea>
 
             {{-- Footer Actions --}}
             <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">
-                <button
+                <button 
                     data-result-modal-target="saveBtn"
                     data-action="result-modal#save"
                     data-result-modal-type-value="data" {{-- hardcode với type = data để lưu vào cột root/trunk_data  --}}
@@ -81,7 +62,7 @@
                 </button>
 
                 {{-- Status Message --}}
-                <span
+                <span 
                     data-result-modal-target="status"
                     class="tw-hidden tw-text-sm tw-font-medium">
                 </span>
