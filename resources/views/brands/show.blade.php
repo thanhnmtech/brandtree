@@ -443,7 +443,7 @@
                     if (pendingSummaries.length === 0) return;
 
                     let pollCount = 0;
-                    const maxPollCount = 30; // Tối đa 30 lần (5 phút)
+                    const maxPollCount = 20; // Tối đa 30 lần (5 phút)
                     const pollInterval = 3000; // 3 giây mỗi lần
 
                     const pollTimer = setInterval(async () => {

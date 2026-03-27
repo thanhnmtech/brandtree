@@ -21,6 +21,8 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/toastify.min.css') }}">
     @livewireStyles
+    {{-- CSS styling cho nội dung markdown (dùng chung cho chat + result modal) --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/markdown-content.css') }}">
 </head>
 
 <body class="tw-font-bevietnam tw-bg-[#FFFFFF] tw-text-[#1a1a1a] tw-min-h-screen tw-overflow-x-hidden">
@@ -71,6 +73,11 @@
         }
     </script>
 
+    {{-- Thư viện marked.js để parse markdown (dùng chung cho chat + result modal) --}}
+    <script src="{{ asset('assets/js/marked.min.js') }}"></script>
+    {{-- Thư viện turndown.js để chuyển HTML → markdown (dùng cho result modal editable) --}}
+    <script src="{{ asset('assets/js/turndown.js') }}"></script>
+    <script src="{{ asset('assets/js/turndown-plugin-gfm.js') }}"></script>
     @stack('scripts')
     @livewireScripts
     @auth

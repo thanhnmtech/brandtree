@@ -36,11 +36,20 @@
 
         {{-- Modal Body --}}
         <div class="tw-p-6 tw-flex tw-flex-col tw-flex-1 tw-overflow-hidden">
+
+            {{-- Hiển thị markdown đã render (bảng editable trực tiếp) --}}
+            <div data-result-modal-target="preview"
+                class="tw-flex-1 tw-w-full tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 tw-overflow-y-auto">
+                <div class="result-markdown-content" data-result-modal-target="previewContent">
+                    {{-- Nội dung markdown được render + editable bởi JS --}}
+                </div>
+            </div>
+
+            {{-- Textarea ẩn: chỉ dùng để lưu trữ raw markdown, không hiển thị --}}
             <textarea
                 data-result-modal-target="content"
-                class="tw-flex-1 tw-w-full tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#1AA24C] tw-resize-none"
-                spellcheck="false" 
-                placeholder="Chưa có kết quả phân tích..."></textarea>
+                class="tw-hidden"
+                spellcheck="false"></textarea>
 
             {{-- Footer Actions --}}
             <div class="tw-mt-4 tw-flex tw-items-center tw-gap-3">

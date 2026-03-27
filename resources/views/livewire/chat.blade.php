@@ -177,7 +177,8 @@
                         Kết quả phân tích sẽ hiển thị ở bên phải
                     </div>
                 </div>
-                <button @click="openSaveModal()" id="btn-confirm-analysis"
+                <!-- Ẩn nút nếu đang ở trang chat canopy (agentType bằng canopy) -->
+                <button x-show="agentType !== 'canopy'" @click="openSaveModal()" id="btn-confirm-analysis"
                     class="tw-px-4 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-all tw-duration-200"
                     :class="isConfirmationActive ? 'tw-bg-[#16a34a] tw-text-white tw-cursor-pointer' : 'tw-bg-gray-200 tw-text-gray-400 tw-cursor-not-allowed'"
                     :disabled="!isConfirmationActive">
@@ -273,11 +274,7 @@
 
 </div>
 
-{{-- Nhúng thư viện marked.js (local) để parse markdown --}}
-@push('scripts')
-<script src="{{ asset('assets/js/marked.min.js') }}"></script>
-@endpush
-
+{{-- CSS markdown-content.css và marked.js đã được load toàn cục từ layout app.blade.php --}}
 {{-- CSS styling cho nội dung markdown trong chat --}}
 @push('styles')
 <style>

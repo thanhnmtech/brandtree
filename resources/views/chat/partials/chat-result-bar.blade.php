@@ -138,7 +138,8 @@
                             this.briefDataTrunk[agentType] = result.content;
                         }
 
-                        // Dừng polling
+                        // Dừng polling - phải clearInterval trước khi xóa reference
+                        clearInterval(this.pollingTimers[agentType]);
                         delete this.pollingTimers[agentType];
                         this.loadingAgents[agentType] = false;
                         
