@@ -34,6 +34,9 @@ class FileExtractionService
             str_starts_with($mimeType, 'image/') => $this->describeImage($filePath, $mimeType),
             default => throw new \Exception("Loại file không được hỗ trợ: {$mimeType}")
         };
+        // Fix lỗi json_encode error: Malformed UTF-8 characters
+        $content = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
+
         Log::channel('rag')->info("Extracted content type: $mimeType");
         return $content;
     }
