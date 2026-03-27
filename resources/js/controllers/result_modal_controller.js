@@ -200,6 +200,19 @@ export default class extends Controller {
                 },
             });
 
+            // Xử lý <br> trong ô bảng (td/th) — chuyển thành text <br> để giữ xuống dòng
+            turndownService.addRule("brInTableCell", {
+                filter: function (node) {
+                    // Chỉ xử lý thẻ BR nằm bên trong td hoặc th
+                    if (node.nodeName !== "BR") return false;
+                    const parent = node.closest("td, th");
+                    return parent !== null;
+                },
+                replacement: function () {
+                    return "<br>";
+                },
+            });
+
             // Lấy HTML từ preview và chuyển sang markdown
             const html = this.previewContentTarget.innerHTML;
             const markdown = turndownService.turndown(html);

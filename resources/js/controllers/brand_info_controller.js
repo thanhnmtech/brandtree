@@ -123,14 +123,30 @@ export default class extends Controller {
      */
     setContent(target, content) {
         if (content && content.trim() !== "") {
-            target.innerHTML = this.escapeHtml(content);
+            // Render markdown bằng marked.js (GFM: table, strikethrough, task list...)
+            try {
+                let html = marked.marked(content, {
+                    breaks: true, // Xuống dòng = <br>
+                    gfm: true,    // GitHub Flavored Markdown
+                });
+
+                // Bọc <table> trong div.table-wrapper để cuộn ngang khi bảng quá rộng
+                html = html
+                    .replace(/<table>/g, '<div class="table-wrapper"><table>')
+                    .replace(/<\/table>/g, '</table></div>');
+
+                target.innerHTML = html;
+            } catch (e) {
+                console.warn("Marked parse error, fallback to plain text:", e);
+                target.innerHTML = this.escapeHtml(content);
+            }
         } else {
             target.innerHTML = '<span class="tw-text-gray-400 tw-italic">Chưa có dữ liệu</span>';
         }
     }
 
     /**
-     * Escape HTML để tránh XSS
+     * Escape HTML để tránh XSS (dùng làm fallback khi marked.js lỗi)
      */
     escapeHtml(text) {
         const div = document.createElement('div');
@@ -148,19 +164,13 @@ export default class extends Controller {
         console.log("BrandInfo: Toggle edit for field:", field);
         
         const contentTarget = this[`${field}ContentTarget`];
-        const editBtn = this[`${field}EditBtnTarget`];
-        const saveBtn = this[`${field}SaveBtnTarget`];
-        const cancelBtn = this[`${field}CancelBtnTarget`];
         
-        // Lưu nội dung gốc (text thuần) để có thể hủy
+        // Lưu nội dung gốc (raw markdown) để có thể hủy
         const currentData = this.dataValue || {};
         this.originalContent[field] = currentData[field] || '';
         this.currentEditingField = field;
         
-        // Điền nội dung text thuần vào div (không có HTML escape)
-        contentTarget.innerText = this.originalContent[field];
-        
-        // Bật chế độ edit
+        // Bật contenteditable trên HTML rendered — user edit trực tiếp trên nội dung đẹp
         contentTarget.setAttribute('contenteditable', 'true');
         contentTarget.focus();
         
@@ -248,6 +258,63 @@ export default class extends Controller {
     // ==================== SAVE FUNCTIONALITY ====================
 
     /**
+     * Chuyển đổi HTML đã chỉnh sửa trong contenteditable về markdown
+     * Sử dụng turndown.js + plugin GFM (hỗ trợ table, strikethrough, task list)
+     */
+    getMarkdownFromHtml(target) {
+        try {
+            // Khởi tạo TurndownService với cấu hình phù hợp
+            const turndownService = new TurndownService({
+                headingStyle: "atx",        // # Heading (không phải underline)
+                bulletListMarker: "-",      // Dùng - cho unordered list
+                codeBlockStyle: "fenced",   // ``` code block ```
+                emDelimiter: "*",           // *italic*
+                strongDelimiter: "**",      // **bold**
+            });
+
+            // Thêm plugin GFM để hỗ trợ table, strikethrough, task list
+            if (typeof turndownPluginGfm !== "undefined") {
+                turndownService.use(turndownPluginGfm.gfm);
+            }
+
+            // Bỏ qua div.table-wrapper khi convert (chỉ lấy table bên trong)
+            turndownService.addRule("tableWrapper", {
+                filter: function (node) {
+                    return (
+                        node.nodeName === "DIV" &&
+                        node.classList.contains("table-wrapper")
+                    );
+                },
+                replacement: function (content) {
+                    return content;
+                },
+            });
+
+            // Xử lý <br> trong ô bảng (td/th) — chuyển thành text <br> để giữ xuống dòng
+            turndownService.addRule("brInTableCell", {
+                filter: function (node) {
+                    // Chỉ xử lý thẻ BR nằm bên trong td hoặc th
+                    if (node.nodeName !== "BR") return false;
+                    const parent = node.closest("td, th");
+                    return parent !== null;
+                },
+                replacement: function () {
+                    return "<br>";
+                },
+            });
+
+            // Lấy HTML từ target và chuyển sang markdown
+            const html = target.innerHTML;
+            const markdown = turndownService.turndown(html);
+            return markdown;
+        } catch (e) {
+            console.warn("Turndown convert error:", e);
+            // Fallback: lấy text thuần
+            return target.innerText;
+        }
+    }
+
+    /**
      * Lưu nội dung đã chỉnh sửa
      */
     async saveEdit(event) {
@@ -257,8 +324,8 @@ export default class extends Controller {
         const field = button.dataset.field;
         const contentTarget = this[`${field}ContentTarget`];
         
-        // Lấy nội dung text thuần từ contenteditable
-        const newContent = contentTarget.innerText.trim();
+        // Chuyển HTML đã sửa về markdown bằng turndown.js
+        const newContent = this.getMarkdownFromHtml(contentTarget);
         
         console.log("BrandInfo: Saving field:", field, "content length:", newContent.length);
         

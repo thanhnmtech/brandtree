@@ -74,7 +74,7 @@
                     {{-- Nội dung - có thể chỉnh sửa trực tiếp --}}
                     <div data-brand-info-target="root1Content" 
                          data-field="root1"
-                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                         class="result-markdown-content tw-text-sm tw-text-gray-600 tw-min-h-[60px] tw-outline-none">
                         <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                     </div>
                     <div data-brand-info-target="root2Content" 
                          data-field="root2"
-                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                         class="result-markdown-content tw-text-sm tw-text-gray-600 tw-min-h-[60px] tw-outline-none">
                         <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
                     </div>
                 </div>
@@ -154,7 +154,7 @@
                     </div>
                     <div data-brand-info-target="root3Content" 
                          data-field="root3"
-                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                         class="result-markdown-content tw-text-sm tw-text-gray-600 tw-min-h-[60px] tw-outline-none">
                         <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
                     </div>
                 </div>
@@ -194,7 +194,7 @@
                     </div>
                     <div data-brand-info-target="trunk1Content" 
                          data-field="trunk1"
-                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                         class="result-markdown-content tw-text-sm tw-text-gray-600 tw-min-h-[60px] tw-outline-none">
                         <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
                     </div>
                 </div>
@@ -234,7 +234,7 @@
                     </div>
                     <div data-brand-info-target="trunk2Content" 
                          data-field="trunk2"
-                         class="tw-text-sm tw-text-gray-600 tw-whitespace-pre-wrap tw-min-h-[60px] tw-outline-none">
+                         class="result-markdown-content tw-text-sm tw-text-gray-600 tw-min-h-[60px] tw-outline-none">
                         <span class="tw-text-gray-400 tw-italic">{{ __('messages.brand_show.no_data') }}</span>
                     </div>
                 </div>
