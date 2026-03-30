@@ -83,7 +83,7 @@
       </div>
 
       <!-- RIGHT COLUMN -->
-      <aside class="tw-w-[350px] tw-flex tw-flex-col tw-gap-6">
+      <aside class="tw-w-[350px] tw-hidden md:tw-flex tw-flex-col tw-gap-6">
         <!-- PROGRESS BLOCK -->
         <div data-result-modal-target="progressContainer">
             @include('brands.trees.partials.progress_card', [
