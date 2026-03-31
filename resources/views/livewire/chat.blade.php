@@ -10,19 +10,93 @@
         isModelLocked: {{ $isModelLocked ? 'true' : 'false' }}
     })">
 
-    <!-- Header info passed from props/mount -->
-    <div class="tw-hidden md:tw-flex tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-items-center tw-gap-3">
-        <div id="logo-chat">
-            <img src="{{ asset('assets/img/logo-nenTangDuLieu.svg') }}"
-                class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
-        </div>
-        <div class="tw-flex-1 tw-min-w-0">
-            <div class="tw-font-semibold tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-                {{ $title }}
+    <!-- Header Dropdown Menu (Replaced from static header) -->
+    <div class="tw-relative tw-w-full tw-flex tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-bg-white tw-z-40" x-data="{ openHeaderMenu: false }" @click.away="openHeaderMenu = false">
+        <button @click="openHeaderMenu = !openHeaderMenu"
+            class="tw-w-full tw-px-3 tw-py-2 tw-bg-[linear-gradient(90deg,#0E642D_0%,#16A048_100%)] tw-rounded-md tw-flex tw-items-center tw-gap-3 tw-text-left">
+            <div>
+                <img src="{{ asset('assets/img/logo-nenTangDuLieu.svg') }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain" />
             </div>
-            <div class="tw-text-sm tw-text-gray-500 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
-                {{ $description }}
+
+            <div class="tw-flex-1 tw-min-w-0">
+                <div class="tw-font-semibold tw-text-white tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+                    Nền Tảng Dữ Liệu
+                </div>
+                <!-- Title hiện tại đang chat -->
+                <div class="tw-text-sm tw-text-white/80 tw-truncate tw-overflow-hidden tw-whitespace-nowrap">
+                    {{ $title }}
+                </div>
             </div>
+
+            <div class="tw-flex tw-items-center">
+                <!-- Rotate icon khi mở -->
+                <img src="{{ asset('assets/img/dropdown-button-white.svg') }}"
+                    class="tw-object-contain tw-transition-transform tw-duration-300"
+                    :class="openHeaderMenu ? 'tw-rotate-0' : 'tw-rotate-[-90deg]'" />
+            </div>
+        </button>
+
+        <!-- Dropdown Menu List -->
+        <div x-show="openHeaderMenu" 
+             style="display: none;"
+             x-transition:enter="tw-transition tw-duration-200 tw-ease-out"
+             x-transition:enter-start="tw-opacity-0 tw-transform tw--translate-y-2"
+             x-transition:enter-end="tw-opacity-100 tw-transform tw-translate-y-0"
+             x-transition:leave="tw-transition tw-duration-150 tw-ease-in"
+             x-transition:leave-start="tw-opacity-100 tw-transform tw-translate-y-0"
+             x-transition:leave-end="tw-opacity-0 tw-transform tw--translate-y-2"
+             class="tw-absolute tw-left-3 tw-right-3 tw-top-full tw-mt-1 tw-bg-white tw-rounded-md tw-shadow-lg tw-border tw-border-gray-100 tw-py-3 tw-flex tw-flex-col tw-gap-2 tw-overflow-y-auto tw-max-h-[50vh] tw-z-50">
+             
+            <ul class="tw-w-full tw-space-y-2 tw-px-3 tw-text-sm">
+                @php 
+                    $localePrefix = LaravelLocalization::setLocale() ? '/' . LaravelLocalization::setLocale() : '';
+                    $mapAgentId = ['root1'=>1, 'root2'=>2, 'root3'=>3, 'trunk1'=>4, 'trunk2'=>5];
+                    
+                    // Khởi tạo $brandSlug để dùng làm link chuyển trang
+                    $routeBrand = request()->route('brand');
+                    if (is_object($routeBrand)) {
+                        $brandSlug = $routeBrand->slug;
+                    } elseif (is_string($routeBrand)) {
+                        $brandSlug = $routeBrand;
+                    } else {
+                        $brandSlug = in_array(request()->segment(1), ['vi', 'en']) ? request()->segment(4) : request()->segment(3);
+                    }
+                @endphp
+                {{-- Các step Root --}}
+                @foreach(config('timeline_steps.root') ?? [] as $key => $step)
+                    @php 
+                        $hasData = !empty($brandData[$key]); 
+                        $isActive = ($agentType === $key);
+                        $stepAgentId = $mapAgentId[$key] ?? 1;
+                        // Build link tới màn hình chat của step tương ứng
+                        $stepUrl = "{$localePrefix}/brands/{$brandSlug}/chat/{$key}/{$stepAgentId}/new";
+                    @endphp
+                    <li class="tw-px-3 tw-py-2 tw-rounded-md {{ $isActive ? 'tw-bg-[#16A048] tw-text-white' : ($hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60') }} tw-flex tw-items-center tw-gap-2">
+                        <a href="{{ $stepUrl }}" class="tw-w-full tw-text-left tw-flex-1">
+                            <span class="tw-font-semibold {{ $isActive ? 'tw-text-white' : ($hasData ? 'tw-text-gray-800' : 'tw-text-gray-400') }}">
+                                {{ $step['label'] ?? $key }}
+                            </span>
+                        </a>
+                    </li>
+                @endforeach
+
+                {{-- Các step Trunk --}}
+                @foreach(config('timeline_steps.trunk') ?? [] as $key => $step)
+                    @php 
+                        $hasData = !empty($brandData[$key]); 
+                        $isActive = ($agentType === $key);
+                        $stepAgentId = $mapAgentId[$key] ?? 1;
+                        $stepUrl = "{$localePrefix}/brands/{$brandSlug}/chat/{$key}/{$stepAgentId}/new";
+                    @endphp
+                    <li class="tw-px-3 tw-py-2 tw-rounded-md {{ $isActive ? 'tw-bg-[#16A048] tw-text-white' : ($hasData ? 'tw-bg-[#D9F2E2]' : 'tw-bg-gray-100 tw-opacity-60') }} tw-flex tw-items-center tw-gap-2">
+                        <a href="{{ $stepUrl }}" class="tw-w-full tw-text-left tw-flex-1">
+                            <span class="tw-font-semibold {{ $isActive ? 'tw-text-white' : ($hasData ? 'tw-text-gray-800' : 'tw-text-gray-400') }}">
+                                {{ $step['label'] ?? $key }}
+                            </span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
     </div>
 

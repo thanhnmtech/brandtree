@@ -1,8 +1,11 @@
 <!-- Mobile Sidebar -->
 <div
   id="mobileSidebar"
-  class="tw-fixed tw-inset-0 tw-bg-black/30 tw-backdrop-blur-sm tw-z-50 tw-hidden"
+  class="tw-fixed tw-inset-0 tw-bg-black/30 tw-backdrop-blur-sm tw-z-[60] tw-hidden"
   onclick="toggleSidebarMobile()"
+  data-controller="result-modal"
+  data-result-modal-brand-slug-value="{{ $brand->slug }}"
+  data-result-modal-data-value='@json(array_merge($brand->root_data ?? [], $brand->trunk_data ?? []))'
 >
   <!-- Drawer Panel -->
   <div
@@ -63,11 +66,41 @@
           id="dataPlatformMenu-mobile"
           class="tw-pl-10 tw-mt-3 tw-space-y-3 tw-text-gray-600 tw-text-[14px] tw-hidden"
         >
-          <div class="tw-cursor-pointer">Phân tích thổ nhưỡng</div>
-          <div class="tw-cursor-pointer">Định vị Giá trị Giải pháp</div>
-          <div class="tw-cursor-pointer">Thiết kế Văn hóa Dịch vụ</div>
-          <div class="tw-cursor-pointer">Định vị thương hiệu</div>
-          <div class="tw-cursor-pointer">Nhận diện ngôn ngữ</div>
+          @php $rootData = $brand->root_data ?? []; $trunkData = $brand->trunk_data ?? []; @endphp
+          
+          @foreach(config('timeline_steps.root') ?? [] as $key => $step)
+            @php $hasData = !empty($rootData[$key]); @endphp
+            <div class="{{ $hasData ? 'tw-cursor-pointer tw-text-gray-800' : 'tw-cursor-not-allowed tw-text-gray-400' }}">
+              @if($hasData)
+                <button type="button"
+                  data-action="result-modal#open"
+                  data-result-modal-title-param="{{ $step['label'] }}"
+                  data-result-modal-key-param="{{ $key }}"
+                  class="tw-w-full tw-text-left tw-bg-transparent tw-border-none tw-p-0 tw-text-[14px] hover:tw-text-[#16A048]">
+                  <span>{{ $step['label'] }}</span>
+                </button>
+              @else
+                <span>{{ $step['label'] }}</span>
+              @endif
+            </div>
+          @endforeach
+
+          @foreach(config('timeline_steps.trunk') ?? [] as $key => $step)
+            @php $hasData = !empty($trunkData[$key]); @endphp
+            <div class="{{ $hasData ? 'tw-cursor-pointer tw-text-gray-800' : 'tw-cursor-not-allowed tw-text-gray-400' }}">
+              @if($hasData)
+                <button type="button"
+                  data-action="result-modal#open"
+                  data-result-modal-title-param="{{ $step['label'] }}"
+                  data-result-modal-key-param="{{ $key }}"
+                  class="tw-w-full tw-text-left tw-bg-transparent tw-border-none tw-p-0 tw-text-[14px] hover:tw-text-[#16A048]">
+                  <span>{{ $step['label'] }}</span>
+                </button>
+              @else
+                <span>{{ $step['label'] }}</span>
+              @endif
+            </div>
+          @endforeach
         </div>
       </div>
 
@@ -125,5 +158,9 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div onclick="event.stopPropagation()">
+    <x-result-modal :brand="$brand" />
   </div>
 </div>
