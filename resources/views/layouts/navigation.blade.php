@@ -177,18 +177,18 @@
             <!-- Avatar (ONLY ONE) — CLICK TO OPEN POPUP -->
             <button onclick="toggleAccountPopup()">
                 @if(auth()->user()->avatar)
-                    <img id="accountBtn" src="{{ Storage::url(auth()->user()->avatar) }}"
+                    <img src="{{ Storage::url(auth()->user()->avatar) }}"
                         class="tw-w-[36px] tw-h-[36px] tw-rounded-full tw-object-cover tw-cursor-pointer tw-border tw-border-gray-300"
                         alt="avatar" />
                 @else
-                    <img id="accountBtn" src="{{ asset('assets/img/default-avatar.svg') }}"
+                    <img src="{{ asset('assets/img/default-avatar.svg') }}"
                         class="tw-w-[36px] tw-h-[36px] tw-rounded-full tw-object-cover tw-cursor-pointer tw-border tw-border-gray-300"
                         alt="avatar" />
                 @endif
             </button>
         </div>
 
-        <div id="accountBtn"
+        <div id="accountBtnMobile"
             class="tw-flex md:tw-flex-1 md:tw-hidden tw-p-4 tw-items-center tw-gap-5 tw-text-gray-800 tw-text-xl">
             <!-- USER -->
             <button onclick="toggleAccountPopup()">
@@ -250,20 +250,29 @@
     <x-avatar-upload-popup />
 
     <script>
-        const popup = document.getElementById('accountPopup');
-        const toggleBtn = document.getElementById('accountBtn');
+        // Hàm toggle popup tài khoản — dùng chung cho cả desktop và mobile
+        function toggleAccountPopup() {
+            const popup = document.getElementById('accountPopup');
+            if (popup) {
+                popup.classList.toggle('tw-hidden');
+            }
+        }
 
-        toggleBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            popup.classList.toggle('tw-hidden');
-        });
+        // Đóng popup khi click bên ngoài
         document.addEventListener('click', (e) => {
-            if (!popup.contains(e.target) && !popup.classList.contains('tw-hidden')) {
+            const popup = document.getElementById('accountPopup');
+            const mobileBtn = document.getElementById('accountBtnMobile');
+            if (!popup || popup.classList.contains('tw-hidden')) return;
+
+            // Nếu click nằm trong popup hoặc trong nút mobile → bỏ qua
+            const isInsidePopup = popup.contains(e.target);
+            const isInsideMobileBtn = mobileBtn && mobileBtn.contains(e.target);
+            // Kiểm tra nút desktop (onclick đã gọi toggleAccountPopup)
+            const isToggleBtn = e.target.closest('button[onclick="toggleAccountPopup()"]');
+
+            if (!isInsidePopup && !isInsideMobileBtn && !isToggleBtn) {
                 popup.classList.add('tw-hidden');
             }
-        });
-        popup.addEventListener('click', (e) => {
-            e.stopPropagation();
         });
     </script>
 </header>
