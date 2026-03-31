@@ -35,11 +35,20 @@
                     <template x-if="msg.role === 'user'">
                         <div class="tw-flex tw-justify-end tw-gap-3">
                             <div class="tw-flex tw-flex-col tw-items-end tw-gap-1 tw-max-w-[80%]">
-                                <div class="tw-text-xs tw-text-gray-500">User</div> <!-- Or name if avail -->
+                                <div class="tw-text-xs tw-text-gray-500">User</div>
                                 <div
                                     class="tw-bg-[#45C974] tw-text-white tw-px-4 tw-py-3 tw-rounded-2xl tw-rounded-tr-none">
                                     <div class="chat-markdown-content" x-html="formatMessage(msg.content)"></div>
                                 </div>
+                                <!-- Nút copy tin nhắn user -->
+                                <button @click="copyMessage(msg.content, $event)" title="Copy nội dung"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-[11px] tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-mt-0.5">
+                                    <svg class="tw-w-3.5 tw-h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="copy-label">Copy</span>
+                                </button>
                             </div>
                         </div>
                     </template>
@@ -55,10 +64,17 @@
                                 <div class="tw-text-xs tw-text-gray-500">Brand AI</div>
                                 <div
                                     class="tw-bg-white tw-text-gray-800 tw-border tw-border-gray-200 tw-px-4 tw-py-3 tw-rounded-2xl tw-rounded-tl-none">
-                                    <!-- Use html for markdown support later, but text for now -->
-                                    <!-- Use html for markdown support later, but text for now -->
                                     <div class="chat-markdown-content" x-html="formatMessage(msg.content)"></div>
                                 </div>
+                                <!-- Nút copy tin nhắn assistant -->
+                                <button @click="copyMessage(msg.content, $event)" title="Copy nội dung"
+                                    class="tw-flex tw-items-center tw-gap-1 tw-text-[11px] tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-mt-0.5">
+                                    <svg class="tw-w-3.5 tw-h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="copy-label">Copy</span>
+                                </button>
                             </div>
                         </div>
                     </template>
@@ -114,8 +130,10 @@
                 <!-- Input Textarea bound to x-model userInput -->
                 <!-- Shift+Enter: xuống dòng, Enter: gửi tin nhắn -->
                 <textarea x-ref="userInput" x-model="userInput"
-                    @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage() }"
+                    @keydown.enter="if(!$event.shiftKey && window.innerWidth >= 768) { $event.preventDefault(); sendMessage() }"
+                    @input="$el.style.height = 'auto'; $el.style.height = Math.min($el.scrollHeight, 120) + 'px'"
                     @paste="handlePaste($event)" rows="1"
+                    style="max-height: 120px;"
                     class="tw-flex-1 tw-min-h-12 tw-resize-none tw-overflow-y-auto tw-border tw-border-gray-200 tw-rounded-md tw-px-3 tw-py-2 tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#16a34a]/40"
                     placeholder="Ask anything..." :disabled="isStreaming || isUploading"></textarea>
 
@@ -524,6 +542,45 @@
                 if (container) container.scrollTop = container.scrollHeight;
             },
 
+            // Copy nội dung tin nhắn vào clipboard (hỗ trợ desktop + mobile)
+            async copyMessage(content, event) {
+                if (!content) return;
+
+                // Lấy span hiển thị label để đổi text feedback
+                const btn = event.currentTarget;
+                const label = btn.querySelector('.copy-label');
+
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        // Clipboard API (cần HTTPS hoặc localhost)
+                        await navigator.clipboard.writeText(content);
+                    } else {
+                        // Fallback cho mobile / trình duyệt cũ
+                        const textarea = document.createElement('textarea');
+                        textarea.value = content;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.focus();
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                    }
+
+                    // Feedback "Đã copy ✓"
+                    if (label) {
+                        label.textContent = 'Đã copy ✓';
+                        setTimeout(() => { label.textContent = 'Copy'; }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    if (label) {
+                        label.textContent = 'Lỗi!';
+                        setTimeout(() => { label.textContent = 'Copy'; }, 2000);
+                    }
+                }
+            },
+
             formatMessage(content) {
                 if (!content) return '';
 
@@ -675,7 +732,11 @@
                 if (!this.userInput.trim() || this.isStreaming) return;
 
                 const messageContent = this.userInput;
-                this.userInput = ''; // Clear input
+                this.userInput = ''; // Xóa nội dung input
+                // Reset chiều cao textarea về mặc định sau khi gửi
+                if (this.$refs.userInput) {
+                    this.$refs.userInput.style.height = 'auto';
+                }
                 this.isStreaming = true;
                 this.isConfirmationActive = false; // Reset on new message
                 this.editingContent = ''; // Reset editing content on new turn
