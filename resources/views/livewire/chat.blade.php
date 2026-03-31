@@ -630,12 +630,9 @@
             },
 
             navigateToNextStep() {
+                console.log('agentType:', this.agentType)
+                console.log('brandData:', this.brandData)
                 // Check if current agent type has data before navigating
-                if (!this.agentType || !this.brandData[this.agentType]) {
-                    alert('❌ Vui lòng hoàn thành bước hiện tại trước khi qua bước tiếp theo!');
-                    console.log('Navigation blocked - current step', this.agentType, 'has no data');
-                    return;
-                }
 
                 const brandSlug = this.brandSlug;
                 const localePrefix = window.location.pathname.startsWith('/vi') ? '/vi' : (window.location.pathname.startsWith('/en') ? '/en' : '');
@@ -645,16 +642,16 @@
                 // Request: root1 -> root2/2, root2 -> root3/3, root3 -> trunk1/4, trunk1 -> trunk2/5, trunk2 -> canopy
                 switch (this.agentType) {
                     case 'root1':
-                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/root2/2/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/root2`;
                         break;
                     case 'root2':
-                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/root3/3/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/root3`;
                         break;
                     case 'root3':
-                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/trunk1/4/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/trunk1`;
                         break;
                     case 'trunk1':
-                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/trunk2/5/new`;
+                        nextUrl = `${localePrefix}/brands/${brandSlug}/chat/trunk2`;
                         break;
                     case 'trunk2':
                         nextUrl = `${localePrefix}/brands/${brandSlug}/canopy`;

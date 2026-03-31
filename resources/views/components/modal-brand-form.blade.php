@@ -15,7 +15,7 @@
     class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-backdrop-blur-sm tw-z-[9999]"
     style="display: none;"
     data-action="click->brand-form#closeOnBackdrop">
-    <div class="tw-bg-white tw-rounded-2xl tw-w-[800px] tw-max-w-[100%] tw-h-[675px] tw-overflow-y-hidden tw-p-6 tw-relative tw-border tw-border-gray-300"
+    <div class="tw-bg-white tw-rounded-2xl tw-w-[800px] tw-max-w-[90%] tw-h-[675px] tw-overflow-y-auto md:tw-overflow-y-hidden tw-p-6 tw-relative tw-border tw-border-gray-300"
         data-action="click->brand-form#stopPropagation">
         <!-- Close Button -->
         <button type="button" data-action="click->brand-form#close{{ $isEdit ? 'Edit' : 'Add' }}"
