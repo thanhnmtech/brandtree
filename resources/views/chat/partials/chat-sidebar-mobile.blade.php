@@ -113,7 +113,12 @@
       </div>
 
       <!-- Lịch sử Chat -->
-      <div>
+      <div x-data="chatHistorySidebar({
+         brandId: '{{ $brand->id }}',
+         brandSlug: '{{ $brand->slug }}',
+         agentId: '{{ $agentId }}',
+         agentType: '{{ $agentType }}'
+       })">
         <button
           onclick="toggleMenu('chatHistoryMenu-mobile', 'chatArrow-mobile')"
           class="tw-flex tw-items-center tw-justify-between tw-w-full tw-cursor-pointer tw-font-medium"
@@ -130,32 +135,59 @@
         </button>
 
         <!-- Submenu Lịch sử chat -->
-        <div
+        <ul
           id="chatHistoryMenu-mobile"
-          class="tw-pl-10 tw-mt-3 tw-space-y-4 tw-text-gray-700 tw-text-[14px] tw-hidden"
+          class="tw-pl-10 tw-mt-3 tw-space-y-4 tw-text-gray-700 tw-text-[14px] tw-hidden tw-max-h-[30vh] tw-overflow-y-auto"
+          @scroll="handleScroll"
         >
-          <!-- Mình tự thiết kế bạn yêu cầu -->
-          <div class="tw-cursor-pointer tw-flex tw-flex-col tw-gap-1">
-            <div class="tw-font-medium">Chat #1</div>
-            <div class="tw-text-gray-500 tw-text-xs line-clamp-1">
-              Bạn đã nói: “Phân tích cảm xúc khách hàng…”
-            </div>
-          </div>
+          <template x-for="chat in chats" :key="chat.id">
+            <li
+              class="tw-group tw-cursor-pointer tw-flex tw-items-center tw-gap-2 hover:tw-text-[#16A048] tw-transition-colors"
+              @mouseenter="hoveredChatId = chat.id" @mouseleave="hoveredChatId = null">
 
-          <div class="tw-cursor-pointer tw-flex tw-flex-col tw-gap-1">
-            <div class="tw-font-medium">Chat #2</div>
-            <div class="tw-text-gray-500 tw-text-xs line-clamp-1">
-              Bạn đã nói: “Hãy giúp tôi định vị thương hiệu…”
-            </div>
-          </div>
+              <!-- Chế độ xem bình thường -->
+              <template x-if="editingChatId !== chat.id">
+                <div class="tw-flex tw-items-center tw-gap-2 tw-w-full">
+                  <a :href="getChatLink(chat)" class="tw-block tw-flex-1 tw-min-w-0">
+                    <div class="tw-font-medium tw-truncate" x-text="chat.title"></div>
+                    <div class="tw-text-gray-500 tw-text-xs" x-text="formatDate(chat.created_at)"></div>
+                  </a>
 
-          <div class="tw-cursor-pointer tw-flex tw-flex-col tw-gap-1">
-            <div class="tw-font-medium">Chat #3</div>
-            <div class="tw-text-gray-500 tw-text-xs line-clamp-1">
-              Bạn đã nói: “Tạo nội dung truyền thông…”
-            </div>
-          </div>
-        </div>
+                  <!-- Nút chỉnh sửa - hiện khi hover -->
+                  <button x-show="hoveredChatId === chat.id"
+                    x-transition:enter="tw-transition tw-ease-out tw-duration-150" x-transition:enter-start="tw-opacity-0"
+                    x-transition:enter-end="tw-opacity-100" @click.prevent="startEdit(chat)"
+                    class="tw-p-1 tw-rounded hover:tw-bg-gray-200 tw-transition-colors tw-flex-shrink-0" title="Đổi tên">
+                    <svg class="tw-w-4 tw-h-4 tw-text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                      </path>
+                    </svg>
+                  </button>
+                </div>
+              </template>
+
+              <!-- Chế độ chỉnh sửa -->
+              <template x-if="editingChatId === chat.id">
+                <div class="tw-w-full tw-pr-2">
+                  <input type="text" x-model="editingTitle" x-ref="editInput" @keydown.enter.prevent="saveEdit(chat)"
+                    @keydown.escape.prevent="cancelEdit()" @blur="saveEdit(chat)"
+                    class="tw-w-full tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-green-500 tw-rounded tw-outline-none tw-ring-2 tw-ring-green-200"
+                    placeholder="Nhập tên mới..." />
+                  <div class="tw-text-xs tw-text-gray-400 tw-mt-1">Nhấn Enter để lưu, Esc để hủy</div>
+                </div>
+              </template>
+            </li>
+          </template>
+
+          <li x-show="loading" class="tw-py-2 tw-text-center tw-text-gray-400 tw-text-xs">
+            <span class="tw-animate-pulse">Đang tải...</span>
+          </li>
+
+          <li x-show="!loading && chats.length === 0" class="tw-py-2 tw-text-left tw-text-gray-400 tw-text-xs">
+            Chưa có đoạn chat nào
+          </li>
+        </ul>
       </div>
     </div>
   </div>
