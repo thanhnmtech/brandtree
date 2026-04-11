@@ -18,7 +18,14 @@
         'trunk2' => $trunkData['trunk2'] ?? '',
     ];
 
-
+    // Lấy config tên gọi các bước
+    $agentLabels = [];
+    foreach (['root', 'trunk'] as $stage) {
+        $steps = config("timeline_steps.{$stage}", []);
+        foreach ($steps as $key => $stepData) {
+            $agentLabels[$key] = $stepData['label'] ?? '';
+        }
+    }
 @endphp
 
 @php
@@ -120,7 +127,7 @@
                         this.loadingAgents[agentType] = false;
                         
                         // Show toast notification
-                        this.showToastNotification(`✓ Đã hoàn tất tóm tắt ${this.getLevelLabel(agentType)}`);
+                        this.showToastNotification(`✓ Đã hoàn tất ${this.getLevelLabel(agentType)}`);
                     }
                 } catch (e) {
                     console.warn('Polling brief status error:', e);
@@ -184,13 +191,7 @@
         },
 
         getLevelLabel(agentType) {
-            const labels = {
-                'root1': 'AI Thiết kế Văn Hóa Dịch Vụ',
-                'root2': 'AI Phân tích Thổ Nhưỡng',
-                'root3': 'AI Định vị Giá Trị Giải Pháp',
-                'trunk1': 'AI Định vị Thương Hiệu',
-                'trunk2': 'AI Nhận diện Ngôn ngữ'
-            };
+            const labels = @js($agentLabels);
             return labels[agentType] || 'Không xác định';
         },
 
@@ -254,14 +255,6 @@
         <div id=" result-panel" class="tw-flex tw-flex-col tw-gap-3">
 
         @php
-            $agentLabels = [
-                'root1' => 'Thiết kế Văn Hóa Dịch Vụ',
-                'root2' => 'Phân tích Thổ Nhưỡng',
-                'root3' => 'Định vị Giá Trị Giải Pháp',
-                'trunk1' => 'Định vị Thương Hiệu',
-                'trunk2' => 'Nhận diện Ngôn ngữ',
-            ];
-            
             // Xây dựng mảng thứ tự các agent: Đưa agent hiện tại lên đầu tiên (nếu hợp lệ).
             // Sau đó lần lượt in các agent còn lại theo thứ tự: root1 -> root2 -> root3 -> trunk1 -> trunk2
             $defaultOrder = ['root1', 'root2', 'root3', 'trunk1', 'trunk2'];
