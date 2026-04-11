@@ -164,11 +164,11 @@ return [
         'unlock_later' => 'Mở khóa sau',
         'close' => 'Đóng',
         'no_data' => 'Chưa có dữ liệu',
-        'culture_design_canvas' => 'Văn hoá Dịch vụ',
-        'market_opportunity_analysis' => 'Thổ nhưỡng',
-        'value_proposition_canvas' => 'Giá trị Giải pháp',
-        'brand_components_canvas' => 'Định vị Thương hiệu',
-        'brand_verbal_identity' => 'Nhận diện Ngôn ngữ',
+        'culture_design_canvas' => 'Thiết Kế Văn Hóa',
+        'market_opportunity_analysis' => 'Phân Tích Thị Trường',
+        'value_proposition_canvas' => 'Xác Định Giá Trị',
+        'brand_components_canvas' => 'Định Vị Thương Hiệu',
+        'brand_verbal_identity' => 'Xác Định Ngôn Ngữ',
     ],
 
     // Member Management Messages
