@@ -19,7 +19,7 @@
 
         <!-- Header: avatar + title -->
         <div class="tw-flex tw-items-center tw-gap-[12px]">
-             <img src="{{ Storage::url($brand->logo_path) }}" alt="{{ $brand->name }}" class="tw-h-20 tw-w-20 tw-object-contain tw-rounded-full tw-bg-white tw-p-2">
+             <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}" class="tw-h-20 tw-w-20 tw-object-contain tw-rounded-full tw-bg-white tw-p-2">
             <div class="tw-flex tw-flex-col">
                 <div class="title tw-text-[20px] tw-font-semibold tw-text-black">
                     <a href="{{ route('brands.show', $brand) }}" class="hover:tw-text-vlbcgreen tw-transition-colors">

@@ -49,6 +49,8 @@ class BrandController extends Controller
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $data['logo_path'] = $request->file('logo')->store('brands/logos', 'public');
+        } else {
+            $data['logo_path'] = null;
         }
 
         $data['created_by'] = auth()->id();

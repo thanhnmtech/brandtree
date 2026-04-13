@@ -6,7 +6,7 @@ $agentKeywords = \App\Services\BrandContentParser::$AGENT_KEYWORDS;
   <div class="tw-px-3 tw-py-3 tw-border-b tw-border-gray-100 tw-flex tw-items-center tw-gap-3">
     <a href="{{ route('brands.show', $brand) }}" id="logo-sidebar">
       <img
-        src="{{ !empty($brand->logo_path) ? Storage::url($brand->logo_path) : asset('assets/img/logo-sidebar.svg') }}"
+        src="{{ $brand->logo_url }}"
         alt="{{ $brand->name }}" class="tw-w-[38px] tw-h-[38px] tw-object-contain tw-rounded-full tw-bg-white" />
     </a>
     <div id="content-sidebar" class="tw-flex-1 tw-min-w-0">

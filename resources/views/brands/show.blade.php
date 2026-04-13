@@ -41,7 +41,7 @@
     <div data-controller="brand-form result-modal brand-info" 
         data-brand-form-has-errors-value="{{ $errors->any() ? 'true' : 'false' }}"
         data-brand-form-modal-mode-value="{{ old('_brand_modal_mode') }}"
-        data-brand-form-brand-logo-value="{{ $brand->logo_path ? Storage::url($brand->logo_path) : '' }}"
+        data-brand-form-brand-logo-value="{{ $brand->logo_url }}"
         data-brand-form-brand-name-value="{{ $brand->name }}"
         data-brand-form-delete-url-value="{{ route('brands.destroy', $brand) }}"
         data-brand-form-redirect-url-value="{{ route('dashboard') }}"
