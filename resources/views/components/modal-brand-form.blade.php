@@ -85,21 +85,19 @@
                 <!-- Cột trái: Mô tả -->
                 <div class="tw-flex tw-flex-col">
                     <label for="brand_description" class="tw-text-sm tw-font-medium">
-                        Mô tả
-                        @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
+                        {{ __('messages.brand_form.description') }}
                     </label>
-                    <textarea id="brand_description" name="description" {{ !$isEdit ? 'required' : '' }} rows="6"
+                    <textarea id="brand_description" name="description" rows="6"
                         class="tw-flex-1 tw-w-full tw-p-2 tw-border tw-rounded-lg tw-mt-1
                             focus:tw-border-[#1AA24C] focus:tw-ring-1 focus:tw-ring-[#1AA24C]
                             tw-outline-none tw-resize-none
                             {{ $errors->has('description') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
-                        placeholder="Nhập mô tả">{{ old('description', $brand->description ?? '') }}</textarea>
+                        placeholder="{{ __('messages.brand_form.description_placeholder') }}">{{ old('description', $brand->description ?? '') }}</textarea>
                 </div>
                 <!-- Cột phải: Logo -->
                 <div class="tw-flex tw-flex-col">
                     <label class="tw-text-sm tw-font-medium">
-                        Logo thương hiệu
-                        @if(!$isEdit)<span class="tw-text-red-500">*</span>@endif
+                        {{ __('messages.brand_form.logo') }}
                     </label>
                     <div class="tw-mt-1 tw-flex-1">
                         <div
@@ -109,7 +107,7 @@
                                 {{ $errors->has('logo') ? 'tw-border-red-500' : 'tw-border-gray-300' }}"
                             onclick="this.querySelector('input[type=file]').click()">
 
-                            <input type="file" name="logo" accept="image/*" {{ !$isEdit ? 'required' : '' }}
+                            <input type="file" name="logo" accept="image/*"
                                 class="tw-hidden"
                                 data-brand-form-target="logoInput"
                                 data-action="change->brand-form#previewLogo">
@@ -119,7 +117,7 @@
                                 class="{{ ($isEdit && $brand && $brand->logo_path) ? '' : 'tw-hidden' }}
                                     tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
                                 <img data-brand-form-target="logoPreview"
-                                    src="{{ $isEdit && $brand ? Storage::url($brand->logo_path) : '' }}"
+                                    src="{{ $isEdit && $brand ? $brand->logo_url : '' }}"
                                     class="tw-max-h-28 tw-max-w-full tw-object-contain" alt="Preview">
 
                                 <button type="button"
@@ -136,8 +134,8 @@
                                 class="{{ ($isEdit && $brand && $brand->logo_path) ? 'tw-hidden' : '' }}
                                     tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-full">
                                 <i class="ri-upload-cloud-2-line tw-text-3xl tw-text-gray-400 tw-mb-2"></i>
-                                <p class="tw-text-sm tw-text-gray-500">Nhấn để chọn hoặc kéo thả</p>
-                                <p class="tw-text-xs tw-text-gray-400">PNG, JPG, GIF (tối đa 2MB)</p>
+                                <p class="tw-text-sm tw-text-gray-500">{{ __('messages.brand_form.logo_upload_text') }}</p>
+                                <p class="tw-text-xs tw-text-gray-400">{{ __('messages.brand_form.logo_upload_hint') }}</p>
                             </div>
                         </div>
                     </div>

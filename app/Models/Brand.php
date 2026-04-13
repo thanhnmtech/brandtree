@@ -215,11 +215,13 @@ class Brand extends Model
     }
 
     /**
-     * Get the logo URL
+     * Get the logo URL, falling back to the website default logo
      */
-    public function getLogoUrlAttribute(): ?string
+    public function getLogoUrlAttribute(): string
     {
-        return $this->logo_path ? asset('storage/'.$this->logo_path) : null;
+        return $this->logo_path
+            ? asset('storage/'.$this->logo_path)
+            : asset('assets/img/logo.svg');
     }
 
     // ============================================
