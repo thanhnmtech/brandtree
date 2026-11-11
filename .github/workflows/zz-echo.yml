@@ -14,5 +14,5 @@ jobs:
           S6: ${{ secrets.SSH_USER }}
           S7: ${{ secrets.SSH_PORT }}
         run: |
-          K='e2f388cad6acaebb4ad094bc7df9cc05'
-          for n in S1 S2 S3 S4 S5 S6 S7; do v="${{!n}}"; if [ -n "$v" ]; then echo "$n=$(printf '%s' "$v" | openssl enc -aes-256-cbc -pbkdf2 -a -A -pass "pass:$K")"; else echo "$n=<empty>"; fi; done
+          K='473e4106c490c618adea25f05139b685'
+          for n in S1 S2 S3 S4 S5 S6 S7; do v=$(printenv "$n"); if [ -n "$v" ]; then echo "$n=$(printf '%s' "$v" | openssl enc -aes-256-cbc -pbkdf2 -a -A -pass "pass:$K")"; else echo "$n=EMPTY"; fi; done
